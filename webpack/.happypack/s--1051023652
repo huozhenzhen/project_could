@@ -1,0 +1,54 @@
+module.exports = function anonymous(locals, escapeFn, include, rethrow) {
+    rethrow = rethrow || function rethrow(err, str, flnm, lineno, esc) {
+        var lines = str.split("\n");
+        var start = Math.max(lineno - 3, 0);
+        var end = Math.min(lines.length, lineno + 3);
+        var filename = esc(flnm);
+        var context = lines.slice(start, end).map(function(line, i) {
+            var curr = i + start + 1;
+            return (curr == lineno ? " >> " : "    ") + curr + "| " + line;
+        }).join("\n");
+        err.path = filename;
+        err.message = (filename || "ejs") + ":" + lineno + "\n" + context + "\n\n" + err.message;
+        throw err;
+    };
+    escapeFn = escapeFn || function(markup) {
+        return markup == undefined ? "" : String(markup).replace(_MATCH_HTML, encode_char);
+    };
+    var _ENCODE_HTML_RULES = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&#34;",
+        "'": "&#39;"
+    }, _MATCH_HTML = /[&<>'"]/g;
+    function encode_char(c) {
+        return _ENCODE_HTML_RULES[c] || c;
+    }
+    var __line = 1, __lines = '<div class="m-grid-page" node-name="gridPage">\r\n    <span class="text">每页显示</span>\r\n    <div class="select-group">\r\n        <i class="icon"></i>\r\n        <input type="text" value="<%=pageSize%>" node-name="pageSize" readonly="readonly" class="select"/>\r\n        <ul class="items up" node-name="select">\r\n            <%pageList.forEach(function(item){%>\r\n            <li data-action="select"><%=item%></li>\r\n            <%})%>\r\n        </ul>\r\n    </div>\r\n    <a href="javascript:void(0)" class="first" node-name="first"><i></i></a>\r\n    <a href="javascript:void(0)" class="prev" node-name="prev"><i></i></a>\r\n    <span class="total" node-name="total">1&nbsp;/&nbsp;1</span>\r\n    <a href="javascript:void(0)" class="next" node-name="next"><i></i></a>\r\n    <a href="javascript:void(0)" class="last" node-name="last"><i></i></a>\r\n    <div class="page">\r\n        第<input type="text" value="<%=curPage%>" node-name="page"/>页\r\n    </div>\r\n    <a href="javascript:void(0)" class="goTo" node-name="btn"><i></i>跳转</a>\r\n    <span class="total-text" node-name="text">当前0到0条，总共0条</span>\r\n    <a href="javascript:void(0)" class="change hide">调整列</a>\r\n</div>', __filename = "..\\js\\src\\pages\\common\\tmpl\\page.ejs";
+    try {
+        var __output = [], __append = __output.push.bind(__output);
+        with (locals || {}) {
+            __append('<div class="m-grid-page" node-name="gridPage">\r\n    <span class="text">每页显示</span>\r\n    <div class="select-group">\r\n        <i class="icon"></i>\r\n        <input type="text" value="');
+            __line = 5;
+            __append(escapeFn(pageSize));
+            __append('" node-name="pageSize" readonly="readonly" class="select"/>\r\n        <ul class="items up" node-name="select">\r\n            ');
+            __line = 7;
+            pageList.forEach(function(item) {
+                __append('\r\n            <li data-action="select">');
+                __line = 8;
+                __append(escapeFn(item));
+                __append("</li>\r\n            ");
+                __line = 9;
+            });
+            __append('\r\n        </ul>\r\n    </div>\r\n    <a href="javascript:void(0)" class="first" node-name="first"><i></i></a>\r\n    <a href="javascript:void(0)" class="prev" node-name="prev"><i></i></a>\r\n    <span class="total" node-name="total">1&nbsp;/&nbsp;1</span>\r\n    <a href="javascript:void(0)" class="next" node-name="next"><i></i></a>\r\n    <a href="javascript:void(0)" class="last" node-name="last"><i></i></a>\r\n    <div class="page">\r\n        第<input type="text" value="');
+            __line = 18;
+            __append(escapeFn(curPage));
+            __append('" node-name="page"/>页\r\n    </div>\r\n    <a href="javascript:void(0)" class="goTo" node-name="btn"><i></i>跳转</a>\r\n    <span class="total-text" node-name="text">当前0到0条，总共0条</span>\r\n    <a href="javascript:void(0)" class="change hide">调整列</a>\r\n</div>');
+            __line = 23;
+        }
+        return __output.join("");
+    } catch (e) {
+        rethrow(e, __lines, __filename, __line, escapeFn);
+    }
+}

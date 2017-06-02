@@ -1,0 +1,67 @@
+$spriteSrc:'/images/sprite.png?v={{{options.version}}}';
+
+$spriteWidth: {{{spritesheet.width}}}px;
+$spriteHeight: {{{spritesheet.height}}}px;
+{{#items}}
+${{name}}: {{px.offset_x}} {{px.offset_y}} {{px.width}} {{px.height}};
+{{/items}}
+
+@function px2rem ($px) {
+  @if (type-of($px) == "number") {
+    @return $px / 20px * 1rem;
+  }
+  @if (type-of($px) == "list") {
+    @if (nth($px, 1) == 0 and nth($px, 2) != 0) {
+      @return 0 nth($px, 2) / 20px * 1rem;
+    } @else if (nth($px, 1) == 0 and nth($px, 2) == 0)  {
+      @return 0 0;
+    } @else if (nth($px, 1) != 0 and nth($px, 2) == 0) {
+      @return nth($px, 1) / 20px * 1rem 0;
+    } @else {
+      @return nth($px, 1) / 20px *1rem nth($px, 2) / 20px * 1rem;
+    }
+  }
+}
+
+@mixin sprite-width($sprite) {
+	width: px2rem(nth($sprite, 3));
+}
+
+@mixin sprite-height($sprite) {
+	height: px2rem(nth($sprite, 4));
+}
+
+@mixin sprite-position($sprite) {
+	$sprite-offset-x: px2rem(nth($sprite, 1));
+	$sprite-offset-y: px2rem(nth($sprite, 2));
+	background-position: $sprite-offset-x  $sprite-offset-y;
+}
+
+@mixin sprite($sprite) {
+	@include sprite-position($sprite);
+	@include sprite-width($sprite);
+	@include sprite-height($sprite);
+    background-image: url('#{$spriteSrc}');
+	background-repeat: no-repeat;
+	background-size: px2rem(($spriteWidth, $spriteHeight));
+    display: inline-block;
+}
+
+{{#sprite}}
+    {{class}} {
+    background-repeat: no-repeat;
+    overflow: hidden;
+    border: none;
+    background: url('{{{escaped_image}}}?v=#{$version}');
+    @include inline-block();
+    vertical-align: middle;
+    font-style: normal;
+    color:$icon-font-color;
+    }
+{{/sprite}}
+
+{{#items}}
+@mixin mix-{{name}}() {
+    @include sprite(${{name}});
+}
+{{/items}}

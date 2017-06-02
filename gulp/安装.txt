@@ -1,0 +1,10 @@
+1.下载并安装nodejs
+2.执行命令
+npm install -g cnpm --registry=https://registry.npm.taobao.org
+3.gulp全局安装（如已全局安装，此步可忽略）
+cnpm install -g gulp
+4.在项目中安装
+cnpm install gulp gulp-ruby-sass gulp.spritesmith --save-dev
+5.根据各自的项目情况，更改路径
+更改gulpfile.js中的图片路径，更改scss.template.mustache中的雪碧图路径（必须为绝对路径）
+6.gulp运行即可

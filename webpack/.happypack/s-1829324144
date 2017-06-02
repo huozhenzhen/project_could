@@ -1,0 +1,42 @@
+SyntaxError: D:/wwwroot/myTest/js/src/pages/testPage/page/main.js: Unexpected token (26:0)
+
+[0m [90m 24 | [39m
+ [90m 25 | [39m[90m//-------------事件响应声明---------------[39m
+[31m[1m>[22m[39m[90m 26 | [39m[36mvar[39m evtFuncs [33m=[39m {}
+ [90m    | [39m[31m[1m^[22m[39m
+ [90m 27 | [39m
+ [90m 28 | [39m[90m//-------------子模块实例化---------------[39m
+ [90m 29 | [39m[36mvar[39m initMod [33m=[39m [36mfunction[39m() {[0m
+
+BabelLoaderError: SyntaxError: D:/wwwroot/myTest/js/src/pages/testPage/page/main.js: Unexpected token (26:0)
+
+[0m [90m 24 | [39m
+ [90m 25 | [39m[90m//-------------事件响应声明---------------[39m
+[31m[1m>[22m[39m[90m 26 | [39m[36mvar[39m evtFuncs [33m=[39m {}
+ [90m    | [39m[31m[1m^[22m[39m
+ [90m 27 | [39m
+ [90m 28 | [39m[90m//-------------子模块实例化---------------[39m
+ [90m 29 | [39m[36mvar[39m initMod [33m=[39m [36mfunction[39m() {[0m
+
+    at transpile (D:\wwwroot\myTest\webpack\node_modules\.6.4.1@babel-loader\lib\index.js:61:13)
+    at Object.module.exports (D:\wwwroot\myTest\webpack\node_modules\.6.4.1@babel-loader\lib\index.js:163:20)
+    at applySyncOrAsync (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\applyLoaders.js:341:21)
+    at apply (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\applyLoaders.js:268:5)
+    at D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\applyLoaders.js:131:7
+    at applyPitchLoader (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\applyLoaders.js:184:14)
+    at applyPitchLoader (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\applyLoaders.js:192:14)
+    at applyPitchLoaders (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\applyLoaders.js:222:4)
+    at applyLoaders (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\applyLoaders.js:116:3)
+    at HappyWorker.compile (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\HappyWorker.js:32:3)
+    at Object.compile (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\HappyForegroundThreadPool.js:61:14)
+    at HappyPlugin.compileAndUpdateCache (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\HappyPlugin.js:344:14)
+    at HappyPlugin.compileInForeground (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\HappyPlugin.js:321:25)
+    at HappyPlugin.compile (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\HappyPlugin.js:237:32)
+    at Object.HappyLoader (D:\wwwroot\myTest\webpack\node_modules\.3.0.3@happypack\lib\HappyLoader.js:42:15)
+    at LOADER_EXECUTION (D:\wwwroot\myTest\webpack\node_modules\.2.3.0@loader-runner\lib\LoaderRunner.js:119:14)
+    at runSyncOrAsync (D:\wwwroot\myTest\webpack\node_modules\.2.3.0@loader-runner\lib\LoaderRunner.js:120:4)
+    at iterateNormalLoaders (D:\wwwroot\myTest\webpack\node_modules\.2.3.0@loader-runner\lib\LoaderRunner.js:229:2)
+    at D:\wwwroot\myTest\webpack\node_modules\.2.3.0@loader-runner\lib\LoaderRunner.js:202:4
+    at Storage.finished (D:\wwwroot\myTest\webpack\node_modules\.2.3.0@enhanced-resolve\lib\CachedInputFileSystem.js:39:16)
+    at D:\wwwroot\myTest\webpack\node_modules\.4.1.11@graceful-fs\graceful-fs.js:78:16
+    at FSReqWrap.readFileAfterClose [as oncomplete] (fs.js:446:3)
