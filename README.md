@@ -1,6 +1,8 @@
 # project_could
+##项目中用到的构建工具
+###webpack
 "use strict";
-
+```
 var webpack = require("webpack");
 var glob = require("glob");
 var path = require('path');
@@ -82,3 +84,35 @@ module.exports = {
     ]
     // "devtool": "source-map"
 }
+{
+    "version": "1.0.0",
+    "description": "mopon webpack builder",
+    "author": "Benny.zheng",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "build": "webpack --progress --display-modules --colors",
+      "dev":"webpack-dev-server --config webpack.config.js --hot --inline"
+    },
+    "license": "ISC",
+    "devDependencies": {
+        "babel-core": "^6.18.0",
+        "babel-loader": "^6.2.7",
+        "babel-preset-es2015": "^6.18.0",
+        "css-loader": "^0.25.0",
+        "ejs-compiled-loader": "^2.2.0",
+        "glob": "^7.1.1",
+        "happypack": "^3.0.1",
+        "json-loader": "^0.5.4",
+        "node-sass": "^3.10.1",
+        "sass-loader": "^4.0.2",
+        "style-loader": "^0.13.1",
+        "webpack": "2.1.0-beta.25",
+        "webpack-dev-server": "2.1.0-beta.9",
+        "autoprefixer": "^6.7.7",
+        "postcss-loader": "^1.3.3"
+
+    }
+}
+```
+###gulp 见gulp文件夹
+
