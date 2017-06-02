@@ -1,0 +1,16 @@
+@charset "UTF-8";
+@import "../common/scss/mobile";
+
+body {
+    header {
+        height: 80px;
+        border: solid 1px black;
+    }
+}
+
+.m-layer {
+    position: absolute;
+    width: 12rem;
+    height: 12rem;
+    background-color: white;
+}

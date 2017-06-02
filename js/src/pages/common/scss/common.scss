@@ -1,0 +1,32 @@
+@import "./pc";
+@import "./sprites";
+
+.m-grid-page {
+	font-size: $fs10;
+	height:54px;
+	min-width: 950px;
+	span,
+	div,
+	a {
+		float: left;
+		margin:0 4px;
+	}
+	.select-group {
+	}
+	.select {
+		width: 24px;
+		text-align: center;
+	}
+	.prev {
+		.icon{
+			@include mix-prev;
+		}
+
+		&.gray
+	}
+	.prev:hover {
+		.icon{
+			@include mix-prev-hover;
+		}
+	}
+}

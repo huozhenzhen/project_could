@@ -1,0 +1,26 @@
+<div class="m-grid-page" node-name="gridPage">
+    <span class="text">每页显示</span>
+    
+    <div class="select-group" >
+        <input type="text" value="<%=pageSize%>" node-name="pageSize" readonly="readonly" class="select"/>
+        <ul class="hide" node-name="select">
+            <%pageList.forEach(function(item){%>
+            <li data-action="select"><%=item%></li>
+            <%})%>
+        </ul>
+    </div>
+
+
+    <a href="javascript:void(0)" class="first" node-name="first">第一页</a>
+    <a href="javascript:void(0)" class="prev" node-name="prev"><i class="icon"></i></a>
+    <span class="total" node-name="total">1/1</span>
+    <a href="javascript:void(0)" class="next" node-name="next">向后</a>
+    <a href="javascript:void(0)" class="last" node-name="last">最后一页</a>
+
+    <div class="page">
+        第<input class="select" type="text" value="<%=curPage%>" node-name="page"/>页
+    </div>
+    <a href="javascript:void(0)" class="goTo" node-name="btn">跳转</a>
+
+    <span class="total-text" node-name="text">当前0到0条，总共0条</span>
+</div>
