@@ -1,0 +1,6 @@
+//clearfix 
+%clearfix {
+	& {
+		@extend .clearfix;
+	}
+}

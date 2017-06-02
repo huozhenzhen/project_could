@@ -1,9 +1,10 @@
-$spriteSrc:'/images/sprite.png?v=1496312298304';
+$spriteSrc:'/images/sprite.png?v=1496395904200';
 
-$spriteWidth: 18px;
-$spriteHeight: 10px;
-$let-prev-hover: 0px 0px 5px 10px;
-$prev: -13px 0px 5px 10px;
+$spriteWidth: 23px;
+$spriteHeight: 23px;
+$input-xiala: 0px 0px 10px 5px;
+$prev-hover: 0px -13px 5px 10px;
+$prev: -18px 0px 5px 10px;
 
 @function px2rem ($px) {
   @if (type-of($px) == "number") {
@@ -47,8 +48,11 @@ $prev: -13px 0px 5px 10px;
 }
 
 
-@mixin mix-let-prev-hover() {
-    @include sprite($let-prev-hover);
+@mixin mix-input-xiala() {
+    @include sprite($input-xiala);
+}
+@mixin mix-prev-hover() {
+    @include sprite($prev-hover);
 }
 @mixin mix-prev() {
     @include sprite($prev);

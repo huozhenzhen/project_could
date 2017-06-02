@@ -3,7 +3,8 @@
     
     <div class="select-group" >
         <input type="text" value="<%=pageSize%>" node-name="pageSize" readonly="readonly" class="select"/>
-        <ul class="hide" node-name="select">
+        <i class="icon"></i>
+        <ul class="hide items" node-name="select">
             <%pageList.forEach(function(item){%>
             <li data-action="select"><%=item%></li>
             <%})%>

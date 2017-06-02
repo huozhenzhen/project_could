@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "b81e8647c1fb8ed77f2b"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "9c232462d6fddf81c822"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -2334,12 +2334,12 @@ function updateLink(linkElement, obj) {
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(14)();
+exports = module.exports = __webpack_require__(32)();
 // imports
 
 
 // module
-exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*$bg01: #000000;*/\n/* 字体颜色 */\n/* $color00: #000000; */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* $border1: #ffffff; */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none;\n  font-size: 3.125vmin; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*debuggap太小了，所以给弄大点，好点些*/\n#debuggapRoot .dg-out {\n  width: 5rem !important;\n  height: 5rem !important;\n  border-radius: 50% !important; }\n\n#debuggapRoot .dg-inner {\n  width: 4rem !important;\n  height: 4rem !important;\n  border-radius: 50% !important;\n  margin: 0.5rem !important; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 1.2rem;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -webkit-user-select: none;\n  /* background: $bg7; */ }\n  body.not-flex {\n    display: block; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 滚动不顺时用 */\n.scrolling {\n  -webkit-overflow-scrolling: touch; }\n\n/* 布局继承专用 */\n.flex-row, .flex-column, .m-stretch-swiper {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex; }\n\n.flex-column, .m-stretch-swiper {\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column; }\n\n.flex-item, .m-stretch-swiper > .swiper-wrapper {\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n      flex: 1; }\n\n.flex-vertical-middle {\n  /* 09版 */\n  -webkit-box-align: center;\n  /* 12版 */\n  -ms-flex-align: center;\n      align-items: center; }\n\n/* 自动伸展高度的swiper，如果不知道怎么使用，可以参考幸福蓝海buyTicket.html */\n/* 由于使用了父级容器使用了flex:1，swiper无法使用height:100%;来让高度起效，导致高度为0，可以用这个解决 */\n.m-stretch-swiper {\n  /*\n    可能需要在这里写：\n    @extend .flex-item;\n    width: 100%;\n    让宽度变成100%，并且高度撑开\n     */ }\n  .m-stretch-swiper > .swiper-wrapper {\n    -webkit-box-align: stretch;\n    -ms-flex-align: stretch;\n        align-items: stretch; }\n    .m-stretch-swiper > .swiper-wrapper > .swiper-slide {\n      height: auto; }\n\n/* 多行加省略号 */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n/*flex布局下，文字溢出省略*/\n.ellipsis {\n  display: -webkit-box;\n  /*这是一个已经弃用的属性*/\n  -webkit-line-clamp: 1;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n  text-overflow: ellipsis; }\n\n/* 设置盒子模型为IE盒子模型 */\n.border-box {\n  box-sizing: border-box; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
+exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none;\n  font-size: 3.125vmin; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*debuggap太小了，所以给弄大点，好点些*/\n#debuggapRoot .dg-out {\n  width: 5rem !important;\n  height: 5rem !important;\n  border-radius: 50% !important; }\n\n#debuggapRoot .dg-inner {\n  width: 4rem !important;\n  height: 4rem !important;\n  border-radius: 50% !important;\n  margin: 0.5rem !important; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -webkit-user-select: none;\n  /* background: $bg7; */ }\n  body.not-flex {\n    display: block; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 滚动不顺时用 */\n.scrolling {\n  -webkit-overflow-scrolling: touch; }\n\n/* 布局继承专用 */\n.flex-row, .flex-column, .m-stretch-swiper {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex; }\n\n.flex-column, .m-stretch-swiper {\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column; }\n\n.flex-item, .m-stretch-swiper > .swiper-wrapper {\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n      flex: 1; }\n\n.flex-vertical-middle {\n  /* 09版 */\n  -webkit-box-align: center;\n  /* 12版 */\n  -ms-flex-align: center;\n      align-items: center; }\n\n/* 自动伸展高度的swiper，如果不知道怎么使用，可以参考幸福蓝海buyTicket.html */\n/* 由于使用了父级容器使用了flex:1，swiper无法使用height:100%;来让高度起效，导致高度为0，可以用这个解决 */\n.m-stretch-swiper {\n  /*\n    可能需要在这里写：\n    @extend .flex-item;\n    width: 100%;\n    让宽度变成100%，并且高度撑开\n     */ }\n  .m-stretch-swiper > .swiper-wrapper {\n    -webkit-box-align: stretch;\n    -ms-flex-align: stretch;\n        align-items: stretch; }\n    .m-stretch-swiper > .swiper-wrapper > .swiper-slide {\n      height: auto; }\n\n/* 多行加省略号 */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n/*flex布局下，文字溢出省略*/\n.ellipsis {\n  display: -webkit-box;\n  /*这是一个已经弃用的属性*/\n  -webkit-line-clamp: 1;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n  text-overflow: ellipsis; }\n\n/* 设置盒子模型为IE盒子模型 */\n.border-box {\n  box-sizing: border-box; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
 
 // exports
 
@@ -2866,7 +2866,141 @@ module.exports = function (qs) {
 };
 
 /***/ },
-/* 14 */
+/* 14 */,
+/* 15 */,
+/* 16 */,
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(8);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(7)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(true) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept(8, function() {
+			var newContent = __webpack_require__(8);
+			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+/* 18 */,
+/* 19 */
+/***/ function(module, exports) {
+
+module.exports = function (obj) {
+obj || (obj = {});
+var __t, __p = '';
+with (obj) {
+__p += '<h1>133333ss333sssssssddcdaaaaaa6666666666623333</h1>';
+
+}
+return __p
+}
+
+/***/ },
+/* 20 */,
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * URL的解析和合成，注意：该设计有缺陷，不支持username:userpass，不过一般都用不上
+ *
+ * var URL = require("../util/URL");
+ * var urlObj = URL.parse("http://www.baidu.com:8080/index.html?p=1#link1");
+ * 得到：
+ * {
+ *     hash: "link1",
+ *     host: "www.baidu.com",
+ *     path: "/index.html",
+ *     port: "8080",
+ *     query: "p=1",
+ *     scheme: "http:",
+ *     slash: "//",
+ *     url: "http://www.baidu.com:8080/index.html?p=1#link1"
+ * }
+ */
+var link = null;
+var merge = __webpack_require__(12);
+var isEmpty = __webpack_require__(31);
+var queryToJson = __webpack_require__(13);
+module.exports = {
+    parse: function (url) {
+
+        link = link || document.createElement("A");
+        link.href = url;
+
+        var result = {
+            "url": url,
+            "scheme": link.protocol,
+            "host": link.host,
+            "port": link.port,
+            "path": link.pathname,
+            "query": isEmpty(link.search) ? "" : link.search.substr(1),
+            "hash": isEmpty(link.hash) ? "" : link.hash.substr(1)
+        };
+        debugger;
+        result["queryJson"] = queryToJson(result["query"]);
+        result["hashJson"] = queryToJson(result["hash"]);
+        return result;
+
+        // var parse_url = /^(?:([A-Za-z]+:)(\/{0,3}))?([0-9.\-A-Za-z]+\.[0-9A-Za-z]+)?(?::(\d+))?(?:(\.?[\.\/]*\/[^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+        // var names = ['url', 'scheme', 'slash', 'host', 'port', 'path', 'query', 'hash'];
+        // var results = parse_url.exec(url);
+        // var ret = {};
+
+        // for (var i = 0, len = names.length; i < len; i += 1) {
+        //     ret[names[i]] = results[i] || '';
+        // }
+
+        // return ret;
+    },
+    build: function (url) {
+        return url.scheme + "//" + url.host + (url.port != "" ? ":" + url.port : "") + url.path + (url.query != "" ? "?" + url.query : "") + (url.hash != "" ? "#" + url.hash : "");
+    }
+};
+
+/***/ },
+/* 22 */,
+/* 23 */,
+/* 24 */,
+/* 25 */,
+/* 26 */,
+/* 27 */,
+/* 28 */,
+/* 29 */,
+/* 30 */,
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 检查字符串是否为空
+ *
+ * var isEmpty = require("../str/isEmpty");
+ * console.log(isEmpty(null)); // true
+ * console.log(isEmpty(" ")); // true
+ *
+ */
+
+var trim = __webpack_require__(3);
+
+module.exports = function (str) {
+  return trim(str).length == 0;
+};
+
+/***/ },
+/* 32 */
 /***/ function(module, exports) {
 
 /*
@@ -2919,140 +3053,6 @@ module.exports = function () {
 };
 
 /***/ },
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(8);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(7)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(true) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept(8, function() {
-			var newContent = __webpack_require__(8);
-			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-/* 19 */,
-/* 20 */
-/***/ function(module, exports) {
-
-module.exports = function (obj) {
-obj || (obj = {});
-var __t, __p = '';
-with (obj) {
-__p += '<h1>133333ss333sssssssddcdaaaaaa6666666666623333</h1>';
-
-}
-return __p
-}
-
-/***/ },
-/* 21 */,
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * URL的解析和合成，注意：该设计有缺陷，不支持username:userpass，不过一般都用不上
- *
- * var URL = require("../util/URL");
- * var urlObj = URL.parse("http://www.baidu.com:8080/index.html?p=1#link1");
- * 得到：
- * {
- *     hash: "link1",
- *     host: "www.baidu.com",
- *     path: "/index.html",
- *     port: "8080",
- *     query: "p=1",
- *     scheme: "http:",
- *     slash: "//",
- *     url: "http://www.baidu.com:8080/index.html?p=1#link1"
- * }
- */
-var link = null;
-var merge = __webpack_require__(12);
-var isEmpty = __webpack_require__(32);
-var queryToJson = __webpack_require__(13);
-module.exports = {
-    parse: function (url) {
-
-        link = link || document.createElement("A");
-        link.href = url;
-
-        var result = {
-            "url": url,
-            "scheme": link.protocol,
-            "host": link.host,
-            "port": link.port,
-            "path": link.pathname,
-            "query": isEmpty(link.search) ? "" : link.search.substr(1),
-            "hash": isEmpty(link.hash) ? "" : link.hash.substr(1)
-        };
-        debugger;
-        result["queryJson"] = queryToJson(result["query"]);
-        result["hashJson"] = queryToJson(result["hash"]);
-        return result;
-
-        // var parse_url = /^(?:([A-Za-z]+:)(\/{0,3}))?([0-9.\-A-Za-z]+\.[0-9A-Za-z]+)?(?::(\d+))?(?:(\.?[\.\/]*\/[^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
-        // var names = ['url', 'scheme', 'slash', 'host', 'port', 'path', 'query', 'hash'];
-        // var results = parse_url.exec(url);
-        // var ret = {};
-
-        // for (var i = 0, len = names.length; i < len; i += 1) {
-        //     ret[names[i]] = results[i] || '';
-        // }
-
-        // return ret;
-    },
-    build: function (url) {
-        return url.scheme + "//" + url.host + (url.port != "" ? ":" + url.port : "") + url.path + (url.query != "" ? "?" + url.query : "") + (url.hash != "" ? "#" + url.hash : "");
-    }
-};
-
-/***/ },
-/* 23 */,
-/* 24 */,
-/* 25 */,
-/* 26 */,
-/* 27 */,
-/* 28 */,
-/* 29 */,
-/* 30 */,
-/* 31 */,
-/* 32 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 检查字符串是否为空
- *
- * var isEmpty = require("../str/isEmpty");
- * console.log(isEmpty(null)); // true
- * console.log(isEmpty(" ")); // true
- *
- */
-
-var trim = __webpack_require__(3);
-
-module.exports = function (str) {
-  return trim(str).length == 0;
-};
-
-/***/ },
 /* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -3066,11 +3066,11 @@ module.exports = function (str) {
 //----------------require--------------
 // var viewport = require("mlib/dom/viewport"); // viewport
 var base = __webpack_require__(4); // 基础对象
-var URL = __webpack_require__(22); // 基础对象
+var URL = __webpack_require__(21); // 基础对象
 var parsePage = __webpack_require__(5); // 页面模块自动解析
-var scss = __webpack_require__(18); // 引入当前页面的scss文件
+var scss = __webpack_require__(17); // 引入当前页面的scss文件
 // 模板
-var render = __webpack_require__(20); // 页面总模板
+var render = __webpack_require__(19); // 页面总模板
 // 子模块
 // var header = require("./header");
 

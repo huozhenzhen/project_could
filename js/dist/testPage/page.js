@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "b81e8647c1fb8ed77f2b"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "9c232462d6fddf81c822"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -2333,9 +2333,17 @@ function updateLink(linkElement, obj) {
 /***/ },
 /* 8 */,
 /* 9 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-throw new Error("Module build failed: \r\n\t\t\t@include mix-prev-hover;\r\n           ^\r\n      No mixin named mix-prev-hover\n\nBacktrace:\n\t../js/src/pages/common/scss/common.scss:27\r\n      in D:\\wwwroot\\myTest\\js\\src\\pages\\common\\scss\\common.scss (line 27, column 13)");
+exports = module.exports = __webpack_require__(32)();
+// imports
+
+
+// module
+exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n.show {\n  display: block !important; }\n\n.hide {\n  display: none !important; }\n\n.clearfix:after, .m-grid-page:after {\n  content: \".\";\n  display: block;\n  height: 0;\n  clear: both;\n  visibility: hidden;\n  overflow: hidden; }\n\n.clearfix, .m-grid-page {\n  display: inline-block; }\n\n.clearfix, .m-grid-page {\n  display: block; }\n\n.m-grid-page {\n  font-size: 14px;\n  min-width: 950px; }\n  .m-grid-page span,\n  .m-grid-page div,\n  .m-grid-page a {\n    float: left;\n    margin: 0 6px;\n    font-size: 14px;\n    color: #666666; }\n  .m-grid-page .select {\n    border: 1px solid #e3e4e9;\n    max-width: 30px;\n    border-radius: 3px; }\n  .m-grid-page .select-group {\n    position: relative; }\n    .m-grid-page .select-group .select {\n      text-indent: 4px; }\n    .m-grid-page .select-group .icon {\n      background-position: 0rem 0rem;\n      width: 0.5rem;\n      height: 0.25rem;\n      background-image: url(\"/images/sprite.png?v=1496395904200\");\n      background-repeat: no-repeat;\n      background-size: 1.15rem 1.15rem;\n      display: inline-block;\n      position: absolute;\n      top: 8px;\n      right: 2px; }\n    .m-grid-page .select-group .items {\n      position: absolute;\n      border: 1px solid #e3e4e9;\n      box-sizing: border-box;\n      width: 100%;\n      z-index: 5;\n      max-height: 160px;\n      overflow: auto;\n      position: absolute;\n      top: -105px;\n      left: 0; }\n      .m-grid-page .select-group .items li {\n        cursor: pointer;\n        text-align: center; }\n        .m-grid-page .select-group .items li:hover {\n          background: #f4f5f9; }\n  .m-grid-page .first,\n  .m-grid-page .prev,\n  .m-grid-page .next,\n  .m-grid-page .last,\n  .m-grid-page .goTo {\n    border: 1px solid #e3e4e9;\n    border-radius: 3px;\n    padding: 0 10px; }\n    .m-grid-page .first:hover,\n    .m-grid-page .prev:hover,\n    .m-grid-page .next:hover,\n    .m-grid-page .last:hover,\n    .m-grid-page .goTo:hover {\n      border: 1px solid #2ba0ff;\n      color: #2ba0ff; }\n  .m-grid-page .prev .icon {\n    background-position: -0.9rem 0rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496395904200\");\n    background-repeat: no-repeat;\n    background-size: 1.15rem 1.15rem;\n    display: inline-block; }\n  .m-grid-page .prev:hover .icon {\n    background-position: 0rem -0.65rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496395904200\");\n    background-repeat: no-repeat;\n    background-size: 1.15rem 1.15rem;\n    display: inline-block; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
+
+// exports
+
 
 /***/ },
 /* 10 */
@@ -2858,8 +2866,7 @@ module.exports = function (qs) {
 };
 
 /***/ },
-/* 14 */,
-/* 15 */
+/* 14 */
 /***/ function(module, exports) {
 
 /**
@@ -2916,7 +2923,7 @@ that.remove = function (node, key) {
 module.exports = that;
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -2931,14 +2938,14 @@ module.exports = that;
  *
  */
 
-var isNode = __webpack_require__(26);
+var isNode = __webpack_require__(25);
 
 module.exports = function (element) {
   return isNode(element) && element.nodeType == 1;
 };
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -2999,8 +3006,8 @@ var addEvent = function (el, type, fn, setCapture) {
 module.exports = addEvent;
 
 /***/ },
-/* 18 */,
-/* 19 */
+/* 17 */,
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
@@ -3026,36 +3033,36 @@ if(true) {
 }
 
 /***/ },
-/* 20 */,
-/* 21 */
+/* 19 */,
+/* 20 */
 /***/ function(module, exports) {
 
 module.exports = function (obj) {
 obj || (obj = {});
 var __t, __p = '';
 with (obj) {
-__p += '<div id="m-page"></div>';
+__p += '<div id="m-page" style="margin-top: 200px"></div>';
 
 }
 return __p
 }
 
 /***/ },
-/* 22 */,
-/* 23 */
+/* 21 */,
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = function (node, opts) {
     //----------------require--------------
     var base = __webpack_require__(4); // 基础对象
-    var parseModule = __webpack_require__(28); // 页面模块自动解析
+    var parseModule = __webpack_require__(27); // 页面模块自动解析
     var merge = __webpack_require__(12);
-    var render = __webpack_require__(24);
-    var addEvent = __webpack_require__(17);
-    var className = __webpack_require__(25);
-    var opra = __webpack_require__(27);
-    var eventProxy = __webpack_require__(30);
-    var dataset = __webpack_require__(15);
+    var render = __webpack_require__(23);
+    var addEvent = __webpack_require__(16);
+    var className = __webpack_require__(24);
+    var opra = __webpack_require__(26);
+    var eventProxy = __webpack_require__(29);
+    var dataset = __webpack_require__(14);
 
     //-----------声明模块全局变量-------------
     var nodeList = node; // 存储所有关键节点
@@ -3188,7 +3195,7 @@ module.exports = function (node, opts) {
 };
 
 /***/ },
-/* 24 */
+/* 23 */
 /***/ function(module, exports) {
 
 module.exports = function (obj) {
@@ -3198,7 +3205,7 @@ function print() { __p += __j.call(arguments, '') }
 with (obj) {
 __p += '<div class="m-grid-page" node-name="gridPage">\r\n    <span class="text">每页显示</span>\r\n    \r\n    <div class="select-group" >\r\n        <input type="text" value="' +
 ((__t = (pageSize)) == null ? '' : __t) +
-'" node-name="pageSize" readonly="readonly" class="select"/>\r\n        <ul class="hide" node-name="select">\r\n            ';
+'" node-name="pageSize" readonly="readonly" class="select"/>\r\n        <i class="icon"></i>\r\n        <ul class="hide items" node-name="select">\r\n            ';
 pageList.forEach(function(item){;
 __p += '\r\n            <li data-action="select">' +
 ((__t = (item)) == null ? '' : __t) +
@@ -3213,7 +3220,7 @@ return __p
 }
 
 /***/ },
-/* 25 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3229,7 +3236,7 @@ return __p
  * }
  */
 
-var isElement = __webpack_require__(16);
+var isElement = __webpack_require__(15);
 var each = __webpack_require__(0);
 var getType = __webpack_require__(2);
 var trim = __webpack_require__(3);
@@ -3363,7 +3370,7 @@ that.toggle = function (node, className1, className2) {
 module.exports = that;
 
 /***/ },
-/* 26 */
+/* 25 */
 /***/ function(module, exports) {
 
 /**
@@ -3382,7 +3389,7 @@ module.exports = function (node) {
 };
 
 /***/ },
-/* 27 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3407,7 +3414,7 @@ module.exports = function (node) {
  * var prevNode = orpa.prev(node); // 获取到node2，也就是node的上一个元素，注意中间跳过了textNode1
  *
  */
-var isElement = __webpack_require__(16);
+var isElement = __webpack_require__(15);
 var each = __webpack_require__(0);
 var that = {};
 
@@ -3477,7 +3484,7 @@ that.prev = function (node) {
 module.exports = that;
 
 /***/ },
-/* 28 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 var sizzle = __webpack_require__(6);
@@ -3500,7 +3507,7 @@ module.exports = function (node, onlyChild) {
 };
 
 /***/ },
-/* 29 */
+/* 28 */
 /***/ function(module, exports) {
 
 /**
@@ -3546,7 +3553,7 @@ var getEvent = function () {
 module.exports = getEvent;
 
 /***/ },
-/* 30 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3579,10 +3586,10 @@ module.exports = getEvent;
  */
 
 module.exports = function (outerNode) {
-    var addEvent = __webpack_require__(17);
-    var removeEvent = __webpack_require__(31);
-    var getEvent = __webpack_require__(29);
-    var dataset = __webpack_require__(15);
+    var addEvent = __webpack_require__(16);
+    var removeEvent = __webpack_require__(30);
+    var getEvent = __webpack_require__(28);
+    var dataset = __webpack_require__(14);
     var each = __webpack_require__(0);
     var trim = __webpack_require__(3);
     var queryToJson = __webpack_require__(13);
@@ -3738,7 +3745,7 @@ module.exports = function (outerNode) {
 };
 
 /***/ },
-/* 31 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3785,7 +3792,60 @@ var removeEvent = function (el, type, fn, releaseCapture) {
 module.exports = removeEvent;
 
 /***/ },
-/* 32 */,
+/* 31 */,
+/* 32 */
+/***/ function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function () {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		var result = [];
+		for (var i = 0; i < this.length; i++) {
+			var item = this[i];
+			if (item[2]) {
+				result.push("@media " + item[2] + "{" + item[1] + "}");
+			} else {
+				result.push(item[1]);
+			}
+		}
+		return result.join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function (modules, mediaQuery) {
+		if (typeof modules === "string") modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for (var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if (typeof id === "number") alreadyImportedModules[id] = true;
+		}
+		for (i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if (mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if (mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+/***/ },
 /* 33 */,
 /* 34 */
 /***/ function(module, exports, __webpack_require__) {
@@ -3801,10 +3861,10 @@ module.exports = removeEvent;
 // var viewport = require("lib/dom/viewport"); // viewport
 var base = __webpack_require__(4); // 基础对象
 var parsePage = __webpack_require__(5); // 页面模块自动解析
-var scss = __webpack_require__(19); // 引入当前页面的scss文件
+var scss = __webpack_require__(18); // 引入当前页面的scss文件
 // 模板
-var render = __webpack_require__(21); // 页面总模板
-var page = __webpack_require__(23);
+var render = __webpack_require__(20); // 页面总模板
+var page = __webpack_require__(22);
 // 子模块
 // var header = require("./header");
 

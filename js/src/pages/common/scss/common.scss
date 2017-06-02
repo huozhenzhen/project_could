@@ -1,28 +1,80 @@
 @import "./pc";
 @import "./sprites";
+@import "./mixin";
 
+
+
+//page页码
 .m-grid-page {
-	font-size: $fs10;
-	height:54px;
+	// & { @extend  .clearfix;}
+	@extend %clearfix; 
+	font-size: $fs14;
 	min-width: 950px;
 	span,
 	div,
 	a {
 		float: left;
-		margin:0 4px;
-	}
-	.select-group {
+		margin:0 6px;
+		font-size: $fs14;
+		color: $color2;
 	}
 	.select {
-		width: 24px;
-		text-align: center;
+		border: 1px solid $border3;
+		max-width: 30px;
+		border-radius: 3px;
+		// text-align: center;
+	}
+	.select-group {
+		position: relative;
+		.select {
+			text-indent: 4px;
+		}
+		.icon {
+			@include mix-input-xiala;
+			position: absolute;
+			top: 8px;
+			right: 2px;
+		}
+		.items {
+			position: absolute;
+			border: 1px solid $border3;
+			box-sizing: border-box;
+			width: 100%;
+			z-index: 5;
+			max-height: 160px;
+			overflow: auto;
+			position: absolute;
+			top: -105px;
+			left: 0;
+			li {
+				cursor: pointer;
+				text-align: center;
+				&:hover {
+					background:$bg4
+				}
+			}
+
+		}
+	}
+	
+	.first,
+	.prev,
+	.next,
+	.last,
+	.goTo {
+		border: 1px solid $border3;
+		border-radius: 3px;
+		&:hover {
+			border: 1px solid $bg8;
+			color: $color7;
+		}
+		padding: 0 10px;
 	}
 	.prev {
 		.icon{
 			@include mix-prev;
 		}
-
-		&.gray
+	
 	}
 	.prev:hover {
 		.icon{
