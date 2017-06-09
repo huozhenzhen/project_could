@@ -244,3 +244,13 @@ input:focus {
 .clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; overflow: hidden; }
 .clearfix { display: inline-block; }
 .clearfix { display: block; }
+
+/* .clearfix:before, 
+.clearfix:after {
+    display: table;
+    line-height:  0;
+    content: "";
+}   
+.clearfix:after {
+    clear: both;
+} */

@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "9c232462d6fddf81c822"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "77770dcfc26cea6dcb21"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -239,7 +239,7 @@
 /******/ 				};
 /******/ 			});
 /******/ 			hotUpdate = {};
-/******/ 			var chunkId = 0;
+/******/ 			var chunkId = 1;
 /******/ 			{ // eslint-disable-line no-lone-blocks
 /******/ 				/*globals chunkId */
 /******/ 				hotEnsureUpdateChunk(chunkId);
@@ -698,7 +698,7 @@
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return hotCreateRequire(34)(__webpack_require__.s = 34);
+/******/ 	return hotCreateRequire(54)(__webpack_require__.s = 54);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -717,7 +717,7 @@
  * });
  */
 
-var getType = __webpack_require__(2);
+var getType = __webpack_require__(1);
 module.exports = function (obj, fn) {
     if (getType(obj) == "array") {
         if ([].forEach) {
@@ -748,6 +748,23 @@ module.exports = function (obj, fn) {
 /***/ function(module, exports) {
 
 /**
+ * 检查传入的对象
+ * 如果是null则返回null(typeof null是返回object)
+ * 如果是数组则返回array(typeof []是返回object)
+ *
+ * var getType = require("../util/getType");
+ * var type = getType([]); // array
+ */
+module.exports = function (obj) {
+  var type;
+  return ((type = typeof obj) == "object" ? obj == null && "null" || Object.prototype.toString.call(obj).slice(8, -1) : type).toLowerCase();
+};
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+/**
  * 对window.console做了封装，防止由于没有删除console语句而报错
  * 如果需要使用到console对象，请引入本文件，而不要直接使用window.console
  *
@@ -767,65 +784,7 @@ for (var key in methods) {
 module.exports = console;
 
 /***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-/**
- * 检查传入的对象
- * 如果是null则返回null(typeof null是返回object)
- * 如果是数组则返回array(typeof []是返回object)
- *
- * var getType = require("../util/getType");
- * var type = getType([]); // array
- */
-module.exports = function (obj) {
-  var type;
-  return ((type = typeof obj) == "object" ? obj == null && "null" || Object.prototype.toString.call(obj).slice(8, -1) : type).toLowerCase();
-};
-
-/***/ },
 /* 3 */
-/***/ function(module, exports) {
-
-/**
- * 清除字符串前后空白字符
- * 例子：
- *
- * var trim = require("../str/trim");
- * var str = trim(" text "); // "text"
- *
- */
-module.exports = function (str) {
-	if (str == null) {
-		return "";
-	}
-
-	str = str.toString();
-	var len = str.length;
-	var s = 0;
-	var reg = /(\u3000|\s|\t|\u00A0)/;
-
-	while (s < len) {
-		if (!reg.test(str.charAt(s))) {
-			break;
-		}
-
-		s += 1;
-	}
-
-	while (len > s) {
-		if (!reg.test(str.charAt(len - 1))) {
-			break;
-		}
-
-		len -= 1;
-	}
-
-	return str.slice(s, len);
-};
-
-/***/ },
-/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -862,8 +821,8 @@ module.exports = function (str) {
  *
  * 这样子在响应函数中读取到的evt.data的值就是这个{ name: "benny", gender: "M" }，它并不是必须的
  */
-__webpack_require__(10); // 如果使用IE8的话
-var console = __webpack_require__(1);
+__webpack_require__(11); // 如果使用IE8的话
+var console = __webpack_require__(2);
 var each = __webpack_require__(0);
 
 var getUniqueId = function () {
@@ -957,35 +916,7 @@ base.getZIndex = getZIndex;
 module.exports = base;
 
 /***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-var console = __webpack_require__(1);
-var sizzle = __webpack_require__(6);
-
-module.exports = function () {
-    var list = Array.prototype.slice.call(sizzle("[id]"), 0);
-    var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
-    var nodeList = {};
-
-    list.forEach(function (el) {
-        if (!reg.test(el.id)) {
-            console.warn("节点#" + el.id + "的id值不符合规范，被忽略!");
-            return;
-        }
-
-        var id = el.id.substr(2).toLowerCase().replace(/\-([a-z])/g, function (m, n) {
-            return n.toUpperCase();
-        });
-
-        nodeList[id] = el;
-    });
-
-    return nodeList;
-};
-
-/***/ },
-/* 6 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -1002,7 +933,7 @@ module.exports = function () {
  *
  */
 
-var getStyle = __webpack_require__(11);
+var getStyle = __webpack_require__(12);
 var chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g,
     done = 0,
     toString = Object.prototype.toString,
@@ -2079,7 +2010,215 @@ Expr.filters.visible = function (elem) {
 module.exports = Sizzle;
 
 /***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+/**
+ * 清除字符串前后空白字符
+ * 例子：
+ *
+ * var trim = require("../str/trim");
+ * var str = trim(" text "); // "text"
+ *
+ */
+module.exports = function (str) {
+	if (str == null) {
+		return "";
+	}
+
+	str = str.toString();
+	var len = str.length;
+	var s = 0;
+	var reg = /(\u3000|\s|\t|\u00A0)/;
+
+	while (s < len) {
+		if (!reg.test(str.charAt(s))) {
+			break;
+		}
+
+		s += 1;
+	}
+
+	while (len > s) {
+		if (!reg.test(str.charAt(len - 1))) {
+			break;
+		}
+
+		len -= 1;
+	}
+
+	return str.slice(s, len);
+};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+var console = __webpack_require__(2);
+var sizzle = __webpack_require__(4);
+
+module.exports = function () {
+    var list = Array.prototype.slice.call(sizzle("[id]"), 0);
+    var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
+    var nodeList = {};
+
+    list.forEach(function (el) {
+        if (!reg.test(el.id)) {
+            console.warn("节点#" + el.id + "的id值不符合规范，被忽略!");
+            return;
+        }
+
+        var id = el.id.substr(2).toLowerCase().replace(/\-([a-z])/g, function (m, n) {
+            return n.toUpperCase();
+        });
+
+        nodeList[id] = el;
+    });
+
+    return nodeList;
+};
+
+/***/ },
 /* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 合并多个对象，将后面的对象和前面的对象一层一层的合并
+ * 支持第一个参数传boolean类型，当传true时，支持深层合并
+ * 例子：
+ *
+ * var merge = require("../json/merge");
+ * var opts = { url: "http://www.baidu.com" };
+ * var defaultOpts = { url: "", method: "get" };
+ * opts = merge(defaultOpts, opts);
+ * opts的值为：
+ * opts = {
+ *     url: "http://www.baidu.com",
+ *     method: "get"
+ * }
+ *
+ */
+
+var getType = __webpack_require__(1);
+var console = __webpack_require__(2);
+var each = __webpack_require__(0);
+
+module.exports = function () {
+
+    var result = [];
+    var args = [].slice.call(arguments);
+    result.push.apply(result, args);
+
+    var deep = false;
+
+    function mergeObj(r, obj) {
+        each(obj, function (v, k) {
+            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
+                mergeObj(r[k], v);
+            } else {
+                r[k] = v;
+            }
+        });
+    }
+
+    var newObj = {};
+
+    each(result, function (item, index) {
+        if (index == 0 && item === true) {
+            deep = true;
+        } else if (getType(item) == "object") {
+            mergeObj(newObj, item);
+        }
+    });
+
+    return newObj;
+};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 检查是否为一个元素，它是对isNode的一个封装，并且判断node节点的nodeType是否为1，为1则是元素
+ * 例子：
+ *
+ * HTML: <div id="node"></div>
+ *
+ * var isElement = require("../dom/isElement");
+ * var node = document.getElementById("node");
+ * console.log(isElement(node)); // true
+ *
+ */
+
+var isNode = __webpack_require__(21);
+
+module.exports = function (element) {
+  return isNode(element) && element.nodeType == 1;
+};
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 为一个节点或者节点数组添加事件
+ * @2014-10-11 增加了批量处理功能，可以传入一个节点数组绑定事件
+ *
+ * var addEvent = require("../evt/add");
+ * var removeEvent = require("../evt/remove");
+ * var stopEvent = require("../evt/stop");
+ * var sizzle = require("../dom/sizzle");
+ * var handler = function(evt) {
+ *     stopEvent(evt); // 阻止事件冒泡以及默认事件行为
+ *     removeEvent(nodes, "click", handler); // 将addEvent时的参数原样不动传给removeEvent，可以解除事件
+ * }
+ *
+ * var nodes = sizzle(".nodes", parentNode); // 获取到parentNode中所有class为nodes的节点，返回一个数组
+ * addEvent(nodes, "click", handler); // 为数组nodes中所有的节点绑定click事件
+ * // 仅绑定一个可以只传入一个节点，而不是数组：addEvent(nodes[0], "click", hanlder);
+ *
+ *
+ */
+
+var getType = __webpack_require__(1);
+var each = __webpack_require__(0);
+
+var addEvent = function (el, type, fn, setCapture) {
+    if (getType(el) == "array") {
+        var fun = addEvent;
+
+        each(el, function (item, key) {
+            fun(item, type, fn, setCapture);
+        });
+    }
+
+    el = getType(el) == "string" ? document.getElementById(el) : el;
+
+    if (el == null || typeof fn != "function") {
+        return false;
+    }
+
+    if (el.addEventListener) {
+        el.addEventListener(type, fn, setCapture === true ? true : false);
+    } else if (el.attachEvent) {
+        el.attachEvent('on' + type, fn);
+        if (setCapture && el.setCapture) {
+            el.setCapture();
+        }
+    } else {
+        el['on' + type] = fn;
+        if (setCapture && el.setCapture) {
+            el.setCapture();
+        }
+    }
+
+    return true;
+};
+
+module.exports = addEvent;
+
+/***/ },
+/* 10 */
 /***/ function(module, exports) {
 
 /*
@@ -2331,22 +2470,7 @@ function updateLink(linkElement, obj) {
 
 
 /***/ },
-/* 8 */,
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(32)();
-// imports
-
-
-// module
-exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n.show {\n  display: block !important; }\n\n.hide {\n  display: none !important; }\n\n.clearfix:after, .m-grid-page:after {\n  content: \".\";\n  display: block;\n  height: 0;\n  clear: both;\n  visibility: hidden;\n  overflow: hidden; }\n\n.clearfix, .m-grid-page {\n  display: inline-block; }\n\n.clearfix, .m-grid-page {\n  display: block; }\n\n.m-grid-page {\n  font-size: 14px;\n  min-width: 950px; }\n  .m-grid-page span,\n  .m-grid-page div,\n  .m-grid-page a {\n    float: left;\n    margin: 0 6px;\n    font-size: 14px;\n    color: #666666; }\n  .m-grid-page .select {\n    border: 1px solid #e3e4e9;\n    max-width: 30px;\n    border-radius: 3px; }\n  .m-grid-page .select-group {\n    position: relative; }\n    .m-grid-page .select-group .select {\n      text-indent: 4px; }\n    .m-grid-page .select-group .icon {\n      background-position: 0rem 0rem;\n      width: 0.5rem;\n      height: 0.25rem;\n      background-image: url(\"/images/sprite.png?v=1496395904200\");\n      background-repeat: no-repeat;\n      background-size: 1.15rem 1.15rem;\n      display: inline-block;\n      position: absolute;\n      top: 8px;\n      right: 2px; }\n    .m-grid-page .select-group .items {\n      position: absolute;\n      border: 1px solid #e3e4e9;\n      box-sizing: border-box;\n      width: 100%;\n      z-index: 5;\n      max-height: 160px;\n      overflow: auto;\n      position: absolute;\n      top: -105px;\n      left: 0; }\n      .m-grid-page .select-group .items li {\n        cursor: pointer;\n        text-align: center; }\n        .m-grid-page .select-group .items li:hover {\n          background: #f4f5f9; }\n  .m-grid-page .first,\n  .m-grid-page .prev,\n  .m-grid-page .next,\n  .m-grid-page .last,\n  .m-grid-page .goTo {\n    border: 1px solid #e3e4e9;\n    border-radius: 3px;\n    padding: 0 10px; }\n    .m-grid-page .first:hover,\n    .m-grid-page .prev:hover,\n    .m-grid-page .next:hover,\n    .m-grid-page .last:hover,\n    .m-grid-page .goTo:hover {\n      border: 1px solid #2ba0ff;\n      color: #2ba0ff; }\n  .m-grid-page .prev .icon {\n    background-position: -0.9rem 0rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496395904200\");\n    background-repeat: no-repeat;\n    background-size: 1.15rem 1.15rem;\n    display: inline-block; }\n  .m-grid-page .prev:hover .icon {\n    background-position: 0rem -0.65rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496395904200\");\n    background-repeat: no-repeat;\n    background-size: 1.15rem 1.15rem;\n    display: inline-block; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
-
-// exports
-
-
-/***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 (function () {
@@ -2489,7 +2613,7 @@ exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path�
 })();
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 /**
@@ -2765,462 +2889,192 @@ var getStyle = function (node, property) {
 module.exports = getStyle;
 
 /***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 合并多个对象，将后面的对象和前面的对象一层一层的合并
- * 支持第一个参数传boolean类型，当传true时，支持深层合并
- * 例子：
- *
- * var merge = require("../json/merge");
- * var opts = { url: "http://www.baidu.com" };
- * var defaultOpts = { url: "", method: "get" };
- * opts = merge(defaultOpts, opts);
- * opts的值为：
- * opts = {
- *     url: "http://www.baidu.com",
- *     method: "get"
- * }
- *
- */
-
-var getType = __webpack_require__(2);
-var console = __webpack_require__(1);
-var each = __webpack_require__(0);
-
-module.exports = function () {
-
-    var result = [];
-    var args = [].slice.call(arguments);
-    result.push.apply(result, args);
-
-    var deep = false;
-
-    function mergeObj(r, obj) {
-        each(obj, function (v, k) {
-            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
-                mergeObj(r[k], v);
-            } else {
-                r[k] = v;
-            }
-        });
-    }
-
-    var newObj = {};
-
-    each(result, function (item, index) {
-        if (index == 0 && item === true) {
-            deep = true;
-        } else if (getType(item) == "object") {
-            mergeObj(newObj, item);
-        }
-    });
-
-    return newObj;
-};
-
-/***/ },
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-/**
- * 来自STK.js
- * 将查询字符串转化成json对象，是jsonToQuery的反操作
- * 例子：
- *
- * var queryToJson = require("../json/jsonToQuery");
- * var str = "id=1&name=benny";
- * var json = queryToJson(str);
- * json的值将为：
- * json = { id: 1, name: "benny" };
- *
- */
-var trim = __webpack_require__(3);
-module.exports = function (qs) {
-    var qList = trim(qs).split("&"),
-        json = {},
-        i = 0,
-        len = qList.length;
+var sizzle = __webpack_require__(4);
 
-    for (; i < len; i++) {
-        if (qList[i]) {
-            var hash = qList[i].split("="),
-                key = hash[0],
-                value = hash[1];
-            // 如果只有key没有value, 那么将全部丢入一个$nullName数组中
-            if (hash.length < 2) {
-                value = key;
-                key = '$nullName';
-            }
-            if (!(key in json)) {
-                // 如果缓存堆栈中没有这个数据，则直接存储
-                json[key] = decodeURIComponent(value);
-            } else {
-                // 如果堆栈中已经存在这个数据，则转换成数组存储
-                json[key] = [].concat(json[key], decodeURIComponent(value));
-            }
+module.exports = function (node, onlyChild) {
+    var list = Array.prototype.slice.call(sizzle((onlyChild === true ? "> " : "") + "[node-name]", node), 0);
+    var nodeList = {};
+
+    list.forEach(function (el) {
+        var name = el.getAttribute("node-name");
+
+        if (name in nodeList) {
+            nodeList[name] = [].concat(nodeList[name], el);
+        } else {
+            nodeList[name] = el;
         }
-    }
-    return json;
+    });
+
+    return nodeList;
 };
 
 /***/ },
 /* 14 */
 /***/ function(module, exports) {
 
-/**
- * 封装了node.dataset功能, dataset是标准浏览器新增的功能，这里主要是为了兼容旧浏览器
- * <div id="node" data-node-value="123"></div>
- * var dataset = require("../dom/dataset");
- * dataset.get(node, "nodeValue")将会读取data-node-value，得到123
- * dataset.set(node, "nodeValue", "123")将会设置data-node-value为123
- * 注意传入的KEY是驼峰命名
- */
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function () {
+	var list = [];
 
-var that = {};
+	// return the list of modules as css string
+	list.toString = function toString() {
+		var result = [];
+		for (var i = 0; i < this.length; i++) {
+			var item = this[i];
+			if (item[2]) {
+				result.push("@media " + item[2] + "{" + item[1] + "}");
+			} else {
+				result.push(item[1]);
+			}
+		}
+		return result.join("");
+	};
 
-var keyCase = function (key) {
-    return "data-" + key.replace(/([A-Z]|(?:^\d+))/g, function (all, match) {
-        return "-" + match.toLowerCase();
-    });
+	// import a list of modules into the list
+	list.i = function (modules, mediaQuery) {
+		if (typeof modules === "string") modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for (var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if (typeof id === "number") alreadyImportedModules[id] = true;
+		}
+		for (i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if (mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if (mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
 };
-
-that.get = function (node, key) {
-    if ("dataset" in node) {
-        return node.dataset[key];
-    } else {
-        var dataKey = keyCase(key);
-        var attrs = node.attributes;
-        var len = attrs.length;
-
-        for (var i = 0; i < len; i++) {
-            if (attrs[i].name == dataKey) {
-                return attrs[i].value;
-            }
-        }
-    }
-};
-
-that.set = function (node, key, val) {
-    if ("dataset" in node) {
-        node.dataset[key] = val;
-    } else {
-        var dataKey = keyCase(key);
-        node.setAttribute(dataKey, val);
-    }
-};
-
-that.remove = function (node, key) {
-    if ("dataset" in node) {
-        delete node.dataset[key];
-    } else {
-        var dataKey = keyCase(key);
-        node.removeAttribute(dataKey);
-    }
-};
-
-module.exports = that;
 
 /***/ },
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 /**
- * 检查是否为一个元素，它是对isNode的一个封装，并且判断node节点的nodeType是否为1，为1则是元素
+ * 获取事件对象，一般情况下不需要使用本函数
+ * 一般来说绑定事件时，event对象会当成参数传给响应函数，
+ * 但在某些特殊情况下，可能event对象在函数调用链中没有传递（代码设计缺陷造成的）
+ * 那可以使用本函数去获取。
+ *
  * 例子：
  *
- * HTML: <div id="node"></div>
+ * var getEvent = require("../evt/get");
+ * var addEvent = require("../evt/add");
  *
- * var isElement = require("../dom/isElement");
- * var node = document.getElementById("node");
- * console.log(isElement(node)); // true
+ * var fun1 = function(evt) { // 注意没有事件对象传递
+ *   var evt = evt || getEvent(); // 如果没有evt参数，则getEvent()获取
+ *   console.log(evt.type);
+ * }
+ *
+ * var handler = function(evt) {
+ *   fun1(); // 调用了，可是没有将evt传递给fun1，这就是所谓的代码设计问题
+ * }
+ *
+ * addEvent(node, "click", handler);
  *
  */
 
-var isNode = __webpack_require__(25);
-
-module.exports = function (element) {
-  return isNode(element) && element.nodeType == 1;
+var getEvent = function () {
+    if (document.addEventListener) {
+        var o = getEvent,
+            e;
+        do {
+            e = o.arguments[0];
+            if (e && /Event/.test(Object.prototype.toString.call(e))) {
+                return e;
+            }
+        } while (o = o.caller);
+        return e;
+    } else {
+        return window.event;
+    }
 };
+
+module.exports = getEvent;
 
 /***/ },
 /* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
- * 为一个节点或者节点数组添加事件
- * @2014-10-11 增加了批量处理功能，可以传入一个节点数组绑定事件
- *
- * var addEvent = require("../evt/add");
- * var removeEvent = require("../evt/remove");
- * var stopEvent = require("../evt/stop");
- * var sizzle = require("../dom/sizzle");
- * var handler = function(evt) {
- *     stopEvent(evt); // 阻止事件冒泡以及默认事件行为
- *     removeEvent(nodes, "click", handler); // 将addEvent时的参数原样不动传给removeEvent，可以解除事件
- * }
- *
- * var nodes = sizzle(".nodes", parentNode); // 获取到parentNode中所有class为nodes的节点，返回一个数组
- * addEvent(nodes, "click", handler); // 为数组nodes中所有的节点绑定click事件
- * // 仅绑定一个可以只传入一个节点，而不是数组：addEvent(nodes[0], "click", hanlder);
- *
- *
+ * 删除事件
+ * @2014-10-11 增加了批量处理功能，可以传入一个节点数组解绑事件
+ * 例子请阅读add函数
  */
 
-var getType = __webpack_require__(2);
+var getType = __webpack_require__(1);
 var each = __webpack_require__(0);
 
-var addEvent = function (el, type, fn, setCapture) {
+var removeEvent = function (el, type, fn, releaseCapture) {
     if (getType(el) == "array") {
-        var fun = addEvent;
+        var fun = removeEvent;
 
         each(el, function (item, key) {
-            fun(item, type, fn, setCapture);
+            fun(item, type, fn, releaseCapture);
         });
     }
 
-    el = getType(el) == "string" ? document.getElementById(el) : el;
+    el = typeof el == "string" ? document.getElementById(el) : el;
 
     if (el == null || typeof fn != "function") {
         return false;
     }
 
-    if (el.addEventListener) {
-        el.addEventListener(type, fn, setCapture === true ? true : false);
-    } else if (el.attachEvent) {
-        el.attachEvent('on' + type, fn);
-        if (setCapture && el.setCapture) {
-            el.setCapture();
+    if (el.removeEventListener) {
+        el.removeEventListener(type, fn, releaseCapture === true ? true : false);
+    } else if (el.detachEvent) {
+        el.detachEvent("on" + type, fn);
+        if (releaseCapture && el.releaseCapture) {
+            el.releaseCapture();
         }
     } else {
-        el['on' + type] = fn;
-        if (setCapture && el.setCapture) {
-            el.setCapture();
+        el['on' + type] = null;
+        if (releaseCapture && el.releaseCapture) {
+            el.releaseCapture();
         }
     }
 
     return true;
 };
 
-module.exports = addEvent;
+module.exports = removeEvent;
 
 /***/ },
 /* 17 */,
-/* 18 */
+/* 18 */,
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-// style-loader: Adds some css to the DOM by adding a <style> tag
+exports = module.exports = __webpack_require__(14)();
+// imports
 
-// load the styles
-var content = __webpack_require__(9);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(7)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(true) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept(9, function() {
-			var newContent = __webpack_require__(9);
-			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
+
+// module
+exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n.show {\n  display: block !important; }\n\n.hide {\n  display: none !important; }\n\n.clearfix:after, .m-grid-page:after {\n  content: \".\";\n  display: block;\n  height: 0;\n  clear: both;\n  visibility: hidden;\n  overflow: hidden; }\n\n.clearfix, .m-grid-page {\n  display: inline-block; }\n\n.clearfix, .m-grid-page {\n  display: block; }\n\n/* .clearfix:before, \n.clearfix:after {\n    display: table;\n    line-height:  0;\n    content: \"\";\n}   \n.clearfix:after {\n    clear: both;\n} */\n.m-grid-page {\n  line-height: 22px;\n  font-size: 14px;\n  min-width: 950px; }\n  .m-grid-page span,\n  .m-grid-page div,\n  .m-grid-page a {\n    float: left;\n    margin: 0 4px;\n    font-size: 14px;\n    color: #666666; }\n  .m-grid-page .select {\n    border: 1px solid #e3e4e9;\n    max-width: 30px;\n    border-radius: 3px; }\n  .m-grid-page .select-group {\n    position: relative; }\n    .m-grid-page .select-group .select {\n      text-indent: 4px;\n      line-height: 20px; }\n    .m-grid-page .select-group .icon {\n      background-position: -44.1rem -33.45rem;\n      width: 0.5rem;\n      height: 0.25rem;\n      background-image: url(\"/images/sprite.png?v=1496632378037\");\n      background-repeat: no-repeat;\n      background-size: 50.85rem 50.65rem;\n      display: inline-block;\n      position: absolute;\n      top: 10px;\n      right: 2px; }\n    .m-grid-page .select-group .items {\n      position: absolute;\n      border: 1px solid #e3e4e9;\n      border-bottom: none;\n      width: 100%;\n      z-index: 5;\n      max-height: 160px;\n      overflow: auto;\n      position: absolute;\n      top: -120px;\n      left: 0; }\n      .m-grid-page .select-group .items li {\n        cursor: pointer;\n        text-align: center; }\n        .m-grid-page .select-group .items li:hover {\n          background: #e2effa; }\n  .m-grid-page .first,\n  .m-grid-page .prev,\n  .m-grid-page .next,\n  .m-grid-page .last,\n  .m-grid-page .goTo {\n    border: 1px solid #e3e4e9;\n    border-radius: 3px;\n    padding: 0 10px; }\n    .m-grid-page .first:hover,\n    .m-grid-page .prev:hover,\n    .m-grid-page .next:hover,\n    .m-grid-page .last:hover,\n    .m-grid-page .goTo:hover {\n      border: 1px solid #2ba0ff;\n      color: #2ba0ff; }\n    .m-grid-page .first.gray,\n    .m-grid-page .prev.gray,\n    .m-grid-page .next.gray,\n    .m-grid-page .last.gray,\n    .m-grid-page .goTo.gray {\n      cursor: not-allowed; }\n      .m-grid-page .first.gray:hover,\n      .m-grid-page .prev.gray:hover,\n      .m-grid-page .next.gray:hover,\n      .m-grid-page .last.gray:hover,\n      .m-grid-page .goTo.gray:hover {\n        color: #666666;\n        border: 1px solid #e3e4e9; }\n  .m-grid-page .page input {\n    border: 1px solid #e3e4e9;\n    text-align: center;\n    margin: 0 4px;\n    line-height: 20px; }\n    .m-grid-page .page input:focus {\n      border: 1px solid #2e96ea; }\n  .m-grid-page .first i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first.gray:hover i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first:hover i {\n    background-position: -44.1rem -28.05rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev.gray:hover i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev:hover i {\n    background-position: -27.95rem -14.05rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next.gray:hover i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next:hover i {\n    background-position: -44.15rem -35.1rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last.gray:hover i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last:hover i {\n    background-position: -44.1rem -23.35rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo.gray:hover i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block;\n    padding-right: 5px; }\n  .m-grid-page .goTo:hover i {\n    background-position: -26.45rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n\n.m-calendar-year {\n  width: 289px;\n  border: 1px solid #e1e1e1;\n  color: #666666; }\n  .m-calendar-year .change {\n    width: 100%;\n    display: table;\n    background: #f3f6f8;\n    line-height: 30px;\n    height: 30px;\n    font-weight: 600; }\n    .m-calendar-year .change span {\n      display: table-cell;\n      text-align: center; }\n      .m-calendar-year .change span i {\n        border: 6px  solid transparent;\n        display: inline-block; }\n      .m-calendar-year .change span .arrow-left {\n        border-right: 6px solid #666666; }\n      .m-calendar-year .change span .arrow-right {\n        border-left: 6px solid #666666; }\n  .m-calendar-year .list ul {\n    width: 100%;\n    display: table;\n    text-align: center;\n    font-size: 14px;\n    font-weight: 600; }\n    .m-calendar-year .list ul li {\n      display: table-cell;\n      height: 73px; }\n      .m-calendar-year .list ul li span {\n        box-sizing: border-box;\n        border-radius: 6px;\n        position: relative;\n        display: inline-block;\n        line-height: 72px;\n        height: 72px;\n        width: 72px; }\n        .m-calendar-year .list ul li span.active {\n          color: #2f95ea;\n          border: 1px solid #2f95ea; }\n          .m-calendar-year .list ul li span.active:after {\n            content: \"\";\n            width: 8px;\n            height: 8px;\n            background: #2f95ea;\n            position: absolute;\n            border-radius: 50%;\n            top: 50px;\n            right: 32px; }\n        .m-calendar-year .list ul li span.gray {\n          color: #999999; }\n        .m-calendar-year .list ul li span:hover {\n          background: #e2effa;\n          cursor: pointer; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
+
+// exports
+
 
 /***/ },
-/* 19 */,
 /* 20 */
-/***/ function(module, exports) {
-
-module.exports = function (obj) {
-obj || (obj = {});
-var __t, __p = '';
-with (obj) {
-__p += '<div id="m-page" style="margin-top: 200px"></div>';
-
-}
-return __p
-}
-
-/***/ },
-/* 21 */,
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-module.exports = function (node, opts) {
-    //----------------require--------------
-    var base = __webpack_require__(4); // 基础对象
-    var parseModule = __webpack_require__(27); // 页面模块自动解析
-    var merge = __webpack_require__(12);
-    var render = __webpack_require__(23);
-    var addEvent = __webpack_require__(16);
-    var className = __webpack_require__(24);
-    var opra = __webpack_require__(26);
-    var eventProxy = __webpack_require__(29);
-    var dataset = __webpack_require__(14);
-
-    //-----------声明模块全局变量-------------
-    var nodeList = node; // 存储所有关键节点
-    var that = base();
-    var data = null;
-    var maxPageSize = 0;
-
-    opts = merge({
-        pageSize: 10, //每页显示几条
-        curPage: 6, //当前页
-        totalRows: 72, //总条数
-        pageList: [10, 20, 30, 40, 50] //每页数列表
-    }, opts || {});
-
-    //-------------事件响应声明---------------
-    var evtFuncs = {
-
-        selectPageSize: function (e) {
-            var elem = e.target || e.relatedTarget || e.srcElement || e.currentTarget;
-            var val = elem.innerHTML;
-            nodeList.pageSize.value = val;
-            className.add(nodeList.select, "hide");
-            nodeList.page.value = Math.floor(dataset.get(nodeList.text, "curNum") / nodeList.pageSize.value) || 1;
-            custFuncs.pageChange();
-            that.fire("page", { pageSize: val, curpage: nodeList.page.value });
-        },
-        selectShow: function (e) {
-            if (className.has(nodeList.select, "hide")) {
-                className.remove(nodeList.select, "hide");
-            } else {
-                className.add(nodeList.select, "hide");
-            }
-        },
-        next: function () {
-            if (custFuncs.isNext()) return;
-            nodeList.page.value = parseInt(nodeList.page.value, 10) + 1;
-            custFuncs.pageChange();
-        },
-        last: function () {
-            if (custFuncs.isNext()) return;
-            nodeList.page.value = maxPageSize;
-            custFuncs.pageChange();
-        },
-        prev: function () {
-            if (custFuncs.isPrev()) return;
-            nodeList.page.value = parseInt(nodeList.page.value, 10) - 1;
-            custFuncs.pageChange();
-        },
-        first: function () {
-            if (custFuncs.isPrev()) return;
-            nodeList.page.value = 1;
-            custFuncs.pageChange();
-        },
-        goTo: function () {
-            custFuncs.pageChange();
-        },
-        page: function () {
-            this.value = this.value.replace(/\D/g, "");
-            var val = this.value;
-            if (val > maxPageSize) {
-                this.value = maxPageSize;
-            }
-            if (val < 1 && val != "") {
-                this.value = 1;
-            }
-        }
-    };
-
-    //-------------子模块实例化---------------
-    var initMod = function () {};
-
-    //-------------绑定事件------------------
-    var bindEvents = function () {
-        eventProxy(node).add("select", "click", evtFuncs.selectPageSize);
-        addEvent(nodeList.pageSize, "click", evtFuncs.selectShow);
-        addEvent(nodeList.first, "click", evtFuncs.first);
-        addEvent(nodeList.next, "click", evtFuncs.next);
-        addEvent(nodeList.prev, "click", evtFuncs.prev);
-        addEvent(nodeList.last, "click", evtFuncs.last);
-        addEvent(nodeList.btn, "click", evtFuncs.goTo);
-        addEvent(nodeList.page, "keyup", evtFuncs.page);
-    };
-
-    //-------------自定义函数----------------
-    var custFuncs = {
-        pageChange: function () {
-            var curpage = nodeList.page.value;
-            maxPageSize = Math.ceil(opts.totalRows / nodeList.pageSize.value);
-            nodeList.total.innerHTML = curpage + "&nbsp;/&nbsp;" + maxPageSize;
-            //当前页码结束
-            var curNum = maxPageSize != curpage ? nodeList.pageSize.value * curpage : nodeList.pageSize.value * (curpage - 1) + opts.totalRows % nodeList.pageSize.value;
-
-            dataset.set(nodeList.text, "curNum", curNum);
-
-            nodeList.text.innerHTML = "当前" + (1 + nodeList.pageSize.value * (curpage - 1)) + "到" + curNum + "条，总共" + opts.totalRows + "条";
-
-            that.fire("page", { pageSize: nodeList.pageSize.value, curpage: curpage });
-        },
-        initView: function () {
-            custFuncs.pageChange();
-        },
-        isNext: function () {
-            return dataset.get(nodeList.text, "curNum") == opts.totalRows;
-        },
-        isPrev: function () {
-            return nodeList.page.value == "1";
-        }
-    };
-
-    //-------------一切从这开始--------------
-    var init = function (_data) {
-        data = _data;
-
-        node.innerHTML = render(opts);
-        // 找到所有带有node-name的节点
-        nodeList = parseModule(node);
-
-        // 子模块实例化
-        initMod();
-        // 绑定事件
-        bindEvents();
-
-        custFuncs.initView();
-    };
-
-    //---------------暴露API----------------
-    that.init = init;
-
-    return that;
-};
-
-/***/ },
-/* 23 */
-/***/ function(module, exports) {
-
-module.exports = function (obj) {
-obj || (obj = {});
-var __t, __p = '', __j = Array.prototype.join;
-function print() { __p += __j.call(arguments, '') }
-with (obj) {
-__p += '<div class="m-grid-page" node-name="gridPage">\r\n    <span class="text">每页显示</span>\r\n    \r\n    <div class="select-group" >\r\n        <input type="text" value="' +
-((__t = (pageSize)) == null ? '' : __t) +
-'" node-name="pageSize" readonly="readonly" class="select"/>\r\n        <i class="icon"></i>\r\n        <ul class="hide items" node-name="select">\r\n            ';
-pageList.forEach(function(item){;
-__p += '\r\n            <li data-action="select">' +
-((__t = (item)) == null ? '' : __t) +
-'</li>\r\n            ';
-});
-__p += '\r\n        </ul>\r\n    </div>\r\n\r\n\r\n    <a href="javascript:void(0)" class="first" node-name="first">第一页</a>\r\n    <a href="javascript:void(0)" class="prev" node-name="prev"><i class="icon"></i></a>\r\n    <span class="total" node-name="total">1/1</span>\r\n    <a href="javascript:void(0)" class="next" node-name="next">向后</a>\r\n    <a href="javascript:void(0)" class="last" node-name="last">最后一页</a>\r\n\r\n    <div class="page">\r\n        第<input class="select" type="text" value="' +
-((__t = (curPage)) == null ? '' : __t) +
-'" node-name="page"/>页\r\n    </div>\r\n    <a href="javascript:void(0)" class="goTo" node-name="btn">跳转</a>\r\n\r\n    <span class="total-text" node-name="text">当前0到0条，总共0条</span>\r\n</div>';
-
-}
-return __p
-}
-
-/***/ },
-/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3236,10 +3090,10 @@ return __p
  * }
  */
 
-var isElement = __webpack_require__(15);
+var isElement = __webpack_require__(8);
 var each = __webpack_require__(0);
-var getType = __webpack_require__(2);
-var trim = __webpack_require__(3);
+var getType = __webpack_require__(1);
+var trim = __webpack_require__(5);
 var whiteSpace = ' ';
 var that = {};
 
@@ -3370,7 +3224,7 @@ that.toggle = function (node, className1, className2) {
 module.exports = that;
 
 /***/ },
-/* 25 */
+/* 21 */
 /***/ function(module, exports) {
 
 /**
@@ -3389,7 +3243,7 @@ module.exports = function (node) {
 };
 
 /***/ },
-/* 26 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3414,7 +3268,7 @@ module.exports = function (node) {
  * var prevNode = orpa.prev(node); // 获取到node2，也就是node的上一个元素，注意中间跳过了textNode1
  *
  */
-var isElement = __webpack_require__(15);
+var isElement = __webpack_require__(8);
 var each = __webpack_require__(0);
 var that = {};
 
@@ -3484,76 +3338,366 @@ that.prev = function (node) {
 module.exports = that;
 
 /***/ },
-/* 27 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-var sizzle = __webpack_require__(6);
+/**
+ * 来自STK.js
+ * 将查询字符串转化成json对象，是jsonToQuery的反操作
+ * 例子：
+ *
+ * var queryToJson = require("../json/jsonToQuery");
+ * var str = "id=1&name=benny";
+ * var json = queryToJson(str);
+ * json的值将为：
+ * json = { id: 1, name: "benny" };
+ *
+ */
+var trim = __webpack_require__(5);
+module.exports = function (qs) {
+    var qList = trim(qs).split("&"),
+        json = {},
+        i = 0,
+        len = qList.length;
 
-module.exports = function (node, onlyChild) {
-    var list = Array.prototype.slice.call(sizzle((onlyChild === true ? "> " : "") + "[node-name]", node), 0);
-    var nodeList = {};
-
-    list.forEach(function (el) {
-        var name = el.getAttribute("node-name");
-
-        if (name in nodeList) {
-            nodeList[name] = [].concat(nodeList[name], el);
-        } else {
-            nodeList[name] = el;
+    for (; i < len; i++) {
+        if (qList[i]) {
+            var hash = qList[i].split("="),
+                key = hash[0],
+                value = hash[1];
+            // 如果只有key没有value, 那么将全部丢入一个$nullName数组中
+            if (hash.length < 2) {
+                value = key;
+                key = '$nullName';
+            }
+            if (!(key in json)) {
+                // 如果缓存堆栈中没有这个数据，则直接存储
+                json[key] = decodeURIComponent(value);
+            } else {
+                // 如果堆栈中已经存在这个数据，则转换成数组存储
+                json[key] = [].concat(json[key], decodeURIComponent(value));
+            }
         }
-    });
-
-    return nodeList;
+    }
+    return json;
 };
 
 /***/ },
-/* 28 */
+/* 24 */,
+/* 25 */,
+/* 26 */
 /***/ function(module, exports) {
 
 /**
- * 获取事件对象，一般情况下不需要使用本函数
- * 一般来说绑定事件时，event对象会当成参数传给响应函数，
- * 但在某些特殊情况下，可能event对象在函数调用链中没有传递（代码设计缺陷造成的）
- * 那可以使用本函数去获取。
- *
- * 例子：
- *
- * var getEvent = require("../evt/get");
- * var addEvent = require("../evt/add");
- *
- * var fun1 = function(evt) { // 注意没有事件对象传递
- *   var evt = evt || getEvent(); // 如果没有evt参数，则getEvent()获取
- *   console.log(evt.type);
- * }
- *
- * var handler = function(evt) {
- *   fun1(); // 调用了，可是没有将evt传递给fun1，这就是所谓的代码设计问题
- * }
- *
- * addEvent(node, "click", handler);
- *
+ * 封装了node.dataset功能, dataset是标准浏览器新增的功能，这里主要是为了兼容旧浏览器
+ * <div id="node" data-node-value="123"></div>
+ * var dataset = require("../dom/dataset");
+ * dataset.get(node, "nodeValue")将会读取data-node-value，得到123
+ * dataset.set(node, "nodeValue", "123")将会设置data-node-value为123
+ * 注意传入的KEY是驼峰命名
  */
 
-var getEvent = function () {
-    if (document.addEventListener) {
-        var o = getEvent,
-            e;
-        do {
-            e = o.arguments[0];
-            if (e && /Event/.test(Object.prototype.toString.call(e))) {
-                return e;
-            }
-        } while (o = o.caller);
-        return e;
+var that = {};
+
+var keyCase = function (key) {
+    return "data-" + key.replace(/([A-Z]|(?:^\d+))/g, function (all, match) {
+        return "-" + match.toLowerCase();
+    });
+};
+
+that.get = function (node, key) {
+    if ("dataset" in node) {
+        return node.dataset[key];
     } else {
-        return window.event;
+        var dataKey = keyCase(key);
+        var attrs = node.attributes;
+        var len = attrs.length;
+
+        for (var i = 0; i < len; i++) {
+            if (attrs[i].name == dataKey) {
+                return attrs[i].value;
+            }
+        }
     }
 };
 
-module.exports = getEvent;
+that.set = function (node, key, val) {
+    if ("dataset" in node) {
+        node.dataset[key] = val;
+    } else {
+        var dataKey = keyCase(key);
+        node.setAttribute(dataKey, val);
+    }
+};
+
+that.remove = function (node, key) {
+    if ("dataset" in node) {
+        delete node.dataset[key];
+    } else {
+        var dataKey = keyCase(key);
+        node.removeAttribute(dataKey);
+    }
+};
+
+module.exports = that;
 
 /***/ },
-/* 29 */
+/* 27 */,
+/* 28 */,
+/* 29 */,
+/* 30 */,
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(19);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(10)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(true) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept(19, function() {
+			var newContent = __webpack_require__(19);
+			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+/* 32 */,
+/* 33 */,
+/* 34 */
+/***/ function(module, exports) {
+
+module.exports = function (obj) {
+obj || (obj = {});
+var __t, __p = '';
+with (obj) {
+__p += '<div id="m-page" style="margin-top: 200px"></div>';
+
+}
+return __p
+}
+
+/***/ },
+/* 35 */,
+/* 36 */,
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+module.exports = function (node, opts) {
+    //----------------require--------------
+    var base = __webpack_require__(3); // 基础对象
+    var parseModule = __webpack_require__(13); // 页面模块自动解析
+    var merge = __webpack_require__(7);
+    var render = __webpack_require__(39);
+    var addEvent = __webpack_require__(9);
+    var className = __webpack_require__(20);
+    var opra = __webpack_require__(22);
+    var eventProxy = __webpack_require__(47);
+    var dataset = __webpack_require__(26);
+
+    //-----------声明模块全局变量-------------
+    var nodeList = node; // 存储所有关键节点
+    var that = base();
+    var data = null;
+    var maxPageSize = 0;
+
+    opts = merge({
+        pageSize: 10, //每页显示几条
+        curPage: 6, //当前页
+        totalRows: 72, //总条数
+        pageList: [10, 20, 30, 40, 50] //每页数列表
+    }, opts || {});
+
+    //-------------事件响应声明---------------
+    var evtFuncs = {
+
+        selectPageSize: function (e) {
+            var elem = e.target || e.relatedTarget || e.srcElement || e.currentTarget;
+            var val = elem.innerHTML;
+            nodeList.pageSize.value = val;
+            className.add(nodeList.select, "hide");
+            nodeList.page.value = Math.floor(dataset.get(nodeList.text, "curNum") / nodeList.pageSize.value) || 1;
+            custFuncs.pageChange();
+            that.fire("page", {
+                pageSize: val,
+                curpage: nodeList.page.value
+            });
+        },
+        selectShow: function (e) {
+            if (className.has(nodeList.select, "hide")) {
+                className.remove(nodeList.select, "hide");
+            } else {
+                className.add(nodeList.select, "hide");
+            }
+            e.stopPropagation();
+            addEvent(document, "click", evtFuncs.selectHide);
+        },
+        selectHide: function () {
+            className.add(nodeList.select, "hide");
+        },
+        next: function () {
+            if (custFuncs.isNext()) return;
+            nodeList.page.value = parseInt(nodeList.page.value, 10) + 1;
+            custFuncs.pageChange();
+        },
+        last: function () {
+            if (custFuncs.isNext()) return;
+            nodeList.page.value = maxPageSize;
+            custFuncs.pageChange();
+        },
+        prev: function () {
+            if (custFuncs.isPrev()) return;
+            nodeList.page.value = parseInt(nodeList.page.value, 10) - 1;
+            custFuncs.pageChange();
+        },
+        first: function () {
+            if (custFuncs.isPrev()) return;
+            nodeList.page.value = 1;
+            custFuncs.pageChange();
+        },
+        goTo: function () {
+            custFuncs.pageChange();
+        },
+        page: function () {
+            this.value = this.value.replace(/\D/g, "");
+            var val = this.value;
+            if (val > maxPageSize) {
+                this.value = maxPageSize;
+            }
+            if (val < 1 && val != "") {
+                this.value = 1;
+            }
+        }
+    };
+
+    //-------------子模块实例化---------------
+    var initMod = function () {};
+
+    //-------------绑定事件------------------
+    var bindEvents = function () {
+        eventProxy(node).add("select", "click", evtFuncs.selectPageSize);
+        addEvent(nodeList.pageSize, "click", evtFuncs.selectShow);
+        addEvent(nodeList.first, "click", evtFuncs.first);
+        addEvent(nodeList.next, "click", evtFuncs.next);
+        addEvent(nodeList.prev, "click", evtFuncs.prev);
+        addEvent(nodeList.last, "click", evtFuncs.last);
+        addEvent(nodeList.btn, "click", evtFuncs.goTo);
+        addEvent(nodeList.page, "keyup", evtFuncs.page);
+    };
+
+    //-------------自定义函数----------------
+    var custFuncs = {
+        pageChange: function () {
+            var curpage = nodeList.page.value;
+            maxPageSize = Math.ceil(opts.totalRows / nodeList.pageSize.value);
+            nodeList.total.innerHTML = curpage + "&nbsp;/&nbsp;" + maxPageSize;
+            //当前页码结束
+            var curNum = maxPageSize != curpage ? nodeList.pageSize.value * curpage : nodeList.pageSize.value * (curpage - 1) + opts.totalRows % nodeList.pageSize.value;
+
+            dataset.set(nodeList.text, "curNum", curNum);
+
+            nodeList.text.innerHTML = "当前" + (1 + nodeList.pageSize.value * (curpage - 1)) + "到" + curNum + "条，总共" + opts.totalRows + "条";
+
+            custFuncs.removeGray();
+            if (custFuncs.isPrev()) {
+                className.add(nodeList.prev, "gray");
+                className.add(nodeList.first, "gray");
+            }
+
+            if (custFuncs.isNext()) {
+                className.add(nodeList.next, "gray");
+                className.add(nodeList.last, "gray");
+            }
+
+            that.fire("page", {
+                pageSize: nodeList.pageSize.value,
+                curpage: curpage
+            });
+        },
+        initView: function () {
+            custFuncs.pageChange();
+        },
+        removeGray: function () {
+            className.remove(nodeList.next, "gray");
+            className.remove(nodeList.last, "gray");
+            className.remove(nodeList.prev, "gray");
+            className.remove(nodeList.first, "gray");
+        },
+        isNext: function () {
+            return dataset.get(nodeList.text, "curNum") == opts.totalRows;
+        },
+        isPrev: function () {
+            return nodeList.page.value == "1";
+        }
+    };
+
+    //-------------一切从这开始--------------
+    var init = function (_data) {
+        data = _data;
+
+        node.innerHTML = render(opts);
+        // 找到所有带有node-name的节点
+        nodeList = parseModule(node);
+
+        // 子模块实例化
+        initMod();
+        // 绑定事件
+        bindEvents();
+
+        custFuncs.initView();
+    };
+
+    //---------------暴露API----------------
+    that.init = init;
+
+    return that;
+};
+
+/***/ },
+/* 38 */,
+/* 39 */
+/***/ function(module, exports) {
+
+module.exports = function (obj) {
+obj || (obj = {});
+var __t, __p = '', __j = Array.prototype.join;
+function print() { __p += __j.call(arguments, '') }
+with (obj) {
+__p += '<div class="m-grid-page" node-name="gridPage">\r\n    <span class="text">每页显示</span>\r\n    \r\n    <div class="select-group" >\r\n        <input type="text" value="' +
+((__t = (pageSize)) == null ? '' : __t) +
+'" node-name="pageSize" readonly="readonly" class="select"/>\r\n        <i class="icon"></i>\r\n        <ul class="hide items" node-name="select">\r\n            ';
+pageList.forEach(function(item){;
+__p += '\r\n            <li data-action="select">' +
+((__t = (item)) == null ? '' : __t) +
+'</li>\r\n            ';
+});
+__p += '\r\n        </ul>\r\n    </div>\r\n\r\n\r\n    <a href="javascript:void(0)" class="first" node-name="first"><i class="icon"></i></a>\r\n    <a href="javascript:void(0)" class="prev" node-name="prev"><i class="icon"></i></a>\r\n    <span class="total" node-name="total">1/1</span>\r\n    <a href="javascript:void(0)" class="next" node-name="next"><i class="icon"></i></a>\r\n    <a href="javascript:void(0)" class="last" node-name="last"><i class="icon"></i></a>\r\n\r\n    <div class="page">\r\n        第<input class="select" type="text" value="' +
+((__t = (curPage)) == null ? '' : __t) +
+'" node-name="page"/>页\r\n    </div>\r\n    <a href="javascript:void(0)" class="goTo" node-name="btn"><i class="icon"></i>跳转</a>\r\n\r\n    <span class="total-text" node-name="text">当前0到0条，总共0条</span>\r\n</div>';
+
+}
+return __p
+}
+
+/***/ },
+/* 40 */,
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3586,14 +3730,14 @@ module.exports = getEvent;
  */
 
 module.exports = function (outerNode) {
-    var addEvent = __webpack_require__(16);
-    var removeEvent = __webpack_require__(30);
-    var getEvent = __webpack_require__(28);
-    var dataset = __webpack_require__(14);
+    var addEvent = __webpack_require__(9);
+    var removeEvent = __webpack_require__(16);
+    var getEvent = __webpack_require__(15);
+    var dataset = __webpack_require__(26);
     var each = __webpack_require__(0);
-    var trim = __webpack_require__(3);
-    var queryToJson = __webpack_require__(13);
-    var console = __webpack_require__(1);
+    var trim = __webpack_require__(5);
+    var queryToJson = __webpack_require__(23);
+    var console = __webpack_require__(2);
     var proxyNameKey = "action";
     var proxyDataKey = "query";
     var that = {};
@@ -3745,109 +3889,13 @@ module.exports = function (outerNode) {
 };
 
 /***/ },
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 删除事件
- * @2014-10-11 增加了批量处理功能，可以传入一个节点数组解绑事件
- * 例子请阅读add函数
- */
-
-var getType = __webpack_require__(2);
-var each = __webpack_require__(0);
-
-var removeEvent = function (el, type, fn, releaseCapture) {
-    if (getType(el) == "array") {
-        var fun = removeEvent;
-
-        each(el, function (item, key) {
-            fun(item, type, fn, releaseCapture);
-        });
-    }
-
-    el = typeof el == "string" ? document.getElementById(el) : el;
-
-    if (el == null || typeof fn != "function") {
-        return false;
-    }
-
-    if (el.removeEventListener) {
-        el.removeEventListener(type, fn, releaseCapture === true ? true : false);
-    } else if (el.detachEvent) {
-        el.detachEvent("on" + type, fn);
-        if (releaseCapture && el.releaseCapture) {
-            el.releaseCapture();
-        }
-    } else {
-        el['on' + type] = null;
-        if (releaseCapture && el.releaseCapture) {
-            el.releaseCapture();
-        }
-    }
-
-    return true;
-};
-
-module.exports = removeEvent;
-
-/***/ },
-/* 31 */,
-/* 32 */
-/***/ function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-// css base code, injected by the css-loader
-module.exports = function () {
-	var list = [];
-
-	// return the list of modules as css string
-	list.toString = function toString() {
-		var result = [];
-		for (var i = 0; i < this.length; i++) {
-			var item = this[i];
-			if (item[2]) {
-				result.push("@media " + item[2] + "{" + item[1] + "}");
-			} else {
-				result.push(item[1]);
-			}
-		}
-		return result.join("");
-	};
-
-	// import a list of modules into the list
-	list.i = function (modules, mediaQuery) {
-		if (typeof modules === "string") modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for (var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if (typeof id === "number") alreadyImportedModules[id] = true;
-		}
-		for (i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if (mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if (mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
-
-/***/ },
-/* 33 */,
-/* 34 */
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3859,12 +3907,12 @@ module.exports = function () {
  */
 //----------------require--------------
 // var viewport = require("lib/dom/viewport"); // viewport
-var base = __webpack_require__(4); // 基础对象
-var parsePage = __webpack_require__(5); // 页面模块自动解析
-var scss = __webpack_require__(18); // 引入当前页面的scss文件
+var base = __webpack_require__(3); // 基础对象
+var parsePage = __webpack_require__(6); // 页面模块自动解析
+var scss = __webpack_require__(31); // 引入当前页面的scss文件
 // 模板
-var render = __webpack_require__(20); // 页面总模板
-var page = __webpack_require__(22);
+var render = __webpack_require__(34); // 页面总模板
+var page = __webpack_require__(37);
 // 子模块
 // var header = require("./header");
 

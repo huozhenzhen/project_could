@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "9c232462d6fddf81c822"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "77770dcfc26cea6dcb21"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -239,7 +239,7 @@
 /******/ 				};
 /******/ 			});
 /******/ 			hotUpdate = {};
-/******/ 			var chunkId = 1;
+/******/ 			var chunkId = 2;
 /******/ 			{ // eslint-disable-line no-lone-blocks
 /******/ 				/*globals chunkId */
 /******/ 				hotEnsureUpdateChunk(chunkId);
@@ -698,7 +698,7 @@
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return hotCreateRequire(33)(__webpack_require__.s = 33);
+/******/ 	return hotCreateRequire(52)(__webpack_require__.s = 52);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -717,7 +717,7 @@
  * });
  */
 
-var getType = __webpack_require__(2);
+var getType = __webpack_require__(1);
 module.exports = function (obj, fn) {
     if (getType(obj) == "array") {
         if ([].forEach) {
@@ -748,6 +748,23 @@ module.exports = function (obj, fn) {
 /***/ function(module, exports) {
 
 /**
+ * 检查传入的对象
+ * 如果是null则返回null(typeof null是返回object)
+ * 如果是数组则返回array(typeof []是返回object)
+ *
+ * var getType = require("../util/getType");
+ * var type = getType([]); // array
+ */
+module.exports = function (obj) {
+  var type;
+  return ((type = typeof obj) == "object" ? obj == null && "null" || Object.prototype.toString.call(obj).slice(8, -1) : type).toLowerCase();
+};
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+/**
  * 对window.console做了封装，防止由于没有删除console语句而报错
  * 如果需要使用到console对象，请引入本文件，而不要直接使用window.console
  *
@@ -767,65 +784,7 @@ for (var key in methods) {
 module.exports = console;
 
 /***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-/**
- * 检查传入的对象
- * 如果是null则返回null(typeof null是返回object)
- * 如果是数组则返回array(typeof []是返回object)
- *
- * var getType = require("../util/getType");
- * var type = getType([]); // array
- */
-module.exports = function (obj) {
-  var type;
-  return ((type = typeof obj) == "object" ? obj == null && "null" || Object.prototype.toString.call(obj).slice(8, -1) : type).toLowerCase();
-};
-
-/***/ },
 /* 3 */
-/***/ function(module, exports) {
-
-/**
- * 清除字符串前后空白字符
- * 例子：
- *
- * var trim = require("../str/trim");
- * var str = trim(" text "); // "text"
- *
- */
-module.exports = function (str) {
-	if (str == null) {
-		return "";
-	}
-
-	str = str.toString();
-	var len = str.length;
-	var s = 0;
-	var reg = /(\u3000|\s|\t|\u00A0)/;
-
-	while (s < len) {
-		if (!reg.test(str.charAt(s))) {
-			break;
-		}
-
-		s += 1;
-	}
-
-	while (len > s) {
-		if (!reg.test(str.charAt(len - 1))) {
-			break;
-		}
-
-		len -= 1;
-	}
-
-	return str.slice(s, len);
-};
-
-/***/ },
-/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -862,8 +821,8 @@ module.exports = function (str) {
  *
  * 这样子在响应函数中读取到的evt.data的值就是这个{ name: "benny", gender: "M" }，它并不是必须的
  */
-__webpack_require__(10); // 如果使用IE8的话
-var console = __webpack_require__(1);
+__webpack_require__(11); // 如果使用IE8的话
+var console = __webpack_require__(2);
 var each = __webpack_require__(0);
 
 var getUniqueId = function () {
@@ -957,35 +916,7 @@ base.getZIndex = getZIndex;
 module.exports = base;
 
 /***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-var console = __webpack_require__(1);
-var sizzle = __webpack_require__(6);
-
-module.exports = function () {
-    var list = Array.prototype.slice.call(sizzle("[id]"), 0);
-    var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
-    var nodeList = {};
-
-    list.forEach(function (el) {
-        if (!reg.test(el.id)) {
-            console.warn("节点#" + el.id + "的id值不符合规范，被忽略!");
-            return;
-        }
-
-        var id = el.id.substr(2).toLowerCase().replace(/\-([a-z])/g, function (m, n) {
-            return n.toUpperCase();
-        });
-
-        nodeList[id] = el;
-    });
-
-    return nodeList;
-};
-
-/***/ },
-/* 6 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -1002,7 +933,7 @@ module.exports = function () {
  *
  */
 
-var getStyle = __webpack_require__(11);
+var getStyle = __webpack_require__(12);
 var chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g,
     done = 0,
     toString = Object.prototype.toString,
@@ -2079,7 +2010,134 @@ Expr.filters.visible = function (elem) {
 module.exports = Sizzle;
 
 /***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+/**
+ * 清除字符串前后空白字符
+ * 例子：
+ *
+ * var trim = require("../str/trim");
+ * var str = trim(" text "); // "text"
+ *
+ */
+module.exports = function (str) {
+	if (str == null) {
+		return "";
+	}
+
+	str = str.toString();
+	var len = str.length;
+	var s = 0;
+	var reg = /(\u3000|\s|\t|\u00A0)/;
+
+	while (s < len) {
+		if (!reg.test(str.charAt(s))) {
+			break;
+		}
+
+		s += 1;
+	}
+
+	while (len > s) {
+		if (!reg.test(str.charAt(len - 1))) {
+			break;
+		}
+
+		len -= 1;
+	}
+
+	return str.slice(s, len);
+};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+var console = __webpack_require__(2);
+var sizzle = __webpack_require__(4);
+
+module.exports = function () {
+    var list = Array.prototype.slice.call(sizzle("[id]"), 0);
+    var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
+    var nodeList = {};
+
+    list.forEach(function (el) {
+        if (!reg.test(el.id)) {
+            console.warn("节点#" + el.id + "的id值不符合规范，被忽略!");
+            return;
+        }
+
+        var id = el.id.substr(2).toLowerCase().replace(/\-([a-z])/g, function (m, n) {
+            return n.toUpperCase();
+        });
+
+        nodeList[id] = el;
+    });
+
+    return nodeList;
+};
+
+/***/ },
 /* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 合并多个对象，将后面的对象和前面的对象一层一层的合并
+ * 支持第一个参数传boolean类型，当传true时，支持深层合并
+ * 例子：
+ *
+ * var merge = require("../json/merge");
+ * var opts = { url: "http://www.baidu.com" };
+ * var defaultOpts = { url: "", method: "get" };
+ * opts = merge(defaultOpts, opts);
+ * opts的值为：
+ * opts = {
+ *     url: "http://www.baidu.com",
+ *     method: "get"
+ * }
+ *
+ */
+
+var getType = __webpack_require__(1);
+var console = __webpack_require__(2);
+var each = __webpack_require__(0);
+
+module.exports = function () {
+
+    var result = [];
+    var args = [].slice.call(arguments);
+    result.push.apply(result, args);
+
+    var deep = false;
+
+    function mergeObj(r, obj) {
+        each(obj, function (v, k) {
+            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
+                mergeObj(r[k], v);
+            } else {
+                r[k] = v;
+            }
+        });
+    }
+
+    var newObj = {};
+
+    each(result, function (item, index) {
+        if (index == 0 && item === true) {
+            deep = true;
+        } else if (getType(item) == "object") {
+            mergeObj(newObj, item);
+        }
+    });
+
+    return newObj;
+};
+
+/***/ },
+/* 8 */,
+/* 9 */,
+/* 10 */
 /***/ function(module, exports) {
 
 /*
@@ -2331,22 +2389,7 @@ function updateLink(linkElement, obj) {
 
 
 /***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(32)();
-// imports
-
-
-// module
-exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none;\n  font-size: 3.125vmin; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*debuggap太小了，所以给弄大点，好点些*/\n#debuggapRoot .dg-out {\n  width: 5rem !important;\n  height: 5rem !important;\n  border-radius: 50% !important; }\n\n#debuggapRoot .dg-inner {\n  width: 4rem !important;\n  height: 4rem !important;\n  border-radius: 50% !important;\n  margin: 0.5rem !important; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -webkit-user-select: none;\n  /* background: $bg7; */ }\n  body.not-flex {\n    display: block; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 滚动不顺时用 */\n.scrolling {\n  -webkit-overflow-scrolling: touch; }\n\n/* 布局继承专用 */\n.flex-row, .flex-column, .m-stretch-swiper {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex; }\n\n.flex-column, .m-stretch-swiper {\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column; }\n\n.flex-item, .m-stretch-swiper > .swiper-wrapper {\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n      flex: 1; }\n\n.flex-vertical-middle {\n  /* 09版 */\n  -webkit-box-align: center;\n  /* 12版 */\n  -ms-flex-align: center;\n      align-items: center; }\n\n/* 自动伸展高度的swiper，如果不知道怎么使用，可以参考幸福蓝海buyTicket.html */\n/* 由于使用了父级容器使用了flex:1，swiper无法使用height:100%;来让高度起效，导致高度为0，可以用这个解决 */\n.m-stretch-swiper {\n  /*\n    可能需要在这里写：\n    @extend .flex-item;\n    width: 100%;\n    让宽度变成100%，并且高度撑开\n     */ }\n  .m-stretch-swiper > .swiper-wrapper {\n    -webkit-box-align: stretch;\n    -ms-flex-align: stretch;\n        align-items: stretch; }\n    .m-stretch-swiper > .swiper-wrapper > .swiper-slide {\n      height: auto; }\n\n/* 多行加省略号 */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n/*flex布局下，文字溢出省略*/\n.ellipsis {\n  display: -webkit-box;\n  /*这是一个已经弃用的属性*/\n  -webkit-line-clamp: 1;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n  text-overflow: ellipsis; }\n\n/* 设置盒子模型为IE盒子模型 */\n.border-box {\n  box-sizing: border-box; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
-
-// exports
-
-
-/***/ },
-/* 9 */,
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 (function () {
@@ -2489,7 +2532,7 @@ exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path�
 })();
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 /**
@@ -2765,242 +2808,8 @@ var getStyle = function (node, property) {
 module.exports = getStyle;
 
 /***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 合并多个对象，将后面的对象和前面的对象一层一层的合并
- * 支持第一个参数传boolean类型，当传true时，支持深层合并
- * 例子：
- *
- * var merge = require("../json/merge");
- * var opts = { url: "http://www.baidu.com" };
- * var defaultOpts = { url: "", method: "get" };
- * opts = merge(defaultOpts, opts);
- * opts的值为：
- * opts = {
- *     url: "http://www.baidu.com",
- *     method: "get"
- * }
- *
- */
-
-var getType = __webpack_require__(2);
-var console = __webpack_require__(1);
-var each = __webpack_require__(0);
-
-module.exports = function () {
-
-    var result = [];
-    var args = [].slice.call(arguments);
-    result.push.apply(result, args);
-
-    var deep = false;
-
-    function mergeObj(r, obj) {
-        each(obj, function (v, k) {
-            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
-                mergeObj(r[k], v);
-            } else {
-                r[k] = v;
-            }
-        });
-    }
-
-    var newObj = {};
-
-    each(result, function (item, index) {
-        if (index == 0 && item === true) {
-            deep = true;
-        } else if (getType(item) == "object") {
-            mergeObj(newObj, item);
-        }
-    });
-
-    return newObj;
-};
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 来自STK.js
- * 将查询字符串转化成json对象，是jsonToQuery的反操作
- * 例子：
- *
- * var queryToJson = require("../json/jsonToQuery");
- * var str = "id=1&name=benny";
- * var json = queryToJson(str);
- * json的值将为：
- * json = { id: 1, name: "benny" };
- *
- */
-var trim = __webpack_require__(3);
-module.exports = function (qs) {
-    var qList = trim(qs).split("&"),
-        json = {},
-        i = 0,
-        len = qList.length;
-
-    for (; i < len; i++) {
-        if (qList[i]) {
-            var hash = qList[i].split("="),
-                key = hash[0],
-                value = hash[1];
-            // 如果只有key没有value, 那么将全部丢入一个$nullName数组中
-            if (hash.length < 2) {
-                value = key;
-                key = '$nullName';
-            }
-            if (!(key in json)) {
-                // 如果缓存堆栈中没有这个数据，则直接存储
-                json[key] = decodeURIComponent(value);
-            } else {
-                // 如果堆栈中已经存在这个数据，则转换成数组存储
-                json[key] = [].concat(json[key], decodeURIComponent(value));
-            }
-        }
-    }
-    return json;
-};
-
-/***/ },
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(8);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(7)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(true) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept(8, function() {
-			var newContent = __webpack_require__(8);
-			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-/* 18 */,
-/* 19 */
-/***/ function(module, exports) {
-
-module.exports = function (obj) {
-obj || (obj = {});
-var __t, __p = '';
-with (obj) {
-__p += '<h1>133333ss333sssssssddcdaaaaaa6666666666623333</h1>';
-
-}
-return __p
-}
-
-/***/ },
-/* 20 */,
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * URL的解析和合成，注意：该设计有缺陷，不支持username:userpass，不过一般都用不上
- *
- * var URL = require("../util/URL");
- * var urlObj = URL.parse("http://www.baidu.com:8080/index.html?p=1#link1");
- * 得到：
- * {
- *     hash: "link1",
- *     host: "www.baidu.com",
- *     path: "/index.html",
- *     port: "8080",
- *     query: "p=1",
- *     scheme: "http:",
- *     slash: "//",
- *     url: "http://www.baidu.com:8080/index.html?p=1#link1"
- * }
- */
-var link = null;
-var merge = __webpack_require__(12);
-var isEmpty = __webpack_require__(31);
-var queryToJson = __webpack_require__(13);
-module.exports = {
-    parse: function (url) {
-
-        link = link || document.createElement("A");
-        link.href = url;
-
-        var result = {
-            "url": url,
-            "scheme": link.protocol,
-            "host": link.host,
-            "port": link.port,
-            "path": link.pathname,
-            "query": isEmpty(link.search) ? "" : link.search.substr(1),
-            "hash": isEmpty(link.hash) ? "" : link.hash.substr(1)
-        };
-        debugger;
-        result["queryJson"] = queryToJson(result["query"]);
-        result["hashJson"] = queryToJson(result["hash"]);
-        return result;
-
-        // var parse_url = /^(?:([A-Za-z]+:)(\/{0,3}))?([0-9.\-A-Za-z]+\.[0-9A-Za-z]+)?(?::(\d+))?(?:(\.?[\.\/]*\/[^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
-        // var names = ['url', 'scheme', 'slash', 'host', 'port', 'path', 'query', 'hash'];
-        // var results = parse_url.exec(url);
-        // var ret = {};
-
-        // for (var i = 0, len = names.length; i < len; i += 1) {
-        //     ret[names[i]] = results[i] || '';
-        // }
-
-        // return ret;
-    },
-    build: function (url) {
-        return url.scheme + "//" + url.host + (url.port != "" ? ":" + url.port : "") + url.path + (url.query != "" ? "?" + url.query : "") + (url.hash != "" ? "#" + url.hash : "");
-    }
-};
-
-/***/ },
-/* 22 */,
-/* 23 */,
-/* 24 */,
-/* 25 */,
-/* 26 */,
-/* 27 */,
-/* 28 */,
-/* 29 */,
-/* 30 */,
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 检查字符串是否为空
- *
- * var isEmpty = require("../str/isEmpty");
- * console.log(isEmpty(null)); // true
- * console.log(isEmpty(" ")); // true
- *
- */
-
-var trim = __webpack_require__(3);
-
-module.exports = function (str) {
-  return trim(str).length == 0;
-};
-
-/***/ },
-/* 32 */
+/* 13 */,
+/* 14 */
 /***/ function(module, exports) {
 
 /*
@@ -3053,7 +2862,217 @@ module.exports = function () {
 };
 
 /***/ },
-/* 33 */
+/* 15 */,
+/* 16 */,
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(14)();
+// imports
+
+
+// module
+exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none;\n  font-size: 3.125vmin; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*debuggap太小了，所以给弄大点，好点些*/\n#debuggapRoot .dg-out {\n  width: 5rem !important;\n  height: 5rem !important;\n  border-radius: 50% !important; }\n\n#debuggapRoot .dg-inner {\n  width: 4rem !important;\n  height: 4rem !important;\n  border-radius: 50% !important;\n  margin: 0.5rem !important; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -webkit-user-select: none;\n  /* background: $bg7; */ }\n  body.not-flex {\n    display: block; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 滚动不顺时用 */\n.scrolling {\n  -webkit-overflow-scrolling: touch; }\n\n/* 布局继承专用 */\n.flex-row, .flex-column, .m-stretch-swiper {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex; }\n\n.flex-column, .m-stretch-swiper {\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column; }\n\n.flex-item, .m-stretch-swiper > .swiper-wrapper {\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n      flex: 1; }\n\n.flex-vertical-middle {\n  /* 09版 */\n  -webkit-box-align: center;\n  /* 12版 */\n  -ms-flex-align: center;\n      align-items: center; }\n\n/* 自动伸展高度的swiper，如果不知道怎么使用，可以参考幸福蓝海buyTicket.html */\n/* 由于使用了父级容器使用了flex:1，swiper无法使用height:100%;来让高度起效，导致高度为0，可以用这个解决 */\n.m-stretch-swiper {\n  /*\n    可能需要在这里写：\n    @extend .flex-item;\n    width: 100%;\n    让宽度变成100%，并且高度撑开\n     */ }\n  .m-stretch-swiper > .swiper-wrapper {\n    -webkit-box-align: stretch;\n    -ms-flex-align: stretch;\n        align-items: stretch; }\n    .m-stretch-swiper > .swiper-wrapper > .swiper-slide {\n      height: auto; }\n\n/* 多行加省略号 */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n/*flex布局下，文字溢出省略*/\n.ellipsis {\n  display: -webkit-box;\n  /*这是一个已经弃用的属性*/\n  -webkit-line-clamp: 1;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n  text-overflow: ellipsis; }\n\n/* 设置盒子模型为IE盒子模型 */\n.border-box {\n  box-sizing: border-box; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
+
+// exports
+
+
+/***/ },
+/* 18 */,
+/* 19 */,
+/* 20 */,
+/* 21 */,
+/* 22 */,
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 来自STK.js
+ * 将查询字符串转化成json对象，是jsonToQuery的反操作
+ * 例子：
+ *
+ * var queryToJson = require("../json/jsonToQuery");
+ * var str = "id=1&name=benny";
+ * var json = queryToJson(str);
+ * json的值将为：
+ * json = { id: 1, name: "benny" };
+ *
+ */
+var trim = __webpack_require__(5);
+module.exports = function (qs) {
+    var qList = trim(qs).split("&"),
+        json = {},
+        i = 0,
+        len = qList.length;
+
+    for (; i < len; i++) {
+        if (qList[i]) {
+            var hash = qList[i].split("="),
+                key = hash[0],
+                value = hash[1];
+            // 如果只有key没有value, 那么将全部丢入一个$nullName数组中
+            if (hash.length < 2) {
+                value = key;
+                key = '$nullName';
+            }
+            if (!(key in json)) {
+                // 如果缓存堆栈中没有这个数据，则直接存储
+                json[key] = decodeURIComponent(value);
+            } else {
+                // 如果堆栈中已经存在这个数据，则转换成数组存储
+                json[key] = [].concat(json[key], decodeURIComponent(value));
+            }
+        }
+    }
+    return json;
+};
+
+/***/ },
+/* 24 */,
+/* 25 */,
+/* 26 */,
+/* 27 */,
+/* 28 */,
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(17);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(10)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(true) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept(17, function() {
+			var newContent = __webpack_require__(17);
+			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+/* 30 */,
+/* 31 */,
+/* 32 */
+/***/ function(module, exports) {
+
+module.exports = function (obj) {
+obj || (obj = {});
+var __t, __p = '';
+with (obj) {
+__p += '<h1>133333ss333sssssssddcdaaaaaa6666666666623333</h1>';
+
+}
+return __p
+}
+
+/***/ },
+/* 33 */,
+/* 34 */,
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * URL的解析和合成，注意：该设计有缺陷，不支持username:userpass，不过一般都用不上
+ *
+ * var URL = require("../util/URL");
+ * var urlObj = URL.parse("http://www.baidu.com:8080/index.html?p=1#link1");
+ * 得到：
+ * {
+ *     hash: "link1",
+ *     host: "www.baidu.com",
+ *     path: "/index.html",
+ *     port: "8080",
+ *     query: "p=1",
+ *     scheme: "http:",
+ *     slash: "//",
+ *     url: "http://www.baidu.com:8080/index.html?p=1#link1"
+ * }
+ */
+var link = null;
+var merge = __webpack_require__(7);
+var isEmpty = __webpack_require__(51);
+var queryToJson = __webpack_require__(23);
+module.exports = {
+    parse: function (url) {
+
+        link = link || document.createElement("A");
+        link.href = url;
+
+        var result = {
+            "url": url,
+            "scheme": link.protocol,
+            "host": link.host,
+            "port": link.port,
+            "path": link.pathname,
+            "query": isEmpty(link.search) ? "" : link.search.substr(1),
+            "hash": isEmpty(link.hash) ? "" : link.hash.substr(1)
+        };
+        debugger;
+        result["queryJson"] = queryToJson(result["query"]);
+        result["hashJson"] = queryToJson(result["hash"]);
+        return result;
+
+        // var parse_url = /^(?:([A-Za-z]+:)(\/{0,3}))?([0-9.\-A-Za-z]+\.[0-9A-Za-z]+)?(?::(\d+))?(?:(\.?[\.\/]*\/[^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+        // var names = ['url', 'scheme', 'slash', 'host', 'port', 'path', 'query', 'hash'];
+        // var results = parse_url.exec(url);
+        // var ret = {};
+
+        // for (var i = 0, len = names.length; i < len; i += 1) {
+        //     ret[names[i]] = results[i] || '';
+        // }
+
+        // return ret;
+    },
+    build: function (url) {
+        return url.scheme + "//" + url.host + (url.port != "" ? ":" + url.port : "") + url.path + (url.query != "" ? "?" + url.query : "") + (url.hash != "" ? "#" + url.hash : "");
+    }
+};
+
+/***/ },
+/* 36 */,
+/* 37 */,
+/* 38 */,
+/* 39 */,
+/* 40 */,
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 检查字符串是否为空
+ *
+ * var isEmpty = require("../str/isEmpty");
+ * console.log(isEmpty(null)); // true
+ * console.log(isEmpty(" ")); // true
+ *
+ */
+
+var trim = __webpack_require__(5);
+
+module.exports = function (str) {
+  return trim(str).length == 0;
+};
+
+/***/ },
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3065,12 +3084,12 @@ module.exports = function () {
  */
 //----------------require--------------
 // var viewport = require("mlib/dom/viewport"); // viewport
-var base = __webpack_require__(4); // 基础对象
-var URL = __webpack_require__(21); // 基础对象
-var parsePage = __webpack_require__(5); // 页面模块自动解析
-var scss = __webpack_require__(17); // 引入当前页面的scss文件
+var base = __webpack_require__(3); // 基础对象
+var URL = __webpack_require__(35); // 基础对象
+var parsePage = __webpack_require__(6); // 页面模块自动解析
+var scss = __webpack_require__(29); // 引入当前页面的scss文件
 // 模板
-var render = __webpack_require__(19); // 页面总模板
+var render = __webpack_require__(32); // 页面总模板
 // 子模块
 // var header = require("./header");
 

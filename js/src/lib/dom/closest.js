@@ -6,11 +6,7 @@ module.exports = function(node, selector, box) {
     box = box || document.body;
 
     if (node.closest) {
-        result = node.closest(selector);
-
-        if (!contains(box, result)) {
-            return null;
-        }
+        return node.closest(selector);
     }
 
     while(node && node != box && node.nodeType == 1) {
