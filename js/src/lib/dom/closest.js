@@ -1,5 +1,4 @@
 var matches = require("./matches");
-var contains = require("./contains");
 
 module.exports = function(node, selector, box) {
     var result = null;

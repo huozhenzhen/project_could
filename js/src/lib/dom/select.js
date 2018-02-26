@@ -18,6 +18,7 @@ module.exports = function(input, area){
     if(input.setSelectionRange){
         input.setSelectionRange(start,start + len);
     }else if(input.createTextRange){
+        //兼容ie
         var range = input.createTextRange();
         range.collapse(1);
         range.moveStart('character', start);

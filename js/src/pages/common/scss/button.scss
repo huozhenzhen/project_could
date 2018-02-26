@@ -1,0 +1,61 @@
+%common-btn {
+    box-sizing: border-box;
+    display: inline-block;
+    border: 1px solid $border3;
+    border-radius: 3px;
+    height: 38px;
+    line-height: 36px;
+    font-size: $fs14;
+    text-align: center;
+    padding: 0 25px;
+    cursor: pointer;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+
+/* 默认按钮，蓝色白字 */
+
+.m-blue-bg-button {
+    @extend %common-btn;
+    color: $color1;
+    background: $bg8;
+    border-color: $border8;
+    &:hover {
+        background: $bg11;
+    }
+    &:active {
+        background: $bg8;
+    }
+    &.gray {
+        cursor: default;
+        &:hover {
+            color: $color2;
+            border-color: $border3;
+        }
+        &:active {
+            background: $bg1;
+            border-color: $border3;
+            color: $color2;
+        }
+    }
+}
+
+
+/* 白底 */
+
+.m-white-bg-button {
+    @extend %common-btn;
+    color: $color2;
+    background: $bg1;
+    &:hover {
+        color: $color7;
+        border-color: $border8;
+    }
+    &:active {
+        background: $bg1;
+        border-color: $border3;
+        color: $color2;
+    }
+}

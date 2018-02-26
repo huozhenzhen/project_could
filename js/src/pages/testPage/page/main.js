@@ -15,6 +15,7 @@ var render = require("./main.ejs"); // 页面总模板
 var page = require("pages/common/components/page");
 // 子模块
 // var header = require("./header");
+var loading = require("pages/common/dialog/loading");
 
 //-----------声明模块全局变量-------------
 var nodeList = null; // 存储所有id符合m-xxx的节点
@@ -44,7 +45,7 @@ var initMod = function() {
     // });
     m_page = page(nodeList.page);
     m_page.init();
-    
+
 }
 
 //-------------绑定事件------------------
@@ -54,19 +55,18 @@ var bindEvents = function() {}
 var custFuncs = {}
 
 //-------------一切从这开始--------------
-!function() {
+loading.show();
+! function() {
     // 先将HTML插入body
-    document.body.insertAdjacentHTML('AfterBegin', render(opts.modules));
+    setTimeout(function(){
+        loading.hide();
+        document.body.insertAdjacentHTML('AfterBegin', render(opts.modules));
 
-    // 找到所有带有id的节点，并将m-xxx-xxx转化成xxxXxx格式存储到nodeList中
-    nodeList = parsePage();
-    // 子模块实例化
-    initMod();
-    // 绑定事件
-    bindEvents();
+        // 找到所有带有id的节点，并将m-xxx-xxx转化成xxxXxx格式存储到nodeList中
+        nodeList = parsePage();
+        // 子模块实例化
+        initMod();
+        // 绑定事件
+        bindEvents();
+    },1000);
 }();
-
-
-
-
-

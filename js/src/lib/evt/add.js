@@ -18,6 +18,8 @@
  *
  */
 
+
+
 var getType = require("../util/getType");
 var each = require("../util/each");
 
@@ -40,6 +42,7 @@ var addEvent = function(el, type, fn, setCapture) {
         el.addEventListener(type, fn, setCapture === true ? true : false);
     } else if (el.attachEvent) {
         el.attachEvent('on' + type, fn);
+        //锁定el    setCapture
         if (setCapture && el.setCapture) { el.setCapture(); }
     } else {
         el['on' + type] = fn;

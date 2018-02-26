@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "77770dcfc26cea6dcb21"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "d00f43a7e479a98dec89"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -239,7 +239,7 @@
 /******/ 				};
 /******/ 			});
 /******/ 			hotUpdate = {};
-/******/ 			var chunkId = 2;
+/******/ 			var chunkId = 5;
 /******/ 			{ // eslint-disable-line no-lone-blocks
 /******/ 				/*globals chunkId */
 /******/ 				hotEnsureUpdateChunk(chunkId);
@@ -698,11 +698,12 @@
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return hotCreateRequire(52)(__webpack_require__.s = 52);
+/******/ 	return hotCreateRequire(106)(__webpack_require__.s = 106);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 0:
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -744,7 +745,8 @@ module.exports = function (obj, fn) {
 };
 
 /***/ },
-/* 1 */
+
+/***/ 1:
 /***/ function(module, exports) {
 
 /**
@@ -761,30 +763,809 @@ module.exports = function (obj) {
 };
 
 /***/ },
-/* 2 */
+
+/***/ 10:
 /***/ function(module, exports) {
 
 /**
- * 对window.console做了封装，防止由于没有删除console语句而报错
- * 如果需要使用到console对象，请引入本文件，而不要直接使用window.console
- *
+ * 获取节点的样式属性 来自STK.js
+ * 该API封装了一些需要兼容的属性，比如获取半透明只需要设置opacity值
+ * 例子：
+ * var getStyle = require("../dom/getStyle");
+ * var paddingLeft = getStyle(node, "paddingLeft"); // 获取到padding-left的值
+ * var paddingLeft = getStyle(node, "padding-left"); // 获取到padding-left的值
  */
 
-var methods = ["log", "debug", "info", "warn", "exception", "assert", "dir", "dirxml", "trace", "group", "groupCollapsed", "groupEnd", "profile", "profileEnd", "count", "clear", "time", "timeEnd", "timeStamp", "table", "error", "markTimeline", "timeline", "timelineEnd", "cd", "countReset", "select"];
+//是否ie盒模型
+var isQuirk = document.documentMode ? document.documentMode === 5 : document.compatMode !== "CSS1Compat";
 
-var console = window.console || {};
-var emptyFunc = function () {};
+//测试用的 style
+var testStyle = document.createElement("DIV").style;
+testStyle.cssText = "float:left;opacity:.5";
 
-for (var key in methods) {
-    if (!(methods[key] in console)) {
-        console[methods[key]] = emptyFunc;
+var color = {
+    aqua: '#0ff',
+    black: '#000',
+    blue: '#00f',
+    gray: '#808080',
+    purple: '#800080',
+    fuchsia: '#f0f',
+    green: '#008000',
+    lime: '#0f0',
+    maroon: '#800000',
+    navy: '#000080',
+    olive: '#808000',
+    orange: '#ffa500',
+    red: '#f00',
+    silver: '#c0c0c0',
+    teal: '#008080',
+    transparent: 'rgba(0,0,0,0)',
+    white: '#fff',
+    yellow: '#ff0'
+};
+
+var borderWidth = {
+    thin: ["1px", "2px"],
+    medium: ["3px", "4px"],
+    thick: ["5px", "6px"]
+};
+
+var cssHooks = {
+    opacity: function (node) {
+        if (!_cssSupport().opacity) {
+            var val = 100;
+            try {
+                val = node.filters['DXImageTransform.Microsoft.Alpha'].opacity;
+            } catch (e) {
+                try {
+                    val = node.filters('alpha').opacity;
+                } catch (e) {}
+            }
+            return val / 100;
+        }
+    }
+};
+
+// 对应正确的css属性
+// 在执行中会使用 _vendorPropName 动态添加，例如 transform: 'WebkitTransform'
+var cssProps = {
+    "float": _cssSupport().cssFloat ? "cssFloat" : "styleFloat"
+};
+
+/*
+ *  检测对css的一些属性的支持程度
+ *  @method _cssSupport
+ *  @private
+ */
+function _cssSupport() {
+    return _cssSupport.rs || (_cssSupport.rs = {
+        opacity: /^0\.5/.test(testStyle.opacity),
+        cssFloat: !!testStyle.cssFloat
+    });
+}
+
+/*
+ *  转换驼峰
+ *  @method _camelCase
+ *  @private
+ *  @param {String} 需要转换的字符串
+ */
+function _camelCase(string) {
+    return string.replace(/^-ms-/, "ms-").replace(/-([\da-z])/gi, function (all, letter) {
+        return letter.toUpperCase();
+    });
+}
+
+/*
+ *  检测对是否是某种浏览器自有属性
+ *  例如: WebkitTransform 一类的
+ *  @method _vendorPropName
+ *  @private
+ */
+// moz-border-radius-top-left
+function _vendorPropName(name) {
+    // 检测如果已经可以用短名的用短名
+    if (name in testStyle) {
+        return name;
+    }
+
+    // 循环检测是否某种浏览器特殊名
+    var capName = name.charAt(0).toUpperCase() + name.slice(1);
+    var origName = name;
+    var cssPrefixes = ["Webkit", "O", "Moz", "ms"];
+    var i = cssPrefixes.length;
+    while (i--) {
+        name = cssPrefixes[i] + capName;
+        if (name in testStyle) {
+            return name;
+        }
+    }
+
+    // 啥都不是
+    return origName;
+}
+
+/*
+ *  长度单位转换
+ *  @method _convertPixelValue
+ *  @private
+ *  @param {Node} 对应的dom元素
+ */
+function _convertPixelValue(el, property, value) {
+    var style = el.style;
+    var left = style.left;
+    var rsLeft = el.runtimeStyle.left;
+
+    el.runtimeStyle.left = el.currentStyle.left;
+    style.left = property === "fontSize" ? "1em" : value || 0;
+    var px = style.pixelLeft;
+    style.left = left; //还原数据
+    el.runtimeStyle.left = rsLeft; //还原数据
+    return px + "px";
+}
+
+/*
+ *  颜色单位转换
+ *  @method _rgb2hex
+ *  @private
+ *  @param {String}
+ */
+function _rgb2hex(rgb) {
+    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    return "#" + _tohex(rgb[1]) + tohex(rgb[2]) + tohex(rgb[3]);
+}
+
+/*
+ *  转换16进制
+ *  @method _tohex
+ *  @private
+ *  @param {String}
+ */
+function _tohex(x) {
+    var hexDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+    return isNaN(x) ? '00' : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+}
+
+/*
+ *  获取样式集
+ *  @method _getStyles
+ *  @private
+ *  @param {Node} 对应的dom元素
+ */
+function _getStyles(node) {
+    if ('getComputedStyle' in window) {
+        return window.getComputedStyle(node, "");
+    } else if ('currentStyle' in document.documentElement) {
+        return node.currentStyle;
+    } else {
+        return {};
     }
 }
 
-module.exports = console;
+/*
+ *  对ie做特殊处理
+ *  @method _getStyleIE
+ *  @private
+ *  @param {Node}   对应的dom元素
+ *  @param {String} 属性名
+ */
+function _getStyleIE(node, property) {
+    //特殊处理IE的opacity
+    var val;
+    if (property in cssHooks) {
+        val = cssHooks[property](node);
+    }
+    if (val !== undefined) {
+        return val;
+    }
+    val = node.currentStyle[property];
+    //特殊处理IE的height与width
+    if (/^(height|width)$/.test(property)) {
+        var values = property == 'width' ? ['left', 'right'] : ['top', 'bottom'],
+            size = 0;
+        if (isQuirk) {
+            return node[_camelCase("offset-" + property)] + "px";
+        } else {
+            var client = parseFloat(node[_camelCase("client-" + property)]);
+            var paddingA = parseFloat(getStyle(node, "padding-" + values[0]));
+            var paddingB = parseFloat(getStyle(node, "padding-" + values[1]));
+            val = client - paddingA - paddingB;
+            val = val > 0 ? val : node[_camelCase("offset-" + property)];
+        }
+    }
+    return val;
+}
+
+/*
+ *  对返回值做一些处理 http://www.cnblogs.com/rubylouvre/archive/2009/09/08/1562212.html
+ *  @method _formatValue
+ *  @private
+ *  @param {Node}   对应的dom元素
+ *  @param {String} 属性名
+ */
+function _formatValue(el, property, value) {
+    if (!/^\d+px$/.test(value)) {
+        //转换可度量的值
+        if (/(em|pt|mm|cm|pc|in|ex|rem|vw|vh|vm|ch|gr|%)$/.test(value)) {
+            return _convertPixelValue(el, property, value);
+        }
+        //转换border的thin medium thick
+        if (/^(border).+(width)$/i.test(property)) {
+            var s = property.replace("Width", "Style");
+            if (value == "medium" && getStyle(el, s) == "none") {
+                return "0px";
+            }
+            return !!window.XDomainRequest ? borderWidth[value][0] : borderWidth[value][1];
+        }
+        //转换颜色
+        if (property.search(/background|color/i) != -1) {
+            if (!!color[value]) {
+                value = color[value];
+            }
+            if (value == "inherit") {
+                return getStyle(el.parentNode, property);
+            }
+            if (/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i.test(value)) {
+                return _rgb2hex(value);
+            } else if (/^#/.test(value)) {
+                value = value.replace('#', '');
+                return "#" + (value.length == 3 ? value.replace(/^(\w)(\w)(\w)$/, '$1$1$2$2$3$3') : value);
+            }
+            return value;
+        }
+    }
+}
+
+var getStyle = function (node, property) {
+    node = typeof node == "string" ? document.getElementById(node) : node;
+    var computed = _getStyles(node);
+    var val;
+    property = _camelCase(property);
+    property = cssProps[property] || (cssProps[property] = _vendorPropName(property));
+
+    //区分ie做特殊处理
+    if ('getComputedStyle' in window) {
+        val = window.getComputedStyle(node, null)[property];
+    } else {
+        val = _getStyleIE(node, property);
+    }
+    //处理单位转换。
+    try {
+        val = _formatValue(node, property, val) || val;
+    } catch (e) {}
+
+    return val;
+};
+
+module.exports = getStyle;
 
 /***/ },
-/* 3 */
+
+/***/ 106:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * @author benny.zheng
+ * @data 2016-06-06
+ * @description 本文件用于方便复制粘贴入口文件之用，请更新这里的说明
+ *              另外，考虑到一般是放在js/src/pages/page-name/main.js，因此使用../../
+ *              如果不是这个目录，请更改成正确的相对路径
+ */
+//----------------require--------------
+// var viewport = require("mlib/dom/viewport"); // viewport
+var base = __webpack_require__(2); // 基础对象
+var URL = __webpack_require__(37); // 基础对象
+var parsePage = __webpack_require__(8); // 页面模块自动解析
+var scss = __webpack_require__(67); // 引入当前页面的scss文件
+// 模板
+var render = __webpack_require__(76); // 页面总模板
+// 子模块
+var header = __webpack_require__(92);
+
+//-----------声明模块全局变量-------------
+var nodeList = null; // 存储所有id符合m-xxx的节点
+var opts = pageConfig; // 请不要直接使用pageConfig
+// var m_header = null;
+
+//-------------事件响应声明---------------
+var evtFuncs = {};
+
+//-------------子模块实例化---------------
+var initMod = function () {
+
+    m_header = header(nodeList.header, opts);
+    m_header.init();
+
+    // 所有模块的模板render应该是由外部传进去，而不是内部直接require，主要是考虑到复用性
+    // 这里的模板并不是模块的模板，而是内部需要动态生成东西时用的模板，模块的模板在main.ejs已经写进去了
+    // 以下是示例
+    // m_header = header(nodeList.header, {
+    //     render: headerRender
+    // });
+
+    // m_header = header(nodeList.header, {
+    //     renders: {
+    //         "main": headerRender
+    //     }
+    // });
+    // 
+};
+
+//-------------绑定事件------------------
+var bindEvents = function () {};
+
+//-------------自定义函数----------------
+var custFuncs = {};
+
+//-------------一切从这开始--------------
+!function () {
+    // 初始化viewport
+    // viewport.init();
+    // 先将HTML插入body
+    document.body.insertAdjacentHTML('AfterBegin', render());
+
+    // 找到所有带有id的节点，并将m-xxx-xxx转化成xxxXxx格式存储到nodeList中
+    nodeList = parsePage();
+    // 子模块实例化
+    initMod();
+    // 绑定事件
+    bindEvents();
+}();
+
+/***/ },
+
+/***/ 12:
+/***/ function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+var stylesInDom = {},
+	memoize = function(fn) {
+		var memo;
+		return function () {
+			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+			return memo;
+		};
+	},
+	isOldIE = memoize(function() {
+		return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
+	}),
+	getHeadElement = memoize(function () {
+		return document.head || document.getElementsByTagName("head")[0];
+	}),
+	singletonElement = null,
+	singletonCounter = 0,
+	styleElementsInsertedAtTop = [];
+
+module.exports = function(list, options) {
+	if(typeof DEBUG !== "undefined" && DEBUG) {
+		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the bottom of <head>.
+	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
+	var styles = listToStyles(list);
+	addStylesToDom(styles, options);
+
+	return function update(newList) {
+		var mayRemove = [];
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+		if(newList) {
+			var newStyles = listToStyles(newList);
+			addStylesToDom(newStyles, options);
+		}
+		for(var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+			if(domStyle.refs === 0) {
+				for(var j = 0; j < domStyle.parts.length; j++)
+					domStyle.parts[j]();
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+}
+
+function addStylesToDom(styles, options) {
+	for(var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+		if(domStyle) {
+			domStyle.refs++;
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles(list) {
+	var styles = [];
+	var newStyles = {};
+	for(var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+		if(!newStyles[id])
+			styles.push(newStyles[id] = {id: id, parts: [part]});
+		else
+			newStyles[id].parts.push(part);
+	}
+	return styles;
+}
+
+function insertStyleElement(options, styleElement) {
+	var head = getHeadElement();
+	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+	if (options.insertAt === "top") {
+		if(!lastStyleElementInsertedAtTop) {
+			head.insertBefore(styleElement, head.firstChild);
+		} else if(lastStyleElementInsertedAtTop.nextSibling) {
+			head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			head.appendChild(styleElement);
+		}
+		styleElementsInsertedAtTop.push(styleElement);
+	} else if (options.insertAt === "bottom") {
+		head.appendChild(styleElement);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement(styleElement) {
+	styleElement.parentNode.removeChild(styleElement);
+	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+	if(idx >= 0) {
+		styleElementsInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement(options) {
+	var styleElement = document.createElement("style");
+	styleElement.type = "text/css";
+	insertStyleElement(options, styleElement);
+	return styleElement;
+}
+
+function createLinkElement(options) {
+	var linkElement = document.createElement("link");
+	linkElement.rel = "stylesheet";
+	insertStyleElement(options, linkElement);
+	return linkElement;
+}
+
+function addStyle(obj, options) {
+	var styleElement, update, remove;
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+		styleElement = singletonElement || (singletonElement = createStyleElement(options));
+		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+	} else if(obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function") {
+		styleElement = createLinkElement(options);
+		update = updateLink.bind(null, styleElement);
+		remove = function() {
+			removeStyleElement(styleElement);
+			if(styleElement.href)
+				URL.revokeObjectURL(styleElement.href);
+		};
+	} else {
+		styleElement = createStyleElement(options);
+		update = applyToTag.bind(null, styleElement);
+		remove = function() {
+			removeStyleElement(styleElement);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle(newObj) {
+		if(newObj) {
+			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+				return;
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag(styleElement, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = styleElement.childNodes;
+		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+		if (childNodes.length) {
+			styleElement.insertBefore(cssNode, childNodes[index]);
+		} else {
+			styleElement.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag(styleElement, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		styleElement.setAttribute("media", media)
+	}
+
+	if(styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = css;
+	} else {
+		while(styleElement.firstChild) {
+			styleElement.removeChild(styleElement.firstChild);
+		}
+		styleElement.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink(linkElement, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	if(sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = linkElement.href;
+
+	linkElement.href = URL.createObjectURL(blob);
+
+	if(oldSrc)
+		URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ },
+
+/***/ 13:
+/***/ function(module, exports) {
+
+(function () {
+    Array.prototype.forEach = function (callback, thisArg) {
+        var T, k;
+        if (this == null) {
+            throw new TypeError(" this is null or not defined");
+        }
+        var O = Object(this);
+        var len = O.length >>> 0; // Hack to convert O.length to a UInt32
+        if ({}.toString.call(callback) != "[object Function]") {
+            throw new TypeError(callback + " is not a function");
+        }
+        if (thisArg) {
+            T = thisArg;
+        }
+        k = 0;
+        while (k < len) {
+            var kValue;
+            if (k in O) {
+                kValue = O[k];
+                if (callback.call(T, kValue, k, O) === false) {
+                    break;
+                }
+            }
+            k++;
+        }
+    };
+
+    if (!/msie [678]\./i.test(navigator.userAgent)) {
+        return;
+    }
+
+    var array = "abbr article aside audio canvas datalist details dialog eventsource figure footer header hgroup mark menu meter nav output progress section time video main header template".split(' ');
+    for (var i = 0; i < array.length; i++) {
+        document.createElement(array[i]);
+    }
+
+    Function.prototype.bind = Function.prototype.bind || function (oThis) {
+        var aArgs = Array.prototype.slice.call(arguments, 1),
+            fToBind = this,
+            fNOP = function () {},
+            fBound = function () {
+            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis || window, aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+        // fNOP.prototype = this.prototype;
+        // fBound.prototype = new fNOP();
+
+        return fBound;
+    };
+
+    Array.prototype.filter = Array.prototype.filter || function (fun) {
+        var len = this.length;
+        if (typeof fun != "function") {
+            throw new TypeError();
+        }
+        var res = new Array();
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this) {
+                var val = this[i]; // in case fun mutates this
+                if (fun.call(thisp, val, i, this)) {
+                    res.push(val);
+                }
+            }
+        }
+        return res;
+    };
+
+    Array.prototype.map = Array.prototype.map || function (callback, thisArg) {
+
+        var T, A, k;
+
+        if (this == null) {
+            throw new TypeError(" this is null or not defined");
+        }
+
+        // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
+        var O = Object(this);
+
+        // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
+        // 3. Let len be ToUint32(lenValue).
+        var len = O.length >>> 0;
+
+        // 4. If IsCallable(callback) is false, throw a TypeError exception.
+        // See: http://es5.github.com/#x9.11
+        if (typeof callback !== "function") {
+            throw new TypeError(callback + " is not a function");
+        }
+
+        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+        if (thisArg) {
+            T = thisArg;
+        }
+
+        // 6. Let A be a new array created as if by the expression new Array(len) where Array is
+        // the standard built-in constructor with that name and len is the value of len.
+        A = new Array(len);
+
+        // 7. Let k be 0
+        k = 0;
+
+        // 8. Repeat, while k < len
+        while (k < len) {
+
+            var kValue, mappedValue;
+
+            // a. Let Pk be ToString(k).
+            //   This is implicit for LHS operands of the in operator
+            // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
+            //   This step can be combined with c
+            // c. If kPresent is true, then
+            if (k in O) {
+
+                // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
+                kValue = O[k];
+
+                // ii. Let mappedValue be the result of calling the Call internal method of callback
+                // with T as the this value and argument list containing kValue, k, and O.
+                mappedValue = callback.call(T, kValue, k, O);
+
+                // iii. Call the DefineOwnProperty internal method of A with arguments
+                // Pk, Property Descriptor {Value: mappedValue, : true, Enumerable: true, Configurable: true},
+                // and false.
+
+                // In browsers that support Object.defineProperty, use the following:
+                // Object.defineProperty(A, Pk, { value: mappedValue, writable: true, enumerable: true, configurable: true });
+
+                // For best browser support, use the following:
+                A[k] = mappedValue;
+            }
+            // d. Increase k by 1.
+            k++;
+        }
+
+        // 9. return A
+        return A;
+    };
+})();
+
+/***/ },
+
+/***/ 14:
+/***/ function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function () {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		var result = [];
+		for (var i = 0; i < this.length; i++) {
+			var item = this[i];
+			if (item[2]) {
+				result.push("@media " + item[2] + "{" + item[1] + "}");
+			} else {
+				result.push(item[1]);
+			}
+		}
+		return result.join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function (modules, mediaQuery) {
+		if (typeof modules === "string") modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for (var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if (typeof id === "number") alreadyImportedModules[id] = true;
+		}
+		for (i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if (mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if (mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+/***/ },
+
+/***/ 2:
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -821,8 +1602,8 @@ module.exports = console;
  *
  * 这样子在响应函数中读取到的evt.data的值就是这个{ name: "benny", gender: "M" }，它并不是必须的
  */
-__webpack_require__(11); // 如果使用IE8的话
-var console = __webpack_require__(2);
+__webpack_require__(13); // 如果使用IE8的话
+var console = __webpack_require__(3);
 var each = __webpack_require__(0);
 
 var getUniqueId = function () {
@@ -916,7 +1697,282 @@ base.getZIndex = getZIndex;
 module.exports = base;
 
 /***/ },
-/* 4 */
+
+/***/ 3:
+/***/ function(module, exports) {
+
+/**
+ * 对window.console做了封装，防止由于没有删除console语句而报错
+ * 如果需要使用到console对象，请引入本文件，而不要直接使用window.console
+ *
+ */
+
+var methods = ["log", "debug", "info", "warn", "exception", "assert", "dir", "dirxml", "trace", "group", "groupCollapsed", "groupEnd", "profile", "profileEnd", "count", "clear", "time", "timeEnd", "timeStamp", "table", "error", "markTimeline", "timeline", "timelineEnd", "cd", "countReset", "select"];
+
+var console = window.console || {};
+var emptyFunc = function () {};
+
+for (var key in methods) {
+    if (!(methods[key] in console)) {
+        console[methods[key]] = emptyFunc;
+    }
+}
+
+module.exports = console;
+
+/***/ },
+
+/***/ 33:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 来自STK.js
+ * 将查询字符串转化成json对象，是jsonToQuery的反操作
+ * 例子：
+ *
+ * var queryToJson = require("../json/jsonToQuery");
+ * var str = "id=1&name=benny";
+ * var json = queryToJson(str);
+ * json的值将为：
+ * json = { id: 1, name: "benny" };
+ *
+ */
+var trim = __webpack_require__(9);
+module.exports = function (qs) {
+    var qList = trim(qs).split("&"),
+        json = {},
+        i = 0,
+        len = qList.length;
+
+    for (; i < len; i++) {
+        if (qList[i]) {
+            var hash = qList[i].split("="),
+                key = hash[0],
+                value = hash[1];
+            // 如果只有key没有value, 那么将全部丢入一个$nullName数组中
+            if (hash.length < 2) {
+                value = key;
+                key = '$nullName';
+            }
+            if (!(key in json)) {
+                // 如果缓存堆栈中没有这个数据，则直接存储
+                json[key] = decodeURIComponent(value);
+            } else {
+                // 如果堆栈中已经存在这个数据，则转换成数组存储
+                json[key] = [].concat(json[key], decodeURIComponent(value));
+            }
+        }
+    }
+    return json;
+};
+
+/***/ },
+
+/***/ 37:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * URL的解析和合成，注意：该设计有缺陷，不支持username:userpass，不过一般都用不上
+ *
+ * var URL = require("../util/URL");
+ * var urlObj = URL.parse("http://www.baidu.com:8080/index.html?p=1#link1");
+ * 得到：
+ * {
+ *     hash: "link1",
+ *     host: "www.baidu.com",
+ *     path: "/index.html",
+ *     port: "8080",
+ *     query: "p=1",
+ *     scheme: "http:",
+ *     slash: "//",
+ *     url: "http://www.baidu.com:8080/index.html?p=1#link1"
+ * }
+ */
+var link = null;
+var merge = __webpack_require__(4);
+var isEmpty = __webpack_require__(62);
+var queryToJson = __webpack_require__(33);
+module.exports = {
+    parse: function (url) {
+
+        link = link || document.createElement("A");
+        link.href = url;
+
+        var result = {
+            "url": url,
+            "scheme": link.protocol,
+            "host": link.host,
+            "port": link.port,
+            "path": link.pathname,
+            "query": isEmpty(link.search) ? "" : link.search.substr(1),
+            "hash": isEmpty(link.hash) ? "" : link.hash.substr(1)
+        };
+        result["queryJson"] = queryToJson(result["query"]);
+        result["hashJson"] = queryToJson(result["hash"]);
+        return result;
+
+        // var parse_url = /^(?:([A-Za-z]+:)(\/{0,3}))?([0-9.\-A-Za-z]+\.[0-9A-Za-z]+)?(?::(\d+))?(?:(\.?[\.\/]*\/[^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+        // var names = ['url', 'scheme', 'slash', 'host', 'port', 'path', 'query', 'hash'];
+        // var results = parse_url.exec(url);
+        // var ret = {};
+
+        // for (var i = 0, len = names.length; i < len; i += 1) {
+        //     ret[names[i]] = results[i] || '';
+        // }
+
+        // return ret;
+    },
+    build: function (url) {
+        return url.scheme + "//" + url.host + (url.port != "" ? ":" + url.port : "") + url.path + (url.query != "" ? "?" + url.query : "") + (url.hash != "" ? "#" + url.hash : "");
+    }
+};
+
+/***/ },
+
+/***/ 4:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 合并多个对象，将后面的对象和前面的对象一层一层的合并
+ * 支持第一个参数传boolean类型，当传true时，支持深层合并
+ * 例子：
+ *
+ * var merge = require("../json/merge");
+ * var opts = { url: "http://www.baidu.com" };
+ * var defaultOpts = { url: "", method: "get" };
+ * opts = merge(defaultOpts, opts);
+ * opts的值为：
+ * opts = {
+ *     url: "http://www.baidu.com",
+ *     method: "get"
+ * }
+ *
+ */
+
+var getType = __webpack_require__(1);
+var console = __webpack_require__(3);
+var each = __webpack_require__(0);
+
+module.exports = function () {
+
+    var result = [];
+    var args = [].slice.call(arguments);
+    result.push.apply(result, args);
+
+    var deep = false;
+
+    function mergeObj(r, obj) {
+        each(obj, function (v, k) {
+            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
+                mergeObj(r[k], v);
+            } else {
+                r[k] = v;
+            }
+        });
+    }
+
+    var newObj = {};
+
+    each(result, function (item, index) {
+        if (index == 0 && item === true) {
+            deep = true;
+        } else if (getType(item) == "object") {
+            mergeObj(newObj, item);
+        }
+    });
+
+    return newObj;
+};
+
+/***/ },
+
+/***/ 5:
+/***/ function(module, exports, __webpack_require__) {
+
+var sizzle = __webpack_require__(7);
+
+module.exports = function (node, onlyChild) {
+    var list = Array.prototype.slice.call(sizzle((onlyChild === true ? "> " : "") + "[node-name]", node), 0);
+    var nodeList = {};
+
+    list.forEach(function (el) {
+        var name = el.getAttribute("node-name");
+
+        if (name in nodeList) {
+            nodeList[name] = [].concat(nodeList[name], el);
+        } else {
+            nodeList[name] = el;
+        }
+    });
+
+    return nodeList;
+};
+
+/***/ },
+
+/***/ 53:
+/***/ function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(14)();
+// imports
+
+
+// module
+exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n.show {\n  display: block !important; }\n\n.hide {\n  display: none !important; }\n\n.clearfix:after {\n  content: \".\";\n  display: block;\n  height: 0;\n  clear: both;\n  visibility: hidden;\n  overflow: hidden; }\n\n.clearfix {\n  display: inline-block; }\n\n.clearfix {\n  display: block; }\n\n/* .clearfix:before, \n.clearfix:after {\n    display: table;\n    line-height:  0;\n    content: \"\";\n}   \n.clearfix:after {\n    clear: both;\n} */\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
+
+// exports
+
+
+/***/ },
+
+/***/ 62:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 检查字符串是否为空
+ *
+ * var isEmpty = require("../str/isEmpty");
+ * console.log(isEmpty(null)); // true
+ * console.log(isEmpty(" ")); // true
+ *
+ */
+
+var trim = __webpack_require__(9);
+
+module.exports = function (str) {
+  return trim(str).length == 0;
+};
+
+/***/ },
+
+/***/ 67:
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(53);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(12)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(true) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept(53, function() {
+			var newContent = __webpack_require__(53);
+			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+
+/***/ 7:
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -933,7 +1989,7 @@ module.exports = base;
  *
  */
 
-var getStyle = __webpack_require__(12);
+var getStyle = __webpack_require__(10);
 var chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g,
     done = 0,
     toString = Object.prototype.toString,
@@ -2010,7 +3066,52 @@ Expr.filters.visible = function (elem) {
 module.exports = Sizzle;
 
 /***/ },
-/* 5 */
+
+/***/ 76:
+/***/ function(module, exports) {
+
+module.exports = function (obj) {
+obj || (obj = {});
+var __t, __p = '';
+with (obj) {
+__p += '<div node-name = "header"></div>';
+
+}
+return __p
+}
+
+/***/ },
+
+/***/ 8:
+/***/ function(module, exports, __webpack_require__) {
+
+var console = __webpack_require__(3);
+var sizzle = __webpack_require__(7);
+module.exports = function () {
+    //类数组的转化
+    var list = Array.prototype.slice.call(sizzle("[id]"), 0);
+    var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
+    var nodeList = {};
+
+    list.forEach(function (el) {
+        if (!reg.test(el.id)) {
+            console.warn("节点#" + el.id + "的id值不符合规范，被忽略!");
+            return;
+        }
+
+        var id = el.id.substr(2).toLowerCase().replace(/\-([a-z])/g, function (m, n) {
+            return n.toUpperCase();
+        });
+
+        nodeList[id] = el;
+    });
+
+    return nodeList;
+};
+
+/***/ },
+
+/***/ 9:
 /***/ function(module, exports) {
 
 /**
@@ -2051,1096 +3152,81 @@ module.exports = function (str) {
 };
 
 /***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
 
-var console = __webpack_require__(2);
-var sizzle = __webpack_require__(4);
-
-module.exports = function () {
-    var list = Array.prototype.slice.call(sizzle("[id]"), 0);
-    var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
-    var nodeList = {};
-
-    list.forEach(function (el) {
-        if (!reg.test(el.id)) {
-            console.warn("节点#" + el.id + "的id值不符合规范，被忽略!");
-            return;
-        }
-
-        var id = el.id.substr(2).toLowerCase().replace(/\-([a-z])/g, function (m, n) {
-            return n.toUpperCase();
-        });
-
-        nodeList[id] = el;
-    });
-
-    return nodeList;
-};
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 合并多个对象，将后面的对象和前面的对象一层一层的合并
- * 支持第一个参数传boolean类型，当传true时，支持深层合并
- * 例子：
- *
- * var merge = require("../json/merge");
- * var opts = { url: "http://www.baidu.com" };
- * var defaultOpts = { url: "", method: "get" };
- * opts = merge(defaultOpts, opts);
- * opts的值为：
- * opts = {
- *     url: "http://www.baidu.com",
- *     method: "get"
- * }
- *
- */
-
-var getType = __webpack_require__(1);
-var console = __webpack_require__(2);
-var each = __webpack_require__(0);
-
-module.exports = function () {
-
-    var result = [];
-    var args = [].slice.call(arguments);
-    result.push.apply(result, args);
-
-    var deep = false;
-
-    function mergeObj(r, obj) {
-        each(obj, function (v, k) {
-            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
-                mergeObj(r[k], v);
-            } else {
-                r[k] = v;
-            }
-        });
-    }
-
-    var newObj = {};
-
-    each(result, function (item, index) {
-        if (index == 0 && item === true) {
-            deep = true;
-        } else if (getType(item) == "object") {
-            mergeObj(newObj, item);
-        }
-    });
-
-    return newObj;
-};
-
-/***/ },
-/* 8 */,
-/* 9 */,
-/* 10 */
-/***/ function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-var stylesInDom = {},
-	memoize = function(fn) {
-		var memo;
-		return function () {
-			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-			return memo;
-		};
-	},
-	isOldIE = memoize(function() {
-		return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
-	}),
-	getHeadElement = memoize(function () {
-		return document.head || document.getElementsByTagName("head")[0];
-	}),
-	singletonElement = null,
-	singletonCounter = 0,
-	styleElementsInsertedAtTop = [];
-
-module.exports = function(list, options) {
-	if(typeof DEBUG !== "undefined" && DEBUG) {
-		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-	}
-
-	options = options || {};
-	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-	// tags it will allow on a page
-	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-	// By default, add <style> tags to the bottom of <head>.
-	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
-
-	var styles = listToStyles(list);
-	addStylesToDom(styles, options);
-
-	return function update(newList) {
-		var mayRemove = [];
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			domStyle.refs--;
-			mayRemove.push(domStyle);
-		}
-		if(newList) {
-			var newStyles = listToStyles(newList);
-			addStylesToDom(newStyles, options);
-		}
-		for(var i = 0; i < mayRemove.length; i++) {
-			var domStyle = mayRemove[i];
-			if(domStyle.refs === 0) {
-				for(var j = 0; j < domStyle.parts.length; j++)
-					domStyle.parts[j]();
-				delete stylesInDom[domStyle.id];
-			}
-		}
-	};
-}
-
-function addStylesToDom(styles, options) {
-	for(var i = 0; i < styles.length; i++) {
-		var item = styles[i];
-		var domStyle = stylesInDom[item.id];
-		if(domStyle) {
-			domStyle.refs++;
-			for(var j = 0; j < domStyle.parts.length; j++) {
-				domStyle.parts[j](item.parts[j]);
-			}
-			for(; j < item.parts.length; j++) {
-				domStyle.parts.push(addStyle(item.parts[j], options));
-			}
-		} else {
-			var parts = [];
-			for(var j = 0; j < item.parts.length; j++) {
-				parts.push(addStyle(item.parts[j], options));
-			}
-			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-		}
-	}
-}
-
-function listToStyles(list) {
-	var styles = [];
-	var newStyles = {};
-	for(var i = 0; i < list.length; i++) {
-		var item = list[i];
-		var id = item[0];
-		var css = item[1];
-		var media = item[2];
-		var sourceMap = item[3];
-		var part = {css: css, media: media, sourceMap: sourceMap};
-		if(!newStyles[id])
-			styles.push(newStyles[id] = {id: id, parts: [part]});
-		else
-			newStyles[id].parts.push(part);
-	}
-	return styles;
-}
-
-function insertStyleElement(options, styleElement) {
-	var head = getHeadElement();
-	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-	if (options.insertAt === "top") {
-		if(!lastStyleElementInsertedAtTop) {
-			head.insertBefore(styleElement, head.firstChild);
-		} else if(lastStyleElementInsertedAtTop.nextSibling) {
-			head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-		} else {
-			head.appendChild(styleElement);
-		}
-		styleElementsInsertedAtTop.push(styleElement);
-	} else if (options.insertAt === "bottom") {
-		head.appendChild(styleElement);
-	} else {
-		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-	}
-}
-
-function removeStyleElement(styleElement) {
-	styleElement.parentNode.removeChild(styleElement);
-	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
-	if(idx >= 0) {
-		styleElementsInsertedAtTop.splice(idx, 1);
-	}
-}
-
-function createStyleElement(options) {
-	var styleElement = document.createElement("style");
-	styleElement.type = "text/css";
-	insertStyleElement(options, styleElement);
-	return styleElement;
-}
-
-function createLinkElement(options) {
-	var linkElement = document.createElement("link");
-	linkElement.rel = "stylesheet";
-	insertStyleElement(options, linkElement);
-	return linkElement;
-}
-
-function addStyle(obj, options) {
-	var styleElement, update, remove;
-
-	if (options.singleton) {
-		var styleIndex = singletonCounter++;
-		styleElement = singletonElement || (singletonElement = createStyleElement(options));
-		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-	} else if(obj.sourceMap &&
-		typeof URL === "function" &&
-		typeof URL.createObjectURL === "function" &&
-		typeof URL.revokeObjectURL === "function" &&
-		typeof Blob === "function" &&
-		typeof btoa === "function") {
-		styleElement = createLinkElement(options);
-		update = updateLink.bind(null, styleElement);
-		remove = function() {
-			removeStyleElement(styleElement);
-			if(styleElement.href)
-				URL.revokeObjectURL(styleElement.href);
-		};
-	} else {
-		styleElement = createStyleElement(options);
-		update = applyToTag.bind(null, styleElement);
-		remove = function() {
-			removeStyleElement(styleElement);
-		};
-	}
-
-	update(obj);
-
-	return function updateStyle(newObj) {
-		if(newObj) {
-			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-				return;
-			update(obj = newObj);
-		} else {
-			remove();
-		}
-	};
-}
-
-var replaceText = (function () {
-	var textStore = [];
-
-	return function (index, replacement) {
-		textStore[index] = replacement;
-		return textStore.filter(Boolean).join('\n');
-	};
-})();
-
-function applyToSingletonTag(styleElement, index, remove, obj) {
-	var css = remove ? "" : obj.css;
-
-	if (styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = replaceText(index, css);
-	} else {
-		var cssNode = document.createTextNode(css);
-		var childNodes = styleElement.childNodes;
-		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-		if (childNodes.length) {
-			styleElement.insertBefore(cssNode, childNodes[index]);
-		} else {
-			styleElement.appendChild(cssNode);
-		}
-	}
-}
-
-function applyToTag(styleElement, obj) {
-	var css = obj.css;
-	var media = obj.media;
-
-	if(media) {
-		styleElement.setAttribute("media", media)
-	}
-
-	if(styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = css;
-	} else {
-		while(styleElement.firstChild) {
-			styleElement.removeChild(styleElement.firstChild);
-		}
-		styleElement.appendChild(document.createTextNode(css));
-	}
-}
-
-function updateLink(linkElement, obj) {
-	var css = obj.css;
-	var sourceMap = obj.sourceMap;
-
-	if(sourceMap) {
-		// http://stackoverflow.com/a/26603875
-		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-	}
-
-	var blob = new Blob([css], { type: "text/css" });
-
-	var oldSrc = linkElement.href;
-
-	linkElement.href = URL.createObjectURL(blob);
-
-	if(oldSrc)
-		URL.revokeObjectURL(oldSrc);
-}
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-(function () {
-    Array.prototype.forEach = function (callback, thisArg) {
-        var T, k;
-        if (this == null) {
-            throw new TypeError(" this is null or not defined");
-        }
-        var O = Object(this);
-        var len = O.length >>> 0; // Hack to convert O.length to a UInt32
-        if ({}.toString.call(callback) != "[object Function]") {
-            throw new TypeError(callback + " is not a function");
-        }
-        if (thisArg) {
-            T = thisArg;
-        }
-        k = 0;
-        while (k < len) {
-            var kValue;
-            if (k in O) {
-                kValue = O[k];
-                if (callback.call(T, kValue, k, O) === false) {
-                    break;
-                }
-            }
-            k++;
-        }
-    };
-
-    if (!/msie [678]\./i.test(navigator.userAgent)) {
-        return;
-    }
-
-    var array = "abbr article aside audio canvas datalist details dialog eventsource figure footer header hgroup mark menu meter nav output progress section time video main header template".split(' ');
-    for (var i = 0; i < array.length; i++) {
-        document.createElement(array[i]);
-    }
-
-    Function.prototype.bind = Function.prototype.bind || function (oThis) {
-        var aArgs = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP = function () {},
-            fBound = function () {
-            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis || window, aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-        // fNOP.prototype = this.prototype;
-        // fBound.prototype = new fNOP();
-
-        return fBound;
-    };
-
-    Array.prototype.filter = Array.prototype.filter || function (fun) {
-        var len = this.length;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
-        var res = new Array();
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                var val = this[i]; // in case fun mutates this
-                if (fun.call(thisp, val, i, this)) {
-                    res.push(val);
-                }
-            }
-        }
-        return res;
-    };
-
-    Array.prototype.map = Array.prototype.map || function (callback, thisArg) {
-
-        var T, A, k;
-
-        if (this == null) {
-            throw new TypeError(" this is null or not defined");
-        }
-
-        // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
-        var O = Object(this);
-
-        // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
-        // 3. Let len be ToUint32(lenValue).
-        var len = O.length >>> 0;
-
-        // 4. If IsCallable(callback) is false, throw a TypeError exception.
-        // See: http://es5.github.com/#x9.11
-        if (typeof callback !== "function") {
-            throw new TypeError(callback + " is not a function");
-        }
-
-        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-        if (thisArg) {
-            T = thisArg;
-        }
-
-        // 6. Let A be a new array created as if by the expression new Array(len) where Array is
-        // the standard built-in constructor with that name and len is the value of len.
-        A = new Array(len);
-
-        // 7. Let k be 0
-        k = 0;
-
-        // 8. Repeat, while k < len
-        while (k < len) {
-
-            var kValue, mappedValue;
-
-            // a. Let Pk be ToString(k).
-            //   This is implicit for LHS operands of the in operator
-            // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
-            //   This step can be combined with c
-            // c. If kPresent is true, then
-            if (k in O) {
-
-                // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
-                kValue = O[k];
-
-                // ii. Let mappedValue be the result of calling the Call internal method of callback
-                // with T as the this value and argument list containing kValue, k, and O.
-                mappedValue = callback.call(T, kValue, k, O);
-
-                // iii. Call the DefineOwnProperty internal method of A with arguments
-                // Pk, Property Descriptor {Value: mappedValue, : true, Enumerable: true, Configurable: true},
-                // and false.
-
-                // In browsers that support Object.defineProperty, use the following:
-                // Object.defineProperty(A, Pk, { value: mappedValue, writable: true, enumerable: true, configurable: true });
-
-                // For best browser support, use the following:
-                A[k] = mappedValue;
-            }
-            // d. Increase k by 1.
-            k++;
-        }
-
-        // 9. return A
-        return A;
-    };
-})();
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-/**
- * 获取节点的样式属性 来自STK.js
- * 该API封装了一些需要兼容的属性，比如获取半透明只需要设置opacity值
- * 例子：
- * var getStyle = require("../dom/getStyle");
- * var paddingLeft = getStyle(node, "paddingLeft"); // 获取到padding-left的值
- * var paddingLeft = getStyle(node, "padding-left"); // 获取到padding-left的值
- */
-
-//是否ie盒模型
-var isQuirk = document.documentMode ? document.documentMode === 5 : document.compatMode !== "CSS1Compat";
-
-//测试用的 style
-var testStyle = document.createElement("DIV").style;
-testStyle.cssText = "float:left;opacity:.5";
-
-var color = {
-    aqua: '#0ff',
-    black: '#000',
-    blue: '#00f',
-    gray: '#808080',
-    purple: '#800080',
-    fuchsia: '#f0f',
-    green: '#008000',
-    lime: '#0f0',
-    maroon: '#800000',
-    navy: '#000080',
-    olive: '#808000',
-    orange: '#ffa500',
-    red: '#f00',
-    silver: '#c0c0c0',
-    teal: '#008080',
-    transparent: 'rgba(0,0,0,0)',
-    white: '#fff',
-    yellow: '#ff0'
-};
-
-var borderWidth = {
-    thin: ["1px", "2px"],
-    medium: ["3px", "4px"],
-    thick: ["5px", "6px"]
-};
-
-var cssHooks = {
-    opacity: function (node) {
-        if (!_cssSupport().opacity) {
-            var val = 100;
-            try {
-                val = node.filters['DXImageTransform.Microsoft.Alpha'].opacity;
-            } catch (e) {
-                try {
-                    val = node.filters('alpha').opacity;
-                } catch (e) {}
-            }
-            return val / 100;
-        }
-    }
-};
-
-// 对应正确的css属性
-// 在执行中会使用 _vendorPropName 动态添加，例如 transform: 'WebkitTransform'
-var cssProps = {
-    "float": _cssSupport().cssFloat ? "cssFloat" : "styleFloat"
-};
-
-/*
- *  检测对css的一些属性的支持程度
- *  @method _cssSupport
- *  @private
- */
-function _cssSupport() {
-    return _cssSupport.rs || (_cssSupport.rs = {
-        opacity: /^0\.5/.test(testStyle.opacity),
-        cssFloat: !!testStyle.cssFloat
-    });
-}
-
-/*
- *  转换驼峰
- *  @method _camelCase
- *  @private
- *  @param {String} 需要转换的字符串
- */
-function _camelCase(string) {
-    return string.replace(/^-ms-/, "ms-").replace(/-([\da-z])/gi, function (all, letter) {
-        return letter.toUpperCase();
-    });
-}
-
-/*
- *  检测对是否是某种浏览器自有属性
- *  例如: WebkitTransform 一类的
- *  @method _vendorPropName
- *  @private
- */
-// moz-border-radius-top-left
-function _vendorPropName(name) {
-    // 检测如果已经可以用短名的用短名
-    if (name in testStyle) {
-        return name;
-    }
-
-    // 循环检测是否某种浏览器特殊名
-    var capName = name.charAt(0).toUpperCase() + name.slice(1);
-    var origName = name;
-    var cssPrefixes = ["Webkit", "O", "Moz", "ms"];
-    var i = cssPrefixes.length;
-    while (i--) {
-        name = cssPrefixes[i] + capName;
-        if (name in testStyle) {
-            return name;
-        }
-    }
-
-    // 啥都不是
-    return origName;
-}
-
-/*
- *  长度单位转换
- *  @method _convertPixelValue
- *  @private
- *  @param {Node} 对应的dom元素
- */
-function _convertPixelValue(el, property, value) {
-    var style = el.style;
-    var left = style.left;
-    var rsLeft = el.runtimeStyle.left;
-
-    el.runtimeStyle.left = el.currentStyle.left;
-    style.left = property === "fontSize" ? "1em" : value || 0;
-    var px = style.pixelLeft;
-    style.left = left; //还原数据
-    el.runtimeStyle.left = rsLeft; //还原数据
-    return px + "px";
-}
-
-/*
- *  颜色单位转换
- *  @method _rgb2hex
- *  @private
- *  @param {String}
- */
-function _rgb2hex(rgb) {
-    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    return "#" + _tohex(rgb[1]) + tohex(rgb[2]) + tohex(rgb[3]);
-}
-
-/*
- *  转换16进制
- *  @method _tohex
- *  @private
- *  @param {String}
- */
-function _tohex(x) {
-    var hexDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
-    return isNaN(x) ? '00' : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
-}
-
-/*
- *  获取样式集
- *  @method _getStyles
- *  @private
- *  @param {Node} 对应的dom元素
- */
-function _getStyles(node) {
-    if ('getComputedStyle' in window) {
-        return window.getComputedStyle(node, "");
-    } else if ('currentStyle' in document.documentElement) {
-        return node.currentStyle;
-    } else {
-        return {};
-    }
-}
-
-/*
- *  对ie做特殊处理
- *  @method _getStyleIE
- *  @private
- *  @param {Node}   对应的dom元素
- *  @param {String} 属性名
- */
-function _getStyleIE(node, property) {
-    //特殊处理IE的opacity
-    var val;
-    if (property in cssHooks) {
-        val = cssHooks[property](node);
-    }
-    if (val !== undefined) {
-        return val;
-    }
-    val = node.currentStyle[property];
-    //特殊处理IE的height与width
-    if (/^(height|width)$/.test(property)) {
-        var values = property == 'width' ? ['left', 'right'] : ['top', 'bottom'],
-            size = 0;
-        if (isQuirk) {
-            return node[_camelCase("offset-" + property)] + "px";
-        } else {
-            var client = parseFloat(node[_camelCase("client-" + property)]);
-            var paddingA = parseFloat(getStyle(node, "padding-" + values[0]));
-            var paddingB = parseFloat(getStyle(node, "padding-" + values[1]));
-            val = client - paddingA - paddingB;
-            val = val > 0 ? val : node[_camelCase("offset-" + property)];
-        }
-    }
-    return val;
-}
-
-/*
- *  对返回值做一些处理 http://www.cnblogs.com/rubylouvre/archive/2009/09/08/1562212.html
- *  @method _formatValue
- *  @private
- *  @param {Node}   对应的dom元素
- *  @param {String} 属性名
- */
-function _formatValue(el, property, value) {
-    if (!/^\d+px$/.test(value)) {
-        //转换可度量的值
-        if (/(em|pt|mm|cm|pc|in|ex|rem|vw|vh|vm|ch|gr|%)$/.test(value)) {
-            return _convertPixelValue(el, property, value);
-        }
-        //转换border的thin medium thick
-        if (/^(border).+(width)$/i.test(property)) {
-            var s = property.replace("Width", "Style");
-            if (value == "medium" && getStyle(el, s) == "none") {
-                return "0px";
-            }
-            return !!window.XDomainRequest ? borderWidth[value][0] : borderWidth[value][1];
-        }
-        //转换颜色
-        if (property.search(/background|color/i) != -1) {
-            if (!!color[value]) {
-                value = color[value];
-            }
-            if (value == "inherit") {
-                return getStyle(el.parentNode, property);
-            }
-            if (/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i.test(value)) {
-                return _rgb2hex(value);
-            } else if (/^#/.test(value)) {
-                value = value.replace('#', '');
-                return "#" + (value.length == 3 ? value.replace(/^(\w)(\w)(\w)$/, '$1$1$2$2$3$3') : value);
-            }
-            return value;
-        }
-    }
-}
-
-var getStyle = function (node, property) {
-    node = typeof node == "string" ? document.getElementById(node) : node;
-    var computed = _getStyles(node);
-    var val;
-    property = _camelCase(property);
-    property = cssProps[property] || (cssProps[property] = _vendorPropName(property));
-
-    //区分ie做特殊处理
-    if ('getComputedStyle' in window) {
-        val = window.getComputedStyle(node, null)[property];
-    } else {
-        val = _getStyleIE(node, property);
-    }
-    //处理单位转换。
-    try {
-        val = _formatValue(node, property, val) || val;
-    } catch (e) {}
-
-    return val;
-};
-
-module.exports = getStyle;
-
-/***/ },
-/* 13 */,
-/* 14 */
-/***/ function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-// css base code, injected by the css-loader
-module.exports = function () {
-	var list = [];
-
-	// return the list of modules as css string
-	list.toString = function toString() {
-		var result = [];
-		for (var i = 0; i < this.length; i++) {
-			var item = this[i];
-			if (item[2]) {
-				result.push("@media " + item[2] + "{" + item[1] + "}");
-			} else {
-				result.push(item[1]);
-			}
-		}
-		return result.join("");
-	};
-
-	// import a list of modules into the list
-	list.i = function (modules, mediaQuery) {
-		if (typeof modules === "string") modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for (var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if (typeof id === "number") alreadyImportedModules[id] = true;
-		}
-		for (i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if (mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if (mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
-
-/***/ },
-/* 15 */,
-/* 16 */,
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(14)();
-// imports
-
-
-// module
-exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none;\n  font-size: 3.125vmin; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*debuggap太小了，所以给弄大点，好点些*/\n#debuggapRoot .dg-out {\n  width: 5rem !important;\n  height: 5rem !important;\n  border-radius: 50% !important; }\n\n#debuggapRoot .dg-inner {\n  width: 4rem !important;\n  height: 4rem !important;\n  border-radius: 50% !important;\n  margin: 0.5rem !important; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column;\n  -webkit-user-select: none;\n  /* background: $bg7; */ }\n  body.not-flex {\n    display: block; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 滚动不顺时用 */\n.scrolling {\n  -webkit-overflow-scrolling: touch; }\n\n/* 布局继承专用 */\n.flex-row, .flex-column, .m-stretch-swiper {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex; }\n\n.flex-column, .m-stretch-swiper {\n  -webkit-box-orient: vertical;\n  -ms-flex-direction: column;\n      flex-direction: column; }\n\n.flex-item, .m-stretch-swiper > .swiper-wrapper {\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n      flex: 1; }\n\n.flex-vertical-middle {\n  /* 09版 */\n  -webkit-box-align: center;\n  /* 12版 */\n  -ms-flex-align: center;\n      align-items: center; }\n\n/* 自动伸展高度的swiper，如果不知道怎么使用，可以参考幸福蓝海buyTicket.html */\n/* 由于使用了父级容器使用了flex:1，swiper无法使用height:100%;来让高度起效，导致高度为0，可以用这个解决 */\n.m-stretch-swiper {\n  /*\n    可能需要在这里写：\n    @extend .flex-item;\n    width: 100%;\n    让宽度变成100%，并且高度撑开\n     */ }\n  .m-stretch-swiper > .swiper-wrapper {\n    -webkit-box-align: stretch;\n    -ms-flex-align: stretch;\n        align-items: stretch; }\n    .m-stretch-swiper > .swiper-wrapper > .swiper-slide {\n      height: auto; }\n\n/* 多行加省略号 */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n/*flex布局下，文字溢出省略*/\n.ellipsis {\n  display: -webkit-box;\n  /*这是一个已经弃用的属性*/\n  -webkit-line-clamp: 1;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n  text-overflow: ellipsis; }\n\n/* 设置盒子模型为IE盒子模型 */\n.border-box {\n  box-sizing: border-box; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
-
-// exports
-
-
-/***/ },
-/* 18 */,
-/* 19 */,
-/* 20 */,
-/* 21 */,
-/* 22 */,
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 来自STK.js
- * 将查询字符串转化成json对象，是jsonToQuery的反操作
- * 例子：
- *
- * var queryToJson = require("../json/jsonToQuery");
- * var str = "id=1&name=benny";
- * var json = queryToJson(str);
- * json的值将为：
- * json = { id: 1, name: "benny" };
- *
- */
-var trim = __webpack_require__(5);
-module.exports = function (qs) {
-    var qList = trim(qs).split("&"),
-        json = {},
-        i = 0,
-        len = qList.length;
-
-    for (; i < len; i++) {
-        if (qList[i]) {
-            var hash = qList[i].split("="),
-                key = hash[0],
-                value = hash[1];
-            // 如果只有key没有value, 那么将全部丢入一个$nullName数组中
-            if (hash.length < 2) {
-                value = key;
-                key = '$nullName';
-            }
-            if (!(key in json)) {
-                // 如果缓存堆栈中没有这个数据，则直接存储
-                json[key] = decodeURIComponent(value);
-            } else {
-                // 如果堆栈中已经存在这个数据，则转换成数组存储
-                json[key] = [].concat(json[key], decodeURIComponent(value));
-            }
-        }
-    }
-    return json;
-};
-
-/***/ },
-/* 24 */,
-/* 25 */,
-/* 26 */,
-/* 27 */,
-/* 28 */,
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(17);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(10)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(true) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept(17, function() {
-			var newContent = __webpack_require__(17);
-			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-/* 30 */,
-/* 31 */,
-/* 32 */
-/***/ function(module, exports) {
-
-module.exports = function (obj) {
-obj || (obj = {});
-var __t, __p = '';
-with (obj) {
-__p += '<h1>133333ss333sssssssddcdaaaaaa6666666666623333</h1>';
-
-}
-return __p
-}
-
-/***/ },
-/* 33 */,
-/* 34 */,
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * URL的解析和合成，注意：该设计有缺陷，不支持username:userpass，不过一般都用不上
- *
- * var URL = require("../util/URL");
- * var urlObj = URL.parse("http://www.baidu.com:8080/index.html?p=1#link1");
- * 得到：
- * {
- *     hash: "link1",
- *     host: "www.baidu.com",
- *     path: "/index.html",
- *     port: "8080",
- *     query: "p=1",
- *     scheme: "http:",
- *     slash: "//",
- *     url: "http://www.baidu.com:8080/index.html?p=1#link1"
- * }
- */
-var link = null;
-var merge = __webpack_require__(7);
-var isEmpty = __webpack_require__(51);
-var queryToJson = __webpack_require__(23);
-module.exports = {
-    parse: function (url) {
-
-        link = link || document.createElement("A");
-        link.href = url;
-
-        var result = {
-            "url": url,
-            "scheme": link.protocol,
-            "host": link.host,
-            "port": link.port,
-            "path": link.pathname,
-            "query": isEmpty(link.search) ? "" : link.search.substr(1),
-            "hash": isEmpty(link.hash) ? "" : link.hash.substr(1)
-        };
-        debugger;
-        result["queryJson"] = queryToJson(result["query"]);
-        result["hashJson"] = queryToJson(result["hash"]);
-        return result;
-
-        // var parse_url = /^(?:([A-Za-z]+:)(\/{0,3}))?([0-9.\-A-Za-z]+\.[0-9A-Za-z]+)?(?::(\d+))?(?:(\.?[\.\/]*\/[^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
-        // var names = ['url', 'scheme', 'slash', 'host', 'port', 'path', 'query', 'hash'];
-        // var results = parse_url.exec(url);
-        // var ret = {};
-
-        // for (var i = 0, len = names.length; i < len; i += 1) {
-        //     ret[names[i]] = results[i] || '';
-        // }
-
-        // return ret;
-    },
-    build: function (url) {
-        return url.scheme + "//" + url.host + (url.port != "" ? ":" + url.port : "") + url.path + (url.query != "" ? "?" + url.query : "") + (url.hash != "" ? "#" + url.hash : "");
-    }
-};
-
-/***/ },
-/* 36 */,
-/* 37 */,
-/* 38 */,
-/* 39 */,
-/* 40 */,
-/* 41 */,
-/* 42 */,
-/* 43 */,
-/* 44 */,
-/* 45 */,
-/* 46 */,
-/* 47 */,
-/* 48 */,
-/* 49 */,
-/* 50 */,
-/* 51 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 检查字符串是否为空
- *
- * var isEmpty = require("../str/isEmpty");
- * console.log(isEmpty(null)); // true
- * console.log(isEmpty(" ")); // true
- *
- */
-
-var trim = __webpack_require__(5);
-
-module.exports = function (str) {
-  return trim(str).length == 0;
-};
-
-/***/ },
-/* 52 */
+/***/ 92:
 /***/ function(module, exports, __webpack_require__) {
 
 /**
  * @author benny.zheng
  * @data 2016-06-06
- * @description 本文件用于方便复制粘贴入口文件之用，请更新这里的说明
+ * @description 本文件用于方便复制粘贴UI模块之用，请更新这里的说明
  *              另外，考虑到一般是放在js/src/pages/page-name/main.js，因此使用../../
  *              如果不是这个目录，请更改成正确的相对路径
  */
 //----------------require--------------
+
 // var viewport = require("mlib/dom/viewport"); // viewport
-var base = __webpack_require__(3); // 基础对象
-var URL = __webpack_require__(35); // 基础对象
-var parsePage = __webpack_require__(6); // 页面模块自动解析
-var scss = __webpack_require__(29); // 引入当前页面的scss文件
-// 模板
-var render = __webpack_require__(32); // 页面总模板
-// 子模块
-// var header = require("./header");
+var base = __webpack_require__(2); // 基础对象
+var parseModule = __webpack_require__(5); // 页面模块自动解析
 
-//-----------声明模块全局变量-------------
-var nodeList = null; // 存储所有id符合m-xxx的节点
-var opts = pageConfig; // 请不要直接使用pageConfig
-// var m_header = null;
+module.exports = function (node, opts) {
+    //-----------声明模块全局变量-------------
+    var nodeList = null; // 存储所有关键节点
+    var that = base();
+    var data = null;
+    //-------------事件响应声明---------------
+    var evtFuncs = {};
+    var step1 = function () {
+        return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                resolve("test");
+            }, 1000);
+        });
+    };
 
-//-------------事件响应声明---------------
-var evtFuncs = {};
+    //-------------子模块实例化---------------
+    var initMod = function () {};
 
-//-------------子模块实例化---------------
-var initMod = function () {}
+    //-------------绑定事件------------------
+    var bindEvents = function () {};
 
-// m_header = header(nodeList.header, opts);
-// m_header.init();
+    //-------------自定义函数----------------
+    var custFuncs = {
+        //
+        step2: function () {
+            step1().then(function (res) {
+                console.log("inner++++++++" + res);
+            });
+            console.log("outer++++++");
+        }
 
-// 所有模块的模板render应该是由外部传进去，而不是内部直接require，主要是考虑到复用性
-// 这里的模板并不是模块的模板，而是内部需要动态生成东西时用的模板，模块的模板在main.ejs已经写进去了
-// 以下是示例
-// m_header = header(nodeList.header, {
-//     render: headerRender
-// });
+        // step2 : function async() {
+        //     var val = await step1();
 
-// m_header = header(nodeList.header, {
-//     renders: {
-//         "main": headerRender
-//     }
-// });
+        // }
+    };
 
+    //-------------一切从这开始--------------
+    var init = function (_data) {
+        data = _data;
+        custFuncs.step2();
+        // 根据数据初始化模块
+        // opts["render"]({ "title": data["title"] });
 
-//-------------绑定事件------------------
-;var bindEvents = function () {};
+        // 找到所有带有node-name的节点
+        nodeList = parseModule(node);
+        // 子模块实例化
+        initMod();
+        // 绑定事件
+        bindEvents();
+    };
 
-//-------------自定义函数----------------
-var custFuncs = {};
+    //---------------暴露API----------------
+    that.init = init;
 
-//-------------一切从这开始--------------
-!function () {
-    // 初始化viewport
-    // viewport.init();
-    // 先将HTML插入body
-    document.body.insertAdjacentHTML('AfterBegin', render());
-
-    // 找到所有带有id的节点，并将m-xxx-xxx转化成xxxXxx格式存储到nodeList中
-    nodeList = parsePage();
-    // 子模块实例化
-    initMod();
-    // 绑定事件
-    bindEvents();
-}();
+    return that;
+};
 
 /***/ }
-/******/ ]);
+
+/******/ });

@@ -16,9 +16,9 @@ var keyCase = function(key) {
 }
 
 that.get = function(node, key) {
-    if ("dataset" in node) {
-        return node.dataset[key];
-    } else {
+    // if ("dataset" in node) {
+    //     return node.dataset[key];
+    // } else {
         var dataKey = keyCase(key);
         var attrs = node.attributes;
         var len = attrs.length;
@@ -28,7 +28,7 @@ that.get = function(node, key) {
                 return attrs[i].value;
             }
         }
-    }
+    // }
 }
 
 that.set = function(node, key, val) {

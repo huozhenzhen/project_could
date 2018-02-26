@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "77770dcfc26cea6dcb21"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "d00f43a7e479a98dec89"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -239,7 +239,7 @@
 /******/ 				};
 /******/ 			});
 /******/ 			hotUpdate = {};
-/******/ 			var chunkId = 0;
+/******/ 			var chunkId = 3;
 /******/ 			{ // eslint-disable-line no-lone-blocks
 /******/ 				/*globals chunkId */
 /******/ 				hotEnsureUpdateChunk(chunkId);
@@ -698,7 +698,7 @@
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return hotCreateRequire(53)(__webpack_require__.s = 53);
+/******/ 	return hotCreateRequire(112)(__webpack_require__.s = 112);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -762,29 +762,6 @@ module.exports = function (obj) {
 
 /***/ },
 /* 2 */
-/***/ function(module, exports) {
-
-/**
- * 对window.console做了封装，防止由于没有删除console语句而报错
- * 如果需要使用到console对象，请引入本文件，而不要直接使用window.console
- *
- */
-
-var methods = ["log", "debug", "info", "warn", "exception", "assert", "dir", "dirxml", "trace", "group", "groupCollapsed", "groupEnd", "profile", "profileEnd", "count", "clear", "time", "timeEnd", "timeStamp", "table", "error", "markTimeline", "timeline", "timelineEnd", "cd", "countReset", "select"];
-
-var console = window.console || {};
-var emptyFunc = function () {};
-
-for (var key in methods) {
-    if (!(methods[key] in console)) {
-        console[methods[key]] = emptyFunc;
-    }
-}
-
-module.exports = console;
-
-/***/ },
-/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -821,8 +798,8 @@ module.exports = console;
  *
  * 这样子在响应函数中读取到的evt.data的值就是这个{ name: "benny", gender: "M" }，它并不是必须的
  */
-__webpack_require__(11); // 如果使用IE8的话
-var console = __webpack_require__(2);
+__webpack_require__(13); // 如果使用IE8的话
+var console = __webpack_require__(3);
 var each = __webpack_require__(0);
 
 var getUniqueId = function () {
@@ -916,7 +893,171 @@ base.getZIndex = getZIndex;
 module.exports = base;
 
 /***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+/**
+ * 对window.console做了封装，防止由于没有删除console语句而报错
+ * 如果需要使用到console对象，请引入本文件，而不要直接使用window.console
+ *
+ */
+
+var methods = ["log", "debug", "info", "warn", "exception", "assert", "dir", "dirxml", "trace", "group", "groupCollapsed", "groupEnd", "profile", "profileEnd", "count", "clear", "time", "timeEnd", "timeStamp", "table", "error", "markTimeline", "timeline", "timelineEnd", "cd", "countReset", "select"];
+
+var console = window.console || {};
+var emptyFunc = function () {};
+
+for (var key in methods) {
+    if (!(methods[key] in console)) {
+        console[methods[key]] = emptyFunc;
+    }
+}
+
+module.exports = console;
+
+/***/ },
 /* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 合并多个对象，将后面的对象和前面的对象一层一层的合并
+ * 支持第一个参数传boolean类型，当传true时，支持深层合并
+ * 例子：
+ *
+ * var merge = require("../json/merge");
+ * var opts = { url: "http://www.baidu.com" };
+ * var defaultOpts = { url: "", method: "get" };
+ * opts = merge(defaultOpts, opts);
+ * opts的值为：
+ * opts = {
+ *     url: "http://www.baidu.com",
+ *     method: "get"
+ * }
+ *
+ */
+
+var getType = __webpack_require__(1);
+var console = __webpack_require__(3);
+var each = __webpack_require__(0);
+
+module.exports = function () {
+
+    var result = [];
+    var args = [].slice.call(arguments);
+    result.push.apply(result, args);
+
+    var deep = false;
+
+    function mergeObj(r, obj) {
+        each(obj, function (v, k) {
+            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
+                mergeObj(r[k], v);
+            } else {
+                r[k] = v;
+            }
+        });
+    }
+
+    var newObj = {};
+
+    each(result, function (item, index) {
+        if (index == 0 && item === true) {
+            deep = true;
+        } else if (getType(item) == "object") {
+            mergeObj(newObj, item);
+        }
+    });
+
+    return newObj;
+};
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+var sizzle = __webpack_require__(7);
+
+module.exports = function (node, onlyChild) {
+    var list = Array.prototype.slice.call(sizzle((onlyChild === true ? "> " : "") + "[node-name]", node), 0);
+    var nodeList = {};
+
+    list.forEach(function (el) {
+        var name = el.getAttribute("node-name");
+
+        if (name in nodeList) {
+            nodeList[name] = [].concat(nodeList[name], el);
+        } else {
+            nodeList[name] = el;
+        }
+    });
+
+    return nodeList;
+};
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 为一个节点或者节点数组添加事件
+ * @2014-10-11 增加了批量处理功能，可以传入一个节点数组绑定事件
+ *
+ * var addEvent = require("../evt/add");
+ * var removeEvent = require("../evt/remove");
+ * var stopEvent = require("../evt/stop");
+ * var sizzle = require("../dom/sizzle");
+ * var handler = function(evt) {
+ *     stopEvent(evt); // 阻止事件冒泡以及默认事件行为
+ *     removeEvent(nodes, "click", handler); // 将addEvent时的参数原样不动传给removeEvent，可以解除事件
+ * }
+ *
+ * var nodes = sizzle(".nodes", parentNode); // 获取到parentNode中所有class为nodes的节点，返回一个数组
+ * addEvent(nodes, "click", handler); // 为数组nodes中所有的节点绑定click事件
+ * // 仅绑定一个可以只传入一个节点，而不是数组：addEvent(nodes[0], "click", hanlder);
+ *
+ *
+ */
+
+var getType = __webpack_require__(1);
+var each = __webpack_require__(0);
+
+var addEvent = function (el, type, fn, setCapture) {
+    if (getType(el) == "array") {
+        var fun = addEvent;
+
+        each(el, function (item, key) {
+            fun(item, type, fn, setCapture);
+        });
+    }
+
+    el = getType(el) == "string" ? document.getElementById(el) : el;
+
+    if (el == null || typeof fn != "function") {
+        return false;
+    }
+
+    if (el.addEventListener) {
+        el.addEventListener(type, fn, setCapture === true ? true : false);
+    } else if (el.attachEvent) {
+        el.attachEvent('on' + type, fn);
+        //锁定el    setCapture
+        if (setCapture && el.setCapture) {
+            el.setCapture();
+        }
+    } else {
+        el['on' + type] = fn;
+        if (setCapture && el.setCapture) {
+            el.setCapture();
+        }
+    }
+
+    return true;
+};
+
+module.exports = addEvent;
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -933,7 +1074,7 @@ module.exports = base;
  *
  */
 
-var getStyle = __webpack_require__(12);
+var getStyle = __webpack_require__(10);
 var chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g,
     done = 0,
     toString = Object.prototype.toString,
@@ -2010,7 +2151,35 @@ Expr.filters.visible = function (elem) {
 module.exports = Sizzle;
 
 /***/ },
-/* 5 */
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+var console = __webpack_require__(3);
+var sizzle = __webpack_require__(7);
+module.exports = function () {
+    //类数组的转化
+    var list = Array.prototype.slice.call(sizzle("[id]"), 0);
+    var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
+    var nodeList = {};
+
+    list.forEach(function (el) {
+        if (!reg.test(el.id)) {
+            console.warn("节点#" + el.id + "的id值不符合规范，被忽略!");
+            return;
+        }
+
+        var id = el.id.substr(2).toLowerCase().replace(/\-([a-z])/g, function (m, n) {
+            return n.toUpperCase();
+        });
+
+        nodeList[id] = el;
+    });
+
+    return nodeList;
+};
+
+/***/ },
+/* 9 */
 /***/ function(module, exports) {
 
 /**
@@ -2051,569 +2220,7 @@ module.exports = function (str) {
 };
 
 /***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-var console = __webpack_require__(2);
-var sizzle = __webpack_require__(4);
-
-module.exports = function () {
-    var list = Array.prototype.slice.call(sizzle("[id]"), 0);
-    var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
-    var nodeList = {};
-
-    list.forEach(function (el) {
-        if (!reg.test(el.id)) {
-            console.warn("节点#" + el.id + "的id值不符合规范，被忽略!");
-            return;
-        }
-
-        var id = el.id.substr(2).toLowerCase().replace(/\-([a-z])/g, function (m, n) {
-            return n.toUpperCase();
-        });
-
-        nodeList[id] = el;
-    });
-
-    return nodeList;
-};
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 合并多个对象，将后面的对象和前面的对象一层一层的合并
- * 支持第一个参数传boolean类型，当传true时，支持深层合并
- * 例子：
- *
- * var merge = require("../json/merge");
- * var opts = { url: "http://www.baidu.com" };
- * var defaultOpts = { url: "", method: "get" };
- * opts = merge(defaultOpts, opts);
- * opts的值为：
- * opts = {
- *     url: "http://www.baidu.com",
- *     method: "get"
- * }
- *
- */
-
-var getType = __webpack_require__(1);
-var console = __webpack_require__(2);
-var each = __webpack_require__(0);
-
-module.exports = function () {
-
-    var result = [];
-    var args = [].slice.call(arguments);
-    result.push.apply(result, args);
-
-    var deep = false;
-
-    function mergeObj(r, obj) {
-        each(obj, function (v, k) {
-            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
-                mergeObj(r[k], v);
-            } else {
-                r[k] = v;
-            }
-        });
-    }
-
-    var newObj = {};
-
-    each(result, function (item, index) {
-        if (index == 0 && item === true) {
-            deep = true;
-        } else if (getType(item) == "object") {
-            mergeObj(newObj, item);
-        }
-    });
-
-    return newObj;
-};
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 检查是否为一个元素，它是对isNode的一个封装，并且判断node节点的nodeType是否为1，为1则是元素
- * 例子：
- *
- * HTML: <div id="node"></div>
- *
- * var isElement = require("../dom/isElement");
- * var node = document.getElementById("node");
- * console.log(isElement(node)); // true
- *
- */
-
-var isNode = __webpack_require__(21);
-
-module.exports = function (element) {
-  return isNode(element) && element.nodeType == 1;
-};
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 为一个节点或者节点数组添加事件
- * @2014-10-11 增加了批量处理功能，可以传入一个节点数组绑定事件
- *
- * var addEvent = require("../evt/add");
- * var removeEvent = require("../evt/remove");
- * var stopEvent = require("../evt/stop");
- * var sizzle = require("../dom/sizzle");
- * var handler = function(evt) {
- *     stopEvent(evt); // 阻止事件冒泡以及默认事件行为
- *     removeEvent(nodes, "click", handler); // 将addEvent时的参数原样不动传给removeEvent，可以解除事件
- * }
- *
- * var nodes = sizzle(".nodes", parentNode); // 获取到parentNode中所有class为nodes的节点，返回一个数组
- * addEvent(nodes, "click", handler); // 为数组nodes中所有的节点绑定click事件
- * // 仅绑定一个可以只传入一个节点，而不是数组：addEvent(nodes[0], "click", hanlder);
- *
- *
- */
-
-var getType = __webpack_require__(1);
-var each = __webpack_require__(0);
-
-var addEvent = function (el, type, fn, setCapture) {
-    if (getType(el) == "array") {
-        var fun = addEvent;
-
-        each(el, function (item, key) {
-            fun(item, type, fn, setCapture);
-        });
-    }
-
-    el = getType(el) == "string" ? document.getElementById(el) : el;
-
-    if (el == null || typeof fn != "function") {
-        return false;
-    }
-
-    if (el.addEventListener) {
-        el.addEventListener(type, fn, setCapture === true ? true : false);
-    } else if (el.attachEvent) {
-        el.attachEvent('on' + type, fn);
-        if (setCapture && el.setCapture) {
-            el.setCapture();
-        }
-    } else {
-        el['on' + type] = fn;
-        if (setCapture && el.setCapture) {
-            el.setCapture();
-        }
-    }
-
-    return true;
-};
-
-module.exports = addEvent;
-
-/***/ },
 /* 10 */
-/***/ function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-var stylesInDom = {},
-	memoize = function(fn) {
-		var memo;
-		return function () {
-			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-			return memo;
-		};
-	},
-	isOldIE = memoize(function() {
-		return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
-	}),
-	getHeadElement = memoize(function () {
-		return document.head || document.getElementsByTagName("head")[0];
-	}),
-	singletonElement = null,
-	singletonCounter = 0,
-	styleElementsInsertedAtTop = [];
-
-module.exports = function(list, options) {
-	if(typeof DEBUG !== "undefined" && DEBUG) {
-		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-	}
-
-	options = options || {};
-	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-	// tags it will allow on a page
-	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-	// By default, add <style> tags to the bottom of <head>.
-	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
-
-	var styles = listToStyles(list);
-	addStylesToDom(styles, options);
-
-	return function update(newList) {
-		var mayRemove = [];
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			domStyle.refs--;
-			mayRemove.push(domStyle);
-		}
-		if(newList) {
-			var newStyles = listToStyles(newList);
-			addStylesToDom(newStyles, options);
-		}
-		for(var i = 0; i < mayRemove.length; i++) {
-			var domStyle = mayRemove[i];
-			if(domStyle.refs === 0) {
-				for(var j = 0; j < domStyle.parts.length; j++)
-					domStyle.parts[j]();
-				delete stylesInDom[domStyle.id];
-			}
-		}
-	};
-}
-
-function addStylesToDom(styles, options) {
-	for(var i = 0; i < styles.length; i++) {
-		var item = styles[i];
-		var domStyle = stylesInDom[item.id];
-		if(domStyle) {
-			domStyle.refs++;
-			for(var j = 0; j < domStyle.parts.length; j++) {
-				domStyle.parts[j](item.parts[j]);
-			}
-			for(; j < item.parts.length; j++) {
-				domStyle.parts.push(addStyle(item.parts[j], options));
-			}
-		} else {
-			var parts = [];
-			for(var j = 0; j < item.parts.length; j++) {
-				parts.push(addStyle(item.parts[j], options));
-			}
-			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-		}
-	}
-}
-
-function listToStyles(list) {
-	var styles = [];
-	var newStyles = {};
-	for(var i = 0; i < list.length; i++) {
-		var item = list[i];
-		var id = item[0];
-		var css = item[1];
-		var media = item[2];
-		var sourceMap = item[3];
-		var part = {css: css, media: media, sourceMap: sourceMap};
-		if(!newStyles[id])
-			styles.push(newStyles[id] = {id: id, parts: [part]});
-		else
-			newStyles[id].parts.push(part);
-	}
-	return styles;
-}
-
-function insertStyleElement(options, styleElement) {
-	var head = getHeadElement();
-	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-	if (options.insertAt === "top") {
-		if(!lastStyleElementInsertedAtTop) {
-			head.insertBefore(styleElement, head.firstChild);
-		} else if(lastStyleElementInsertedAtTop.nextSibling) {
-			head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-		} else {
-			head.appendChild(styleElement);
-		}
-		styleElementsInsertedAtTop.push(styleElement);
-	} else if (options.insertAt === "bottom") {
-		head.appendChild(styleElement);
-	} else {
-		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-	}
-}
-
-function removeStyleElement(styleElement) {
-	styleElement.parentNode.removeChild(styleElement);
-	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
-	if(idx >= 0) {
-		styleElementsInsertedAtTop.splice(idx, 1);
-	}
-}
-
-function createStyleElement(options) {
-	var styleElement = document.createElement("style");
-	styleElement.type = "text/css";
-	insertStyleElement(options, styleElement);
-	return styleElement;
-}
-
-function createLinkElement(options) {
-	var linkElement = document.createElement("link");
-	linkElement.rel = "stylesheet";
-	insertStyleElement(options, linkElement);
-	return linkElement;
-}
-
-function addStyle(obj, options) {
-	var styleElement, update, remove;
-
-	if (options.singleton) {
-		var styleIndex = singletonCounter++;
-		styleElement = singletonElement || (singletonElement = createStyleElement(options));
-		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-	} else if(obj.sourceMap &&
-		typeof URL === "function" &&
-		typeof URL.createObjectURL === "function" &&
-		typeof URL.revokeObjectURL === "function" &&
-		typeof Blob === "function" &&
-		typeof btoa === "function") {
-		styleElement = createLinkElement(options);
-		update = updateLink.bind(null, styleElement);
-		remove = function() {
-			removeStyleElement(styleElement);
-			if(styleElement.href)
-				URL.revokeObjectURL(styleElement.href);
-		};
-	} else {
-		styleElement = createStyleElement(options);
-		update = applyToTag.bind(null, styleElement);
-		remove = function() {
-			removeStyleElement(styleElement);
-		};
-	}
-
-	update(obj);
-
-	return function updateStyle(newObj) {
-		if(newObj) {
-			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-				return;
-			update(obj = newObj);
-		} else {
-			remove();
-		}
-	};
-}
-
-var replaceText = (function () {
-	var textStore = [];
-
-	return function (index, replacement) {
-		textStore[index] = replacement;
-		return textStore.filter(Boolean).join('\n');
-	};
-})();
-
-function applyToSingletonTag(styleElement, index, remove, obj) {
-	var css = remove ? "" : obj.css;
-
-	if (styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = replaceText(index, css);
-	} else {
-		var cssNode = document.createTextNode(css);
-		var childNodes = styleElement.childNodes;
-		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-		if (childNodes.length) {
-			styleElement.insertBefore(cssNode, childNodes[index]);
-		} else {
-			styleElement.appendChild(cssNode);
-		}
-	}
-}
-
-function applyToTag(styleElement, obj) {
-	var css = obj.css;
-	var media = obj.media;
-
-	if(media) {
-		styleElement.setAttribute("media", media)
-	}
-
-	if(styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = css;
-	} else {
-		while(styleElement.firstChild) {
-			styleElement.removeChild(styleElement.firstChild);
-		}
-		styleElement.appendChild(document.createTextNode(css));
-	}
-}
-
-function updateLink(linkElement, obj) {
-	var css = obj.css;
-	var sourceMap = obj.sourceMap;
-
-	if(sourceMap) {
-		// http://stackoverflow.com/a/26603875
-		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-	}
-
-	var blob = new Blob([css], { type: "text/css" });
-
-	var oldSrc = linkElement.href;
-
-	linkElement.href = URL.createObjectURL(blob);
-
-	if(oldSrc)
-		URL.revokeObjectURL(oldSrc);
-}
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-(function () {
-    Array.prototype.forEach = function (callback, thisArg) {
-        var T, k;
-        if (this == null) {
-            throw new TypeError(" this is null or not defined");
-        }
-        var O = Object(this);
-        var len = O.length >>> 0; // Hack to convert O.length to a UInt32
-        if ({}.toString.call(callback) != "[object Function]") {
-            throw new TypeError(callback + " is not a function");
-        }
-        if (thisArg) {
-            T = thisArg;
-        }
-        k = 0;
-        while (k < len) {
-            var kValue;
-            if (k in O) {
-                kValue = O[k];
-                if (callback.call(T, kValue, k, O) === false) {
-                    break;
-                }
-            }
-            k++;
-        }
-    };
-
-    if (!/msie [678]\./i.test(navigator.userAgent)) {
-        return;
-    }
-
-    var array = "abbr article aside audio canvas datalist details dialog eventsource figure footer header hgroup mark menu meter nav output progress section time video main header template".split(' ');
-    for (var i = 0; i < array.length; i++) {
-        document.createElement(array[i]);
-    }
-
-    Function.prototype.bind = Function.prototype.bind || function (oThis) {
-        var aArgs = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP = function () {},
-            fBound = function () {
-            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis || window, aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-        // fNOP.prototype = this.prototype;
-        // fBound.prototype = new fNOP();
-
-        return fBound;
-    };
-
-    Array.prototype.filter = Array.prototype.filter || function (fun) {
-        var len = this.length;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
-        var res = new Array();
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                var val = this[i]; // in case fun mutates this
-                if (fun.call(thisp, val, i, this)) {
-                    res.push(val);
-                }
-            }
-        }
-        return res;
-    };
-
-    Array.prototype.map = Array.prototype.map || function (callback, thisArg) {
-
-        var T, A, k;
-
-        if (this == null) {
-            throw new TypeError(" this is null or not defined");
-        }
-
-        // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
-        var O = Object(this);
-
-        // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
-        // 3. Let len be ToUint32(lenValue).
-        var len = O.length >>> 0;
-
-        // 4. If IsCallable(callback) is false, throw a TypeError exception.
-        // See: http://es5.github.com/#x9.11
-        if (typeof callback !== "function") {
-            throw new TypeError(callback + " is not a function");
-        }
-
-        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-        if (thisArg) {
-            T = thisArg;
-        }
-
-        // 6. Let A be a new array created as if by the expression new Array(len) where Array is
-        // the standard built-in constructor with that name and len is the value of len.
-        A = new Array(len);
-
-        // 7. Let k be 0
-        k = 0;
-
-        // 8. Repeat, while k < len
-        while (k < len) {
-
-            var kValue, mappedValue;
-
-            // a. Let Pk be ToString(k).
-            //   This is implicit for LHS operands of the in operator
-            // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
-            //   This step can be combined with c
-            // c. If kPresent is true, then
-            if (k in O) {
-
-                // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
-                kValue = O[k];
-
-                // ii. Let mappedValue be the result of calling the Call internal method of callback
-                // with T as the this value and argument list containing kValue, k, and O.
-                mappedValue = callback.call(T, kValue, k, O);
-
-                // iii. Call the DefineOwnProperty internal method of A with arguments
-                // Pk, Property Descriptor {Value: mappedValue, : true, Enumerable: true, Configurable: true},
-                // and false.
-
-                // In browsers that support Object.defineProperty, use the following:
-                // Object.defineProperty(A, Pk, { value: mappedValue, writable: true, enumerable: true, configurable: true });
-
-                // For best browser support, use the following:
-                A[k] = mappedValue;
-            }
-            // d. Increase k by 1.
-            k++;
-        }
-
-        // 9. return A
-        return A;
-    };
-})();
-
-/***/ },
-/* 12 */
 /***/ function(module, exports) {
 
 /**
@@ -2889,27 +2496,446 @@ var getStyle = function (node, property) {
 module.exports = getStyle;
 
 /***/ },
-/* 13 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-var sizzle = __webpack_require__(4);
+/**
+ * 删除事件
+ * @2014-10-11 增加了批量处理功能，可以传入一个节点数组解绑事件
+ * 例子请阅读add函数
+ */
 
-module.exports = function (node, onlyChild) {
-    var list = Array.prototype.slice.call(sizzle((onlyChild === true ? "> " : "") + "[node-name]", node), 0);
-    var nodeList = {};
+var getType = __webpack_require__(1);
+var each = __webpack_require__(0);
 
-    list.forEach(function (el) {
-        var name = el.getAttribute("node-name");
+var removeEvent = function (el, type, fn, releaseCapture) {
+    if (getType(el) == "array") {
+        var fun = removeEvent;
 
-        if (name in nodeList) {
-            nodeList[name] = [].concat(nodeList[name], el);
-        } else {
-            nodeList[name] = el;
+        each(el, function (item, key) {
+            fun(item, type, fn, releaseCapture);
+        });
+    }
+
+    el = typeof el == "string" ? document.getElementById(el) : el;
+
+    if (el == null || typeof fn != "function") {
+        return false;
+    }
+
+    if (el.removeEventListener) {
+        el.removeEventListener(type, fn, releaseCapture === true ? true : false);
+    } else if (el.detachEvent) {
+        el.detachEvent("on" + type, fn);
+        if (releaseCapture && el.releaseCapture) {
+            el.releaseCapture();
         }
-    });
+    } else {
+        el['on' + type] = null;
+        if (releaseCapture && el.releaseCapture) {
+            el.releaseCapture();
+        }
+    }
 
-    return nodeList;
+    return true;
 };
+
+module.exports = removeEvent;
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+var stylesInDom = {},
+	memoize = function(fn) {
+		var memo;
+		return function () {
+			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+			return memo;
+		};
+	},
+	isOldIE = memoize(function() {
+		return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
+	}),
+	getHeadElement = memoize(function () {
+		return document.head || document.getElementsByTagName("head")[0];
+	}),
+	singletonElement = null,
+	singletonCounter = 0,
+	styleElementsInsertedAtTop = [];
+
+module.exports = function(list, options) {
+	if(typeof DEBUG !== "undefined" && DEBUG) {
+		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the bottom of <head>.
+	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
+	var styles = listToStyles(list);
+	addStylesToDom(styles, options);
+
+	return function update(newList) {
+		var mayRemove = [];
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+		if(newList) {
+			var newStyles = listToStyles(newList);
+			addStylesToDom(newStyles, options);
+		}
+		for(var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+			if(domStyle.refs === 0) {
+				for(var j = 0; j < domStyle.parts.length; j++)
+					domStyle.parts[j]();
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+}
+
+function addStylesToDom(styles, options) {
+	for(var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+		if(domStyle) {
+			domStyle.refs++;
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles(list) {
+	var styles = [];
+	var newStyles = {};
+	for(var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+		if(!newStyles[id])
+			styles.push(newStyles[id] = {id: id, parts: [part]});
+		else
+			newStyles[id].parts.push(part);
+	}
+	return styles;
+}
+
+function insertStyleElement(options, styleElement) {
+	var head = getHeadElement();
+	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+	if (options.insertAt === "top") {
+		if(!lastStyleElementInsertedAtTop) {
+			head.insertBefore(styleElement, head.firstChild);
+		} else if(lastStyleElementInsertedAtTop.nextSibling) {
+			head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			head.appendChild(styleElement);
+		}
+		styleElementsInsertedAtTop.push(styleElement);
+	} else if (options.insertAt === "bottom") {
+		head.appendChild(styleElement);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement(styleElement) {
+	styleElement.parentNode.removeChild(styleElement);
+	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+	if(idx >= 0) {
+		styleElementsInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement(options) {
+	var styleElement = document.createElement("style");
+	styleElement.type = "text/css";
+	insertStyleElement(options, styleElement);
+	return styleElement;
+}
+
+function createLinkElement(options) {
+	var linkElement = document.createElement("link");
+	linkElement.rel = "stylesheet";
+	insertStyleElement(options, linkElement);
+	return linkElement;
+}
+
+function addStyle(obj, options) {
+	var styleElement, update, remove;
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+		styleElement = singletonElement || (singletonElement = createStyleElement(options));
+		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+	} else if(obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function") {
+		styleElement = createLinkElement(options);
+		update = updateLink.bind(null, styleElement);
+		remove = function() {
+			removeStyleElement(styleElement);
+			if(styleElement.href)
+				URL.revokeObjectURL(styleElement.href);
+		};
+	} else {
+		styleElement = createStyleElement(options);
+		update = applyToTag.bind(null, styleElement);
+		remove = function() {
+			removeStyleElement(styleElement);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle(newObj) {
+		if(newObj) {
+			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+				return;
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag(styleElement, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = styleElement.childNodes;
+		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+		if (childNodes.length) {
+			styleElement.insertBefore(cssNode, childNodes[index]);
+		} else {
+			styleElement.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag(styleElement, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		styleElement.setAttribute("media", media)
+	}
+
+	if(styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = css;
+	} else {
+		while(styleElement.firstChild) {
+			styleElement.removeChild(styleElement.firstChild);
+		}
+		styleElement.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink(linkElement, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	if(sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = linkElement.href;
+
+	linkElement.href = URL.createObjectURL(blob);
+
+	if(oldSrc)
+		URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+(function () {
+    Array.prototype.forEach = function (callback, thisArg) {
+        var T, k;
+        if (this == null) {
+            throw new TypeError(" this is null or not defined");
+        }
+        var O = Object(this);
+        var len = O.length >>> 0; // Hack to convert O.length to a UInt32
+        if ({}.toString.call(callback) != "[object Function]") {
+            throw new TypeError(callback + " is not a function");
+        }
+        if (thisArg) {
+            T = thisArg;
+        }
+        k = 0;
+        while (k < len) {
+            var kValue;
+            if (k in O) {
+                kValue = O[k];
+                if (callback.call(T, kValue, k, O) === false) {
+                    break;
+                }
+            }
+            k++;
+        }
+    };
+
+    if (!/msie [678]\./i.test(navigator.userAgent)) {
+        return;
+    }
+
+    var array = "abbr article aside audio canvas datalist details dialog eventsource figure footer header hgroup mark menu meter nav output progress section time video main header template".split(' ');
+    for (var i = 0; i < array.length; i++) {
+        document.createElement(array[i]);
+    }
+
+    Function.prototype.bind = Function.prototype.bind || function (oThis) {
+        var aArgs = Array.prototype.slice.call(arguments, 1),
+            fToBind = this,
+            fNOP = function () {},
+            fBound = function () {
+            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis || window, aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+        // fNOP.prototype = this.prototype;
+        // fBound.prototype = new fNOP();
+
+        return fBound;
+    };
+
+    Array.prototype.filter = Array.prototype.filter || function (fun) {
+        var len = this.length;
+        if (typeof fun != "function") {
+            throw new TypeError();
+        }
+        var res = new Array();
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this) {
+                var val = this[i]; // in case fun mutates this
+                if (fun.call(thisp, val, i, this)) {
+                    res.push(val);
+                }
+            }
+        }
+        return res;
+    };
+
+    Array.prototype.map = Array.prototype.map || function (callback, thisArg) {
+
+        var T, A, k;
+
+        if (this == null) {
+            throw new TypeError(" this is null or not defined");
+        }
+
+        // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
+        var O = Object(this);
+
+        // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
+        // 3. Let len be ToUint32(lenValue).
+        var len = O.length >>> 0;
+
+        // 4. If IsCallable(callback) is false, throw a TypeError exception.
+        // See: http://es5.github.com/#x9.11
+        if (typeof callback !== "function") {
+            throw new TypeError(callback + " is not a function");
+        }
+
+        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+        if (thisArg) {
+            T = thisArg;
+        }
+
+        // 6. Let A be a new array created as if by the expression new Array(len) where Array is
+        // the standard built-in constructor with that name and len is the value of len.
+        A = new Array(len);
+
+        // 7. Let k be 0
+        k = 0;
+
+        // 8. Repeat, while k < len
+        while (k < len) {
+
+            var kValue, mappedValue;
+
+            // a. Let Pk be ToString(k).
+            //   This is implicit for LHS operands of the in operator
+            // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
+            //   This step can be combined with c
+            // c. If kPresent is true, then
+            if (k in O) {
+
+                // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
+                kValue = O[k];
+
+                // ii. Let mappedValue be the result of calling the Call internal method of callback
+                // with T as the this value and argument list containing kValue, k, and O.
+                mappedValue = callback.call(T, kValue, k, O);
+
+                // iii. Call the DefineOwnProperty internal method of A with arguments
+                // Pk, Property Descriptor {Value: mappedValue, : true, Enumerable: true, Configurable: true},
+                // and false.
+
+                // In browsers that support Object.defineProperty, use the following:
+                // Object.defineProperty(A, Pk, { value: mappedValue, writable: true, enumerable: true, configurable: true });
+
+                // For best browser support, use the following:
+                A[k] = mappedValue;
+            }
+            // d. Increase k by 1.
+            k++;
+        }
+
+        // 9. return A
+        return A;
+    };
+})();
 
 /***/ },
 /* 14 */
@@ -2969,6 +2995,98 @@ module.exports = function () {
 /***/ function(module, exports) {
 
 /**
+ * 获取滚动条的位置
+ *
+ * var scrollPos = require("../util/scrollPos");
+ * var pos = scrollPos(); // 也可以传入一个iframe的document对象
+ * 得到 { top: 0, left: 0 }
+ *
+ */
+module.exports = function (oDocument) {
+  oDocument = oDocument || document;
+  var dd = oDocument.documentElement;
+  var db = oDocument.body;
+  return {
+    top: Math.max(window.pageYOffset || 0, dd.scrollTop, db.scrollTop),
+    left: Math.max(window.pageXOffset || 0, dd.scrollLeft, db.scrollLeft)
+  };
+};
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 检查是否为一个元素，它是对isNode的一个封装，并且判断node节点的nodeType是否为1，为1则是元素
+ * 例子：
+ *
+ * HTML: <div id="node"></div>
+ *
+ * var isElement = require("../dom/isElement");
+ * var node = document.getElementById("node");
+ * console.log(isElement(node)); // true
+ *
+ */
+
+var isNode = __webpack_require__(27);
+
+module.exports = function (element) {
+  return isNode(element) && element.nodeType == 1;
+};
+
+/***/ },
+/* 17 */
+/***/ function(module, exports) {
+
+/**
+ * 获取窗口可视范围的大小
+ * 例子：
+ *
+ * var winSize = require("../util/winSize");
+ * var size = winSize(); // 可以指明某个window对象
+ * size的值为： {width: 1024, height: 768 }
+ */
+module.exports = function (_target) {
+	var w, h;
+	var target;
+	if (_target) {
+		target = _target.document;
+	} else {
+		target = document;
+	}
+
+	if (target.compatMode === "CSS1Compat") {
+		w = target.documentElement["clientWidth"];
+		h = target.documentElement["clientHeight"];
+	} else if (self.innerHeight) {
+		// all except Explorer
+		if (_target) {
+			target = _target.self;
+		} else {
+			target = self;
+		}
+		w = target.innerWidth;
+		h = target.innerHeight;
+	} else if (target.documentElement && target.documentElement.clientHeight) {
+		// Explorer 6 Strict Mode
+		w = target.documentElement.clientWidth;
+		h = target.documentElement.clientHeight;
+	} else if (target.body) {
+		// other Explorers
+		w = target.body.clientWidth;
+		h = target.body.clientHeight;
+	}
+	return {
+		width: w,
+		height: h
+	};
+};
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+/**
  * 获取事件对象，一般情况下不需要使用本函数
  * 一般来说绑定事件时，event对象会当成参数传给响应函数，
  * 但在某些特殊情况下，可能event对象在函数调用链中没有传递（代码设计缺陷造成的）
@@ -3011,70 +3129,42 @@ var getEvent = function () {
 module.exports = getEvent;
 
 /***/ },
-/* 16 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
- * 删除事件
- * @2014-10-11 增加了批量处理功能，可以传入一个节点数组解绑事件
- * 例子请阅读add函数
+ * 阻止事件默认行为
+ *
+ * HTML:
+ * <a href="http://aq.yy.com" id="node">这是一个连接</a>
+ *
+ * var queryNode = require("../dom/queryNode");
+ * var addEvent = require("../evt/add");
+ * var preventDefault = require("../evt/preventDefault");
+ * var node = queryNode("#node");
+ *
+ * var handler = function(evt) {
+ *     preventDefault(evt); // 点击连接的时候，并不会将页面跳到http://aq.yy.com
+ * }
+ *
+ * addEvent(node, "click", handler);
  */
 
-var getType = __webpack_require__(1);
-var each = __webpack_require__(0);
+var getEvent = __webpack_require__(18);
 
-var removeEvent = function (el, type, fn, releaseCapture) {
-    if (getType(el) == "array") {
-        var fun = removeEvent;
+module.exports = function (event) {
+    event = event || getEvent();
 
-        each(el, function (item, key) {
-            fun(item, type, fn, releaseCapture);
-        });
-    }
-
-    el = typeof el == "string" ? document.getElementById(el) : el;
-
-    if (el == null || typeof fn != "function") {
-        return false;
-    }
-
-    if (el.removeEventListener) {
-        el.removeEventListener(type, fn, releaseCapture === true ? true : false);
-    } else if (el.detachEvent) {
-        el.detachEvent("on" + type, fn);
-        if (releaseCapture && el.releaseCapture) {
-            el.releaseCapture();
-        }
+    if (event.preventDefault) {
+        event.preventDefault();
     } else {
-        el['on' + type] = null;
-        if (releaseCapture && el.releaseCapture) {
-            el.releaseCapture();
-        }
+        event.returnValue = false;
     }
-
-    return true;
 };
 
-module.exports = removeEvent;
-
 /***/ },
-/* 17 */,
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(14)();
-// imports
-
-
-// module
-exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n.show {\n  display: block !important; }\n\n.hide {\n  display: none !important; }\n\n.clearfix:after, .m-grid-page:after {\n  content: \".\";\n  display: block;\n  height: 0;\n  clear: both;\n  visibility: hidden;\n  overflow: hidden; }\n\n.clearfix, .m-grid-page {\n  display: inline-block; }\n\n.clearfix, .m-grid-page {\n  display: block; }\n\n/* .clearfix:before, \n.clearfix:after {\n    display: table;\n    line-height:  0;\n    content: \"\";\n}   \n.clearfix:after {\n    clear: both;\n} */\n.m-grid-page {\n  line-height: 22px;\n  font-size: 14px;\n  min-width: 950px; }\n  .m-grid-page span,\n  .m-grid-page div,\n  .m-grid-page a {\n    float: left;\n    margin: 0 4px;\n    font-size: 14px;\n    color: #666666; }\n  .m-grid-page .select {\n    border: 1px solid #e3e4e9;\n    max-width: 30px;\n    border-radius: 3px; }\n  .m-grid-page .select-group {\n    position: relative; }\n    .m-grid-page .select-group .select {\n      text-indent: 4px;\n      line-height: 20px; }\n    .m-grid-page .select-group .icon {\n      background-position: -44.1rem -33.45rem;\n      width: 0.5rem;\n      height: 0.25rem;\n      background-image: url(\"/images/sprite.png?v=1496632378037\");\n      background-repeat: no-repeat;\n      background-size: 50.85rem 50.65rem;\n      display: inline-block;\n      position: absolute;\n      top: 10px;\n      right: 2px; }\n    .m-grid-page .select-group .items {\n      position: absolute;\n      border: 1px solid #e3e4e9;\n      border-bottom: none;\n      width: 100%;\n      z-index: 5;\n      max-height: 160px;\n      overflow: auto;\n      position: absolute;\n      top: -120px;\n      left: 0; }\n      .m-grid-page .select-group .items li {\n        cursor: pointer;\n        text-align: center; }\n        .m-grid-page .select-group .items li:hover {\n          background: #e2effa; }\n  .m-grid-page .first,\n  .m-grid-page .prev,\n  .m-grid-page .next,\n  .m-grid-page .last,\n  .m-grid-page .goTo {\n    border: 1px solid #e3e4e9;\n    border-radius: 3px;\n    padding: 0 10px; }\n    .m-grid-page .first:hover,\n    .m-grid-page .prev:hover,\n    .m-grid-page .next:hover,\n    .m-grid-page .last:hover,\n    .m-grid-page .goTo:hover {\n      border: 1px solid #2ba0ff;\n      color: #2ba0ff; }\n    .m-grid-page .first.gray,\n    .m-grid-page .prev.gray,\n    .m-grid-page .next.gray,\n    .m-grid-page .last.gray,\n    .m-grid-page .goTo.gray {\n      cursor: not-allowed; }\n      .m-grid-page .first.gray:hover,\n      .m-grid-page .prev.gray:hover,\n      .m-grid-page .next.gray:hover,\n      .m-grid-page .last.gray:hover,\n      .m-grid-page .goTo.gray:hover {\n        color: #666666;\n        border: 1px solid #e3e4e9; }\n  .m-grid-page .page input {\n    border: 1px solid #e3e4e9;\n    text-align: center;\n    margin: 0 4px;\n    line-height: 20px; }\n    .m-grid-page .page input:focus {\n      border: 1px solid #2e96ea; }\n  .m-grid-page .first i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first.gray:hover i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first:hover i {\n    background-position: -44.1rem -28.05rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev.gray:hover i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev:hover i {\n    background-position: -27.95rem -14.05rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next.gray:hover i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next:hover i {\n    background-position: -44.15rem -35.1rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last.gray:hover i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last:hover i {\n    background-position: -44.1rem -23.35rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo.gray:hover i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block;\n    padding-right: 5px; }\n  .m-grid-page .goTo:hover i {\n    background-position: -26.45rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n\n.m-calendar-year {\n  width: 289px;\n  border: 1px solid #e1e1e1;\n  color: #666666; }\n  .m-calendar-year .change {\n    width: 100%;\n    display: table;\n    background: #f3f6f8;\n    line-height: 30px;\n    height: 30px;\n    font-weight: 600; }\n    .m-calendar-year .change span {\n      display: table-cell;\n      text-align: center; }\n      .m-calendar-year .change span i {\n        border: 6px  solid transparent;\n        display: inline-block; }\n      .m-calendar-year .change span .arrow-left {\n        border-right: 6px solid #666666; }\n      .m-calendar-year .change span .arrow-right {\n        border-left: 6px solid #666666; }\n  .m-calendar-year .list ul {\n    width: 100%;\n    display: table;\n    text-align: center;\n    font-size: 14px;\n    font-weight: 600; }\n    .m-calendar-year .list ul li {\n      display: table-cell;\n      height: 73px; }\n      .m-calendar-year .list ul li span {\n        box-sizing: border-box;\n        border-radius: 6px;\n        position: relative;\n        display: inline-block;\n        line-height: 72px;\n        height: 72px;\n        width: 72px; }\n        .m-calendar-year .list ul li span.active {\n          color: #2f95ea;\n          border: 1px solid #2f95ea; }\n          .m-calendar-year .list ul li span.active:after {\n            content: \"\";\n            width: 8px;\n            height: 8px;\n            background: #2f95ea;\n            position: absolute;\n            border-radius: 50%;\n            top: 50px;\n            right: 32px; }\n        .m-calendar-year .list ul li span.gray {\n          color: #999999; }\n        .m-calendar-year .list ul li span:hover {\n          background: #e2effa;\n          cursor: pointer; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
-
-// exports
-
-
-/***/ },
-/* 19 */,
-/* 20 */
+/* 20 */,
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3090,10 +3180,10 @@ exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path�
  * }
  */
 
-var isElement = __webpack_require__(8);
+var isElement = __webpack_require__(16);
 var each = __webpack_require__(0);
 var getType = __webpack_require__(1);
-var trim = __webpack_require__(5);
+var trim = __webpack_require__(9);
 var whiteSpace = ' ';
 var that = {};
 
@@ -3224,26 +3314,215 @@ that.toggle = function (node, className1, className2) {
 module.exports = that;
 
 /***/ },
-/* 21 */
-/***/ function(module, exports) {
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
 
 /**
- * 判断对象是否为一个节点，注意：元素、注释、文本内容都是一个node，具体请查阅DOM实现接口文档
+ * 复制json对象，保证修改后不影响原来的对象
  * 例子：
  *
- * HTML: <div id="node"></div>
- *
- * var isNode = require("../dom/isNode");
- * var node = document.getElementById("node");
- * console.log(isNode(node)); // true
+ * var clone = require("../json/clone");
+ * var obj = { id: 1 };
+ * var objNew = clone(obj); // 修改objNew不会涉及到obj
  *
  */
-module.exports = function (node) {
-  return node != undefined && Boolean(node.nodeName) && Boolean(node.nodeType);
+
+var getType = __webpack_require__(1);
+
+var clone = module.exports = function (json) {
+    var obj = null;
+
+    if (getType(json) == "array") {
+        obj = [];
+
+        for (var i = 0; i < json.length; i++) {
+            obj.push(clone(json[i]));
+        }
+    } else if (getType(json) == "object") {
+        obj = {};
+
+        for (var key in json) {
+            obj[key] = clone(json[key]);
+        }
+    } else {
+        return json;
+    }
+
+    return obj;
 };
 
 /***/ },
-/* 22 */
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 获取节点相对于指定的节点的位置
+ * 如果没有指定节点，则返回相对于document的位置
+ * 例子：
+ * var getPosition = require("../dom/getPosition");
+ * var pos = getPosition(node);
+ * console.log("left:" + pos.left, "top:" + pos.top);
+ */
+
+var contains = __webpack_require__(31);
+var scrollPos = __webpack_require__(15);
+
+var generalPosition = function (el) {
+    var box = el.getBoundingClientRect();
+    var scroll = scrollPos();
+    var body = el.ownerDocument.body;
+    var docElem = el.ownerDocument.documentElement;
+    var clientTop = docElem.clientTop || body.clientTop || 0;
+    var clientLeft = docElem.clientLeft || body.clientLeft || 0;
+    // 这边的parseInt 没有必要
+
+    return {
+        left: box.left + scroll['left'] - clientLeft,
+        top: box.top + scroll['top'] - clientTop
+    };
+};
+
+module.exports = function (oElement, parent) {
+    oElement = typeof oElement == "string" ? document.getElementById(oElement) : oElement;
+    parent = typeof parent == "string" ? document.getElementById(parent) : parent;
+    if (!contains(oElement.ownerDocument.body, oElement)) {
+        return { top: NaN, left: NaN };
+    }
+
+    if (parent === undefined) {
+        return generalPosition(oElement);
+    } else {
+        oElement = generalPosition(oElement);
+        parent = generalPosition(parent);
+        return {
+            'left': oElement.left - parent.left,
+            'top': oElement.top - parent.top
+        };
+    }
+};
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 封装了HTML的插入操作，与insert.js不同，这里操作的是HTML字符串
+ * 例子：
+ *
+ * HTML: <div id="node">hello world</div>
+ *
+ * var insertHTML = require("../dom/insertHTML");
+ * var node = document.getElementById("node");
+ *
+ * where:
+ * beforebegin 插入到节点开始之前
+ *
+ * insertHTML(node, '<div id="newNode"></div>', beforebegin);
+ * 结果为： <div id="newNode"></div><div id="node">hello world</div>
+ *
+ * afterbegin 插入到节点内部的最前边
+ *
+ * insertHTML(node, '<div id="newNode"></div>', afterbegin);
+ * 结果为：<div id="node"><div id="newNode"></div>hello world</div>
+ *
+ * beforeend 相当于appendChild，即插到内部最后
+ *
+ * insertHTML(node, '<div id="newNode"></div>', beforeend);
+ * 结果为：<div id="node">hello world<div id="newNode"></div></div>
+ *
+ * afterend 插到节点的结束标签后边
+ *
+ * insertHTML(node, '<div id="newNode"></div>', afterend);
+ * 结果为：<div id="node">hello world</div><div id="newNode"></div>
+ *
+ */
+
+var console = __webpack_require__(3);
+
+module.exports = function (target, html, where) {
+    if (typeof target == "string") {
+        target = document.getElementById(target);
+    }
+
+    where = where ? where.toLowerCase() : "beforeend";
+
+    if ("insertAdjacentHTML" in target) {
+        switch (where) {
+            case "beforebegin":
+                target.insertAdjacentHTML('BeforeBegin', html);
+                return target.previousSibling;
+            case "afterbegin":
+                target.insertAdjacentHTML('AfterBegin', html);
+                return target.firstChild;
+            case "beforeend":
+                target.insertAdjacentHTML('BeforeEnd', html);
+                return target.lastChild;
+            case "afterend":
+                target.insertAdjacentHTML('AfterEnd', html);
+                return target.nextSibling;
+        }
+    } else {
+
+        var range = target.ownerDocument.createRange();
+        var frag;
+        /*
+            createContextualFragment 解决在IE下的bug
+         */
+        /*
+        if ((typeof Range !== "undefined") && !Range.prototype.createContextualFragment)
+        {
+            Range.prototype.createContextualFragment = function(html)
+            {
+                var frag = document.createDocumentFragment(), 
+                div = document.createElement("div");
+                frag.appendChild(div);
+                div.outerHTML = html;
+                return frag;
+            };
+        }
+         */
+        switch (where) {
+            case "beforebegin":
+                range.setStartBefore(target);
+                frag = range.createContextualFragment(html);
+                target.parentNode.insertBefore(frag, target);
+                return target.previousSibling;
+            case "afterbegin":
+                if (target.firstChild) {
+                    range.setStartBefore(target.firstChild);
+                    frag = range.createContextualFragment(html);
+                    target.insertBefore(frag, target.firstChild);
+                    return target.firstChild;
+                } else {
+                    target.innerHTML = html;
+                    return target.firstChild;
+                }
+                break;
+            case "beforeend":
+                if (target.lastChild) {
+                    range.setStartAfter(target.lastChild);
+                    frag = range.createContextualFragment(html);
+                    target.appendChild(frag);
+                    return target.lastChild;
+                } else {
+                    target.innerHTML = html;
+                    return target.lastChild;
+                }
+                break;
+            case "afterend":
+                range.setStartAfter(target);
+                frag = range.createContextualFragment(html);
+                target.parentNode.insertBefore(frag, target.nextSibling);
+                return target.nextSibling;
+        }
+    }
+
+    console.error("无法将HTML代码插入到节点" + where + "(insertHTML)");
+    return false;
+};
+
+/***/ },
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -3268,7 +3547,7 @@ module.exports = function (node) {
  * var prevNode = orpa.prev(node); // 获取到node2，也就是node的上一个元素，注意中间跳过了textNode1
  *
  */
-var isElement = __webpack_require__(8);
+var isElement = __webpack_require__(16);
 var each = __webpack_require__(0);
 var that = {};
 
@@ -3338,682 +3617,7 @@ that.prev = function (node) {
 module.exports = that;
 
 /***/ },
-/* 23 */,
-/* 24 */
-/***/ function(module, exports) {
-
-/**
- * 获取滚动条的位置
- *
- * var scrollPos = require("../util/scrollPos");
- * var pos = scrollPos(); // 也可以传入一个iframe的document对象
- * 得到 { top: 0, left: 0 }
- *
- */
-module.exports = function (oDocument) {
-  oDocument = oDocument || document;
-  var dd = oDocument.documentElement;
-  var db = oDocument.body;
-  return {
-    top: Math.max(window.pageYOffset || 0, dd.scrollTop, db.scrollTop),
-    left: Math.max(window.pageXOffset || 0, dd.scrollLeft, db.scrollLeft)
-  };
-};
-
-/***/ },
-/* 25 */
-/***/ function(module, exports) {
-
-/**
- * 判断节点是否为另一个节点的父元素（如果两者是同一个元素，返回假）
- * 例子：
- * var contains = require("../dom/contains");
- * console.log(contains(parentNode, node));
- **/
-module.exports = function (parent, node) {
-    if (parent === node) {
-        return false;
-    } else if (parent.compareDocumentPosition) {
-        return (parent.compareDocumentPosition(node) & 16) === 16;
-    } else if (parent.contains && node.nodeType === 1) {
-        return parent.contains(node);
-    } else {
-        while (node = node.parentNode) {
-            if (parent === node) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-};
-
-/***/ },
-/* 26 */,
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 复制json对象，保证修改后不影响原来的对象
- * 例子：
- *
- * var clone = require("../json/clone");
- * var obj = { id: 1 };
- * var objNew = clone(obj); // 修改objNew不会涉及到obj
- *
- */
-
-var getType = __webpack_require__(1);
-
-var clone = module.exports = function (json) {
-    var obj = null;
-
-    if (getType(json) == "array") {
-        obj = [];
-
-        for (var i = 0; i < json.length; i++) {
-            obj.push(clone(json[i]));
-        }
-    } else if (getType(json) == "object") {
-        obj = {};
-
-        for (var key in json) {
-            obj[key] = clone(json[key]);
-        }
-    } else {
-        return json;
-    }
-
-    return obj;
-};
-
-/***/ },
-/* 28 */
-/***/ function(module, exports) {
-
-/**
- * 获取窗口可视范围的大小
- * 例子：
- *
- * var winSize = require("../util/winSize");
- * var size = winSize(); // 可以指明某个window对象
- * size的值为： {width: 1024, height: 768 }
- */
-module.exports = function (_target) {
-	var w, h;
-	var target;
-	if (_target) {
-		target = _target.document;
-	} else {
-		target = document;
-	}
-
-	if (target.compatMode === "CSS1Compat") {
-		w = target.documentElement["clientWidth"];
-		h = target.documentElement["clientHeight"];
-	} else if (self.innerHeight) {
-		// all except Explorer
-		if (_target) {
-			target = _target.self;
-		} else {
-			target = self;
-		}
-		w = target.innerWidth;
-		h = target.innerHeight;
-	} else if (target.documentElement && target.documentElement.clientHeight) {
-		// Explorer 6 Strict Mode
-		w = target.documentElement.clientWidth;
-		h = target.documentElement.clientHeight;
-	} else if (target.body) {
-		// other Explorers
-		w = target.body.clientWidth;
-		h = target.body.clientHeight;
-	}
-	return {
-		width: w,
-		height: h
-	};
-};
-
-/***/ },
-/* 29 */,
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(18);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(10)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(true) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept(18, function() {
-			var newContent = __webpack_require__(18);
-			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-/* 31 */,
-/* 32 */,
-/* 33 */
-/***/ function(module, exports) {
-
-module.exports = function (obj) {
-obj || (obj = {});
-var __t, __p = '';
-with (obj) {
-__p += '<div>\r\n	<input type="text" id="m-cYear" value="2017">\r\n</div>';
-
-}
-return __p
-}
-
-/***/ },
-/* 34 */,
-/* 35 */,
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * @author benny.zheng
- * @data 2016-07-15
- * @description 自动更新登录页面背景区域
- */
-
-module.exports = function (node, opts) {
-    //----------------require--------------
-    var base = __webpack_require__(3); // 基础对象
-    var parseModule = __webpack_require__(13); // 页面模块自动解析
-    var render = __webpack_require__(38);
-    var className = __webpack_require__(20);
-    var popup = __webpack_require__(50);
-    var each = __webpack_require__(0);
-    var merge = __webpack_require__(7);
-    var addEvent = __webpack_require__(9);
-    var closest = __webpack_require__(40);
-    var scrollPos = __webpack_require__(24);
-    var scrollBarSize = __webpack_require__(45);
-    var winSize = __webpack_require__(28);
-
-    //-----------声明模块全局变量-------------
-    var nodeList = null; // 存储所有关键节点
-    var that = base();
-    var m_cal = null;
-    var data = null;
-    var calendarYearNode = null;
-    opts = merge({
-        beginYear: 2009
-    }, opts || {});
-    //-------------事件响应声明---------------
-    var evtFuncs = {
-        showCalendar: function (evt) {
-            if (className.has(node, "open")) {
-                evtFuncs.hideCalendar(evt);
-                return;
-            }
-            nodeList.interval.innerHTML = opts.beginYear + 1 + "&nbsp;-&nbsp;" + (opts.beginYear + 10);
-            var list = custFuncs.getYearData();
-            var html = "";
-            each(list, function (item, index) {
-                if (index % 4 == 0) {
-                    html = html + "<ul>";
-                }
-                if (index == 0 || index == 11) {
-                    html = html + "<li><span  class='gray'>" + item + "</span></li>";
-                } else if (index == 7) {
-                    html = html + "<li><span  class = 'active'>" + item + "</span></li>";
-                } else {
-                    html = html + "<li><span>" + item + "</span></li>";
-                }
-
-                if (index % 4 == 3) {
-                    html = html + "</ul>";
-                }
-            });
-
-            nodeList.list.innerHTML = html;
-            custFuncs.setPosition();
-            m_cal.show();
-            evt.stopPropagation();
-            className.add(node, "open");
-            addEvent(document.body, "click", evtFuncs.hideCalendar);
-        },
-        hideCalendar: function (ev) {
-            var target = ev.target;
-            if (closest(target, ".change")) return;
-            className.remove(node, "open");
-            m_cal.hide();
-            return;
-        },
-        change: function (evt) {
-            if (className.has(this, "left")) {
-                opts.beginYear = opts.beginYear - 10;
-            }
-            if (className.has(this, "right")) {
-                opts.beginYear = opts.beginYear + 10;
-            }
-            evtFuncs.showCalendar(evt);
-        }
-    };
-
-    //-------------子模块实例化---------------
-    var initMod = function () {
-        m_cal = popup(render());
-        calendarYearNode = m_cal.getOuter();
-        nodeList = parseModule(calendarYearNode);
-    };
-
-    //-------------绑定事件------------------
-    var bindEvents = function () {
-        addEvent(nodeList.prev, "click", evtFuncs.change);
-        addEvent(nodeList.next, "click", evtFuncs.change);
-    };
-
-    //-------------自定义函数----------------
-    var custFuncs = {
-        getYearData: function () {
-            var arr = [];
-            var start = opts.beginYear;
-            for (var i = 0; i < 12; i++) {
-                arr.push(start);
-                start += 1;
-            }
-            return arr;
-        },
-        setPosition: function () {
-            var nodeWidth = node.offsetWidth;
-            var nodeHeight = node.offsetHeight;
-
-            var scroll = scrollPos();
-            var boundingClientRect = node.getBoundingClientRect();
-            var calTop = boundingClientRect.top + scroll.top; //日历在页面中的top
-            var calLeft = boundingClientRect.left + scroll.left;
-            //向下展开时，日历的下边框距离屏幕顶部的距离
-            var calendarMaxBottom = calTop + nodeList.calBody.offsetHeight + nodeHeight;
-            var windowSize = winSize();
-            var barSize = scrollBarSize();
-
-            var popupY = 0;
-            // 默认向下展开；向下展开位置不够时，向上展开；
-            if (calendarMaxBottom >= scroll.top + windowSize.height - barSize.h) {
-                popupY = calTop - nodeList.calBody.offsetHeight;
-            } else {
-                popupY = calTop + nodeHeight;
-            }
-
-            calendarYearNode.style.top = popupY + "px";
-            calendarYearNode.style.left = calLeft + "px";
-        },
-        intiView: function (evt) {
-            each([].concat(node), function (item) {
-                if (!item) return;
-                addEvent(item, "click", evtFuncs.showCalendar);
-            });
-        }
-
-    };
-
-    //-------------一切从这开始--------------
-    var init = function (_data) {
-        data = _data;
-        // 找到所有带有node-name的节点
-        // 子模块实例化
-        initMod();
-        // 绑定事件
-        bindEvents();
-        custFuncs.intiView();
-    };
-
-    //---------------暴露API----------------
-    that.init = init;
-
-    return that;
-};
-
-/***/ },
-/* 37 */,
-/* 38 */
-/***/ function(module, exports) {
-
-module.exports = function (obj) {
-obj || (obj = {});
-var __t, __p = '';
-with (obj) {
-__p += '<div class="m-calendar-year" node-name= "calBody">\r\n	<div node-name= "calBody">\r\n		<div class="change">\r\n			<span class="left" node-name = "prev"><i class="arrow-left"></i></span>\r\n			<span class="center" node-name=	"interval">2000-2019</span>\r\n			<span class="right" node-name = "next"><i class="arrow-right"></i></span>\r\n		</div>\r\n		<section class="list" node-name="list">\r\n		\r\n		</section>\r\n	</div>\r\n</div>';
-
-}
-return __p
-}
-
-/***/ },
-/* 39 */,
-/* 40 */
-/***/ function(module, exports, __webpack_require__) {
-
-var matches = __webpack_require__(44);
-var contains = __webpack_require__(25);
-
-module.exports = function (node, selector, box) {
-    var result = null;
-    box = box || document.body;
-
-    if (node.closest) {
-        return node.closest(selector);
-    }
-
-    while (node && node != box && node.nodeType == 1) {
-        if (matches(node, selector)) {
-            return node;
-        }
-
-        node = node.parentNode;
-    }
-
-    return null;
-};
-
-/***/ },
-/* 41 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 获取节点相对于指定的节点的位置
- * 如果没有指定节点，则返回相对于document的位置
- * 例子：
- * var getPosition = require("../dom/getPosition");
- * var pos = getPosition(node);
- * console.log("left:" + pos.left, "top:" + pos.top);
- */
-
-var contains = __webpack_require__(25);
-var scrollPos = __webpack_require__(24);
-
-var generalPosition = function (el) {
-    var box = el.getBoundingClientRect();
-    var scroll = scrollPos();
-    var body = el.ownerDocument.body;
-    var docElem = el.ownerDocument.documentElement;
-    var clientTop = docElem.clientTop || body.clientTop || 0;
-    var clientLeft = docElem.clientLeft || body.clientLeft || 0;
-    // 这边的parseInt 没有必要
-
-    return {
-        left: box.left + scroll['left'] - clientLeft,
-        top: box.top + scroll['top'] - clientTop
-    };
-};
-
-module.exports = function (oElement, parent) {
-    oElement = typeof oElement == "string" ? document.getElementById(oElement) : oElement;
-    parent = typeof parent == "string" ? document.getElementById(parent) : parent;
-    if (!contains(oElement.ownerDocument.body, oElement)) {
-        return { top: NaN, left: NaN };
-    }
-
-    if (parent === undefined) {
-        return generalPosition(oElement);
-    } else {
-        oElement = generalPosition(oElement);
-        parent = generalPosition(parent);
-        return {
-            'left': oElement.left - parent.left,
-            'top': oElement.top - parent.top
-        };
-    }
-};
-
-/***/ },
-/* 42 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 获取节点在父节点中的位置（仅限于element）
- */
-var isElement = __webpack_require__(8);
-
-module.exports = function (element, nodeList) {
-    var at = 0;
-    var childNodes = nodeList || element.parentNode.childNodes;
-
-    for (var i = 0; i < childNodes.length; i++) {
-        if (element == childNodes[i]) {
-            return at;
-        }
-
-        if (isElement(childNodes[i])) {
-            at++;
-        }
-    }
-
-    return -1;
-};
-
-/***/ },
-/* 43 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 封装了HTML的插入操作，与insert.js不同，这里操作的是HTML字符串
- * 例子：
- *
- * HTML: <div id="node">hello world</div>
- *
- * var insertHTML = require("../dom/insertHTML");
- * var node = document.getElementById("node");
- *
- * where:
- * beforebegin 插入到节点开始之前
- *
- * insertHTML(node, '<div id="newNode"></div>', beforebegin);
- * 结果为： <div id="newNode"></div><div id="node">hello world</div>
- *
- * afterbegin 插入到节点内部的最前边
- *
- * insertHTML(node, '<div id="newNode"></div>', afterbegin);
- * 结果为：<div id="node"><div id="newNode"></div>hello world</div>
- *
- * beforeend 相当于appendChild，即插到内部最后
- *
- * insertHTML(node, '<div id="newNode"></div>', beforeend);
- * 结果为：<div id="node">hello world<div id="newNode"></div></div>
- *
- * afterend 插到节点的结束标签后边
- *
- * insertHTML(node, '<div id="newNode"></div>', afterend);
- * 结果为：<div id="node">hello world</div><div id="newNode"></div>
- *
- */
-
-var console = __webpack_require__(2);
-
-module.exports = function (target, html, where) {
-    if (typeof target == "string") {
-        target = document.getElementById(target);
-    }
-
-    where = where ? where.toLowerCase() : "beforeend";
-
-    if ("insertAdjacentHTML" in target) {
-        switch (where) {
-            case "beforebegin":
-                target.insertAdjacentHTML('BeforeBegin', html);
-                return target.previousSibling;
-            case "afterbegin":
-                target.insertAdjacentHTML('AfterBegin', html);
-                return target.firstChild;
-            case "beforeend":
-                target.insertAdjacentHTML('BeforeEnd', html);
-                return target.lastChild;
-            case "afterend":
-                target.insertAdjacentHTML('AfterEnd', html);
-                return target.nextSibling;
-        }
-    } else {
-        var range = target.ownerDocument.createRange();
-        var frag;
-
-        switch (where) {
-            case "beforebegin":
-                range.setStartBefore(target);
-                frag = range.createContextualFragment(html);
-                target.parentNode.insertBefore(frag, target);
-                return target.previousSibling;
-            case "afterbegin":
-                if (target.firstChild) {
-                    range.setStartBefore(target.firstChild);
-                    frag = range.createContextualFragment(html);
-                    target.insertBefore(frag, target.firstChild);
-                    return target.firstChild;
-                } else {
-                    target.innerHTML = html;
-                    return target.firstChild;
-                }
-                break;
-            case "beforeend":
-                if (target.lastChild) {
-                    range.setStartAfter(target.lastChild);
-                    frag = range.createContextualFragment(html);
-                    target.appendChild(frag);
-                    return target.lastChild;
-                } else {
-                    target.innerHTML = html;
-                    return target.lastChild;
-                }
-                break;
-            case "afterend":
-                range.setStartAfter(target);
-                frag = range.createContextualFragment(html);
-                target.parentNode.insertBefore(frag, target.nextSibling);
-                return target.nextSibling;
-        }
-    }
-
-    console.error("无法将HTML代码插入到节点" + where + "(insertHTML)");
-    return false;
-};
-
-/***/ },
-/* 44 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 判断当前节点是否匹配查询规则
- */
-var sizzle = __webpack_require__(4);
-var index = __webpack_require__(42);
-
-module.exports = function (node, selector) {
-    if (node.nodeType != 1) {
-        return false;
-    }
-
-    var p = HTMLElement.prototype;
-    var f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || function (s) {
-        return index(this, sizzle(s)) != -1;
-    };
-
-    return f.call(node, selector);
-};
-
-/***/ },
-/* 45 */
-/***/ function(module, exports) {
-
-/**
- * 获取滚动条宽高
- */
-module.exports = function () {
-    var div = document.createElement("DIV");
-    var _s = div.style;
-    _s.overflow = "scroll";
-    _s.width = "100px";
-    _s.height = "100px";
-    _s.left = "-200px";
-    _s.top = "-200px";
-    _s.position = "absolute";
-
-    document.body.appendChild(div);
-
-    var size = {
-        h: div.offsetHeight - div.clientHeight,
-        v: div.offsetWidth - div.clientWidth
-    };
-
-    document.body.removeChild(div);
-
-    return size;
-};
-
-/***/ },
-/* 46 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 阻止事件默认行为
- *
- * HTML:
- * <a href="http://aq.yy.com" id="node">这是一个连接</a>
- *
- * var queryNode = require("../dom/queryNode");
- * var addEvent = require("../evt/add");
- * var preventDefault = require("../evt/preventDefault");
- * var node = queryNode("#node");
- *
- * var handler = function(evt) {
- *     preventDefault(evt); // 点击连接的时候，并不会将页面跳到http://aq.yy.com
- * }
- *
- * addEvent(node, "click", handler);
- */
-
-var getEvent = __webpack_require__(15);
-
-module.exports = function (event) {
-    event = event || getEvent();
-
-    if (event.preventDefault) {
-        event.preventDefault();
-    } else {
-        event.returnValue = false;
-    }
-};
-
-/***/ },
-/* 47 */,
-/* 48 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 停止事件冒泡
- * 例子请阅读add函数
- */
-
-var getEvent = __webpack_require__(15);
-
-module.exports = function (event) {
-    event = event || getEvent();
-
-    if (event.stopPropagation) {
-        event.stopPropagation();
-    } else {
-        event.returnValue = false;
-    }
-
-    return false;
-};
-
-/***/ },
-/* 49 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -4023,18 +3627,18 @@ module.exports = function (event) {
  */
 //----------------require--------------
 
-var base = __webpack_require__(3); // 基础对象
-var parseModule = __webpack_require__(13); // 页面模块自动解析
+var base = __webpack_require__(2); // 基础对象
+var parseModule = __webpack_require__(5); // 页面模块自动解析
 var getType = __webpack_require__(1);
-var merge = __webpack_require__(7);
-var insertHTML = __webpack_require__(43);
-var clone = __webpack_require__(27);
-var nodeOpera = __webpack_require__(22);
-var preventDefault = __webpack_require__(46);
-var addEvent = __webpack_require__(9);
-var removeEvent = __webpack_require__(16);
-var winSize = __webpack_require__(28);
-var scrollPos = __webpack_require__(24);
+var merge = __webpack_require__(4);
+var insertHTML = __webpack_require__(24);
+var clone = __webpack_require__(22);
+var nodeOpera = __webpack_require__(25);
+var preventDefault = __webpack_require__(19);
+var addEvent = __webpack_require__(6);
+var removeEvent = __webpack_require__(11);
+var winSize = __webpack_require__(17);
+var scrollPos = __webpack_require__(15);
 
 var buildHTML = function (html) {
     var panel = document.createElement("div");
@@ -4046,7 +3650,9 @@ var disableEvent = function (ev) {
     preventDefault(ev);
 };
 
-var zIndex = 10000;
+if (!window.pop_zIndex) {
+    window.pop_zIndex = 10000;
+}
 
 var _exports = module.exports = {
     "createFromHTML": function (html, opts) {
@@ -4321,12 +3927,131 @@ var _exports = module.exports = {
         return that;
     },
     "newZIndex": function () {
-        return zIndex++;
+        return window.pop_zIndex++;
     }
 };
 
 /***/ },
-/* 50 */
+/* 27 */
+/***/ function(module, exports) {
+
+/**
+ * 判断对象是否为一个节点，注意：元素、注释、文本内容都是一个node，具体请查阅DOM实现接口文档
+ * 例子：
+ *
+ * HTML: <div id="node"></div>
+ *
+ * var isNode = require("../dom/isNode");
+ * var node = document.getElementById("node");
+ * console.log(isNode(node)); // true
+ *
+ */
+module.exports = function (node) {
+  return node != undefined && Boolean(node.nodeName) && Boolean(node.nodeType);
+};
+
+/***/ },
+/* 28 */
+/***/ function(module, exports) {
+
+/**
+ * 获取滚动条宽高
+ */
+module.exports = function () {
+    var div = document.createElement("DIV");
+    var _s = div.style;
+    _s.overflow = "scroll";
+    _s.width = "100px";
+    _s.height = "100px";
+    _s.left = "-200px";
+    _s.top = "-200px";
+    _s.position = "absolute";
+
+    document.body.appendChild(div);
+
+    var size = {
+        h: div.offsetHeight - div.clientHeight,
+        v: div.offsetWidth - div.clientWidth
+    };
+
+    document.body.removeChild(div);
+
+    return size;
+};
+
+/***/ },
+/* 29 */,
+/* 30 */,
+/* 31 */
+/***/ function(module, exports) {
+
+/**
+ * 判断节点是否为另一个节点的父元素（如果两者是同一个元素，返回假）
+ * 例子：
+ * var contains = require("../dom/contains");
+ * console.log(contains(parentNode, node));
+ **/
+module.exports = function (parent, node) {
+    if (parent === node) {
+        return false;
+    } else if (parent.compareDocumentPosition) {
+        return (parent.compareDocumentPosition(node) & 16) === 16;
+    } else if (parent.contains && node.nodeType === 1) {
+        return parent.contains(node);
+    } else {
+        while (node = node.parentNode) {
+            if (parent === node) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+};
+/*
+   compareDocumentPosition 与 contains 这里主要为了做兼容
+
+
+   compareDocumentPosition 比较强大 如下：
+    
+   Bits Number  Meaning
+   000000   0   元素一致
+   000001   1   节点在不同的文档（或者一个在文档之外）
+   000010   2   节点 B 在节点 A 之前
+   000100   4   节点 A 在节点 B 之前
+   001000   8   节点 B 包含节点 A
+   010000   16  节点 A 包含节点 B
+   100000   32  浏览器的私有使用 
+
+
+ */
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 停止事件冒泡
+ * 例子请阅读add函数
+ */
+
+var getEvent = __webpack_require__(18);
+
+module.exports = function (event) {
+    event = event || getEvent();
+
+    if (event.stopPropagation) {
+        event.stopPropagation();
+    } else {
+        event.returnValue = false;
+    }
+
+    return false;
+};
+
+/***/ },
+/* 33 */,
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -4341,17 +4066,17 @@ var _exports = module.exports = {
  *                取left/right以及top/bottom中各一个，如果所有位置都放置不下，则固定放在left top，以防止出滚动条
  */
 var _exports = module.exports = function (html, opts) {
-    var merge = __webpack_require__(7);
-    var builder = __webpack_require__(49);
-    var getPosition = __webpack_require__(41);
-    var scrollBarSize = __webpack_require__(45);
-    var parseModule = __webpack_require__(13);
-    var stopPropagation = __webpack_require__(48);
-    var winSize = __webpack_require__(28);
-    var scrollPos = __webpack_require__(24);
-    var addEvent = __webpack_require__(9);
-    var removeEvent = __webpack_require__(16);
-    var clone = __webpack_require__(27);
+    var merge = __webpack_require__(4);
+    var builder = __webpack_require__(26);
+    var getPosition = __webpack_require__(23);
+    var scrollBarSize = __webpack_require__(28);
+    var parseModule = __webpack_require__(5);
+    var stopPropagation = __webpack_require__(32);
+    var winSize = __webpack_require__(17);
+    var scrollPos = __webpack_require__(15);
+    var addEvent = __webpack_require__(6);
+    var removeEvent = __webpack_require__(11);
+    var clone = __webpack_require__(22);
 
     opts = merge({
         autoHide: false,
@@ -4515,9 +4240,379 @@ var _exports = module.exports = function (html, opts) {
 };
 
 /***/ },
+/* 35 */,
+/* 36 */,
+/* 37 */,
+/* 38 */,
+/* 39 */,
+/* 40 */,
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
 /* 51 */,
 /* 52 */,
-/* 53 */
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */
+/***/ function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(14)();
+// imports
+
+
+// module
+exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n.show {\n  display: block !important; }\n\n.hide {\n  display: none !important; }\n\n.clearfix:after, .m-dialog-common > .box:after, .m-grid-page:after {\n  content: \".\";\n  display: block;\n  height: 0;\n  clear: both;\n  visibility: hidden;\n  overflow: hidden; }\n\n.clearfix, .m-dialog-common > .box, .m-grid-page {\n  display: inline-block; }\n\n.clearfix, .m-dialog-common > .box, .m-grid-page {\n  display: block; }\n\n/* .clearfix:before, \n.clearfix:after {\n    display: table;\n    line-height:  0;\n    content: \"\";\n}   \n.clearfix:after {\n    clear: both;\n} */\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n@font-face {\n  font-family: \"iconfont\";\n  src: url(\"/font/iconfont.eot?t=1505787898067\");\n  /* IE9*/\n  src: url(\"/font/iconfont.eot?t=1505787898067#iefix\") format(\"embedded-opentype\"), url(\"/font/iconfont.ttf?t=1505787898067\") format(\"truetype\"), url(\"/font/iconfont.svg?t=1505787898067#iconfont\") format(\"svg\");\n  /* iOS 4.1- */ }\n\n.iconfont {\n  font-family: \"iconfont\" !important;\n  font-size: 16px;\n  font-style: normal;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale; }\n\n.icon-all:before {\n  content: \"\\E696\"; }\n\n.icon-back:before {\n  content: \"\\E697\"; }\n\n.icon-category:before {\n  content: \"\\E699\"; }\n\n.icon-close:before {\n  content: \"\\E69A\"; }\n\n.icon-comments:before {\n  content: \"\\E69B\"; }\n\n.icon-cry:before {\n  content: \"\\E69C\"; }\n\n.icon-delete:before {\n  content: \"\\E69D\"; }\n\n.icon-edit:before {\n  content: \"\\E69E\"; }\n\n.icon-email:before {\n  content: \"\\E69F\"; }\n\n.icon-favorite:before {\n  content: \"\\E6A0\"; }\n\n.icon-form:before {\n  content: \"\\E6A2\"; }\n\n.icon-help:before {\n  content: \"\\E6A3\"; }\n\n.icon-information:before {\n  content: \"\\E6A4\"; }\n\n.icon-less:before {\n  content: \"\\E6A5\"; }\n\n.icon-moreunfold:before {\n  content: \"\\E6A6\"; }\n\n.icon-more:before {\n  content: \"\\E6A7\"; }\n\n.icon-pic:before {\n  content: \"\\E6A8\"; }\n\n.icon-qrcode:before {\n  content: \"\\E6A9\"; }\n\n.icon-rfq:before {\n  content: \"\\E6AB\"; }\n\n.icon-search:before {\n  content: \"\\E6AC\"; }\n\n.icon-selected:before {\n  content: \"\\E6AD\"; }\n\n.icon-set:before {\n  content: \"\\E6AE\"; }\n\n.icon-smile:before {\n  content: \"\\E6AF\"; }\n\n.icon-success:before {\n  content: \"\\E6B1\"; }\n\n.icon-survey:before {\n  content: \"\\E6B2\"; }\n\n.icon-viewgallery:before {\n  content: \"\\E6B4\"; }\n\n.icon-viewlist:before {\n  content: \"\\E6B5\"; }\n\n.icon-warning:before {\n  content: \"\\E6B6\"; }\n\n.icon-wrong:before {\n  content: \"\\E6B7\"; }\n\n.icon-add:before {\n  content: \"\\E6B9\"; }\n\n.icon-remind:before {\n  content: \"\\E6BC\"; }\n\n.icon-box:before {\n  content: \"\\E6CB\"; }\n\n.icon-process:before {\n  content: \"\\E6CE\"; }\n\n.icon-electrical:before {\n  content: \"\\E6D4\"; }\n\n.icon-electronics:before {\n  content: \"\\E6DA\"; }\n\n.icon-gifts:before {\n  content: \"\\E6DB\"; }\n\n.icon-lights:before {\n  content: \"\\E6DE\"; }\n\n.icon-atmaway:before {\n  content: \"\\E6E9\"; }\n\n.icon-pin:before {\n  content: \"\\E6F2\"; }\n\n.icon-text:before {\n  content: \"\\E6FC\"; }\n\n.icon-move:before {\n  content: \"\\E6FD\"; }\n\n.icon-gerenzhongxin:before {\n  content: \"\\E70B\"; }\n\n.icon-operation:before {\n  content: \"\\E70E\"; }\n\n.icon-remind1:before {\n  content: \"\\E713\"; }\n\n.icon-map:before {\n  content: \"\\E715\"; }\n\n.icon-accountfilling:before {\n  content: \"\\E732\"; }\n\n.icon-libra:before {\n  content: \"\\E74C\"; }\n\n.icon-color:before {\n  content: \"\\E760\"; }\n\n.icon-favorites:before {\n  content: \"\\E7CE\"; }\n\n.icon-Calculator:before {\n  content: \"\\E812\"; }\n\n.icon-earth:before {\n  content: \"\\E828\"; }\n\n.m-blue-bg-button, .m-white-bg-button {\n  box-sizing: border-box;\n  display: inline-block;\n  border: 1px solid #e3e4e9;\n  border-radius: 3px;\n  height: 38px;\n  line-height: 36px;\n  font-size: 14px;\n  text-align: center;\n  padding: 0 25px;\n  cursor: pointer;\n  -moz-user-select: none;\n  -webkit-user-select: none;\n  -ms-user-select: none; }\n\n/* 默认按钮，蓝色白字 */\n.m-blue-bg-button {\n  color: #ffffff;\n  background: #2ba0ff;\n  border-color: #2ba0ff; }\n  .m-blue-bg-button:hover {\n    background: #4eaaff; }\n  .m-blue-bg-button:active {\n    background: #2ba0ff; }\n  .m-blue-bg-button.gray {\n    cursor: default; }\n    .m-blue-bg-button.gray:hover {\n      color: #666666;\n      border-color: #e3e4e9; }\n    .m-blue-bg-button.gray:active {\n      background: #ffffff;\n      border-color: #e3e4e9;\n      color: #666666; }\n\n/* 白底 */\n.m-white-bg-button {\n  color: #666666;\n  background: #ffffff; }\n  .m-white-bg-button:hover {\n    color: #2ba0ff;\n    border-color: #2ba0ff; }\n  .m-white-bg-button:active {\n    background: #ffffff;\n    border-color: #e3e4e9;\n    color: #666666; }\n\n.m-dialog-common {\n  position: absolute;\n  border: solid 1px #e3e4e9;\n  border-radius: 3px;\n  background-color: #ffffff; }\n  .m-dialog-common > .header {\n    color: #333333;\n    font-size: 16px;\n    position: relative;\n    background-color: #f4f5f9;\n    padding: 14px 20px 11px 20px; }\n    .m-dialog-common > .header > .close {\n      width: 24px;\n      height: 24px;\n      position: absolute;\n      top: 10px;\n      right: 16px; }\n    .m-dialog-common > .header > .iconfont {\n      font-size: 20px; }\n  .m-dialog-common > .box {\n    border: 1px solid transparent; }\n  .m-dialog-common .footer {\n    text-align: center;\n    padding: 10px 0;\n    background-color: #f4f5f9; }\n    .m-dialog-common .footer a {\n      margin: 0 10px; }\n\n.m-dialog-alert {\n  margin: 60px 40px 90px 40px;\n  font-size: 14px;\n  color: #333333;\n  text-align: center;\n  min-width: 450px; }\n  .m-dialog-alert .iconfont {\n    font-size: 34px; }\n\n.mg-win-toast {\n  padding: 0 20px;\n  height: 50px;\n  background: black;\n  opacity: 0;\n  text-align: center;\n  font-size: 20px;\n  line-height: 50px;\n  color: #ffffff;\n  border-radius: 8px; }\n\n.m-loading {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  background: #ffffff; }\n  .m-loading .loading {\n    width: 100px;\n    height: 100px;\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    margin-top: -80px;\n    margin-left: -50px; }\n    .m-loading .loading span {\n      display: inline-block;\n      width: 16px;\n      height: 16px;\n      background: #2ba0ff;\n      position: absolute;\n      opacity: 0.2;\n      border-radius: 50%;\n      -webkit-animation: pageLoading 1s ease infinite;\n              animation: pageLoading 1s ease infinite; }\n    .m-loading .loading span:nth-child(1) {\n      left: 0;\n      top: 50%;\n      margin-top: -8px; }\n    .m-loading .loading span:nth-child(2) {\n      left: 14px;\n      top: 14px;\n      -webkit-animation-delay: 0.125s;\n              animation-delay: 0.125s; }\n    .m-loading .loading span:nth-child(3) {\n      left: 50%;\n      top: 0;\n      margin-left: -8px;\n      -webkit-animation-delay: 0.25s;\n              animation-delay: 0.25s; }\n    .m-loading .loading span:nth-child(4) {\n      right: 14px;\n      top: 14px;\n      -webkit-animation-delay: 0.375s;\n              animation-delay: 0.375s; }\n    .m-loading .loading span:nth-child(5) {\n      right: 0;\n      top: 50%;\n      margin-top: -8px;\n      -webkit-animation-delay: 0.5s;\n              animation-delay: 0.5s; }\n    .m-loading .loading span:nth-child(6) {\n      right: 14px;\n      bottom: 14px;\n      -webkit-animation-delay: 0.625s;\n              animation-delay: 0.625s; }\n    .m-loading .loading span:nth-child(7) {\n      left: 50%;\n      bottom: 0;\n      margin-left: -8px;\n      -webkit-animation-delay: 0.875s;\n              animation-delay: 0.875s; }\n    .m-loading .loading span:nth-child(8) {\n      left: 14px;\n      bottom: 14px;\n      -webkit-animation-delay: s;\n              animation-delay: s; }\n\n@-webkit-keyframes pageLoading {\n  0% {\n    opacity: 0.2;\n    -webkit-transform: scale(0.3);\n            transform: scale(0.3); }\n  100% {\n    opacity: 1;\n    -webkit-transform: scale(1.2);\n            transform: scale(1.2); } }\n\n@keyframes pageLoading {\n  0% {\n    opacity: 0.2;\n    -webkit-transform: scale(0.3);\n            transform: scale(0.3); }\n  100% {\n    opacity: 1;\n    -webkit-transform: scale(1.2);\n            transform: scale(1.2); } }\n\n.m-bottom-scroll {\n  width: 100%;\n  height: 17px;\n  position: absolute;\n  bottom: 54px;\n  left: 0;\n  background-color: #ffffff; }\n  .m-bottom-scroll .scroll-bg {\n    height: 7px;\n    background-color: #efefef;\n    margin: 5px 17px;\n    position: relative; }\n  .m-bottom-scroll .scroll-tool {\n    position: absolute;\n    height: 7px;\n    width: 200px;\n    left: 0;\n    top: 0;\n    background-color: rgba(199, 199, 199, 0.6);\n    cursor: pointer;\n    border-radius: 3px; }\n    .m-bottom-scroll .scroll-tool:hover {\n      background-color: #c7c7c7; }\n    .m-bottom-scroll .scroll-tool:active {\n      background-color: #b5b5b5; }\n\n.m-right-scroll {\n  width: 17px;\n  height: 80px;\n  position: absolute;\n  top: 40px;\n  right: 0;\n  background-color: #ffffff; }\n  .m-right-scroll .scroll-bg {\n    height: 50px;\n    width: 7px;\n    background-color: #efefef;\n    margin: 17px 5px;\n    position: relative; }\n  .m-right-scroll .scroll-tool {\n    position: absolute;\n    height: 30px;\n    width: 7px;\n    top: 0;\n    right: 0;\n    background-color: rgba(199, 199, 199, 0.6);\n    cursor: pointer;\n    border-radius: 3px; }\n    .m-right-scroll .scroll-tool:hover {\n      background-color: #c7c7c7; }\n    .m-right-scroll .scroll-tool:active {\n      background-color: #b5b5b5; }\n\n.m-grid-page {\n  line-height: 22px;\n  font-size: 14px;\n  min-width: 950px; }\n  .m-grid-page span,\n  .m-grid-page div,\n  .m-grid-page a {\n    float: left;\n    margin: 0 4px;\n    font-size: 14px;\n    color: #666666; }\n  .m-grid-page .select {\n    border: 1px solid #e3e4e9;\n    max-width: 30px;\n    border-radius: 3px; }\n  .m-grid-page .select-group {\n    position: relative; }\n    .m-grid-page .select-group .select {\n      text-indent: 4px;\n      line-height: 20px; }\n    .m-grid-page .select-group .icon {\n      background-position: -44.1rem -33.45rem;\n      width: 0.5rem;\n      height: 0.25rem;\n      background-image: url(\"/images/sprite.png?v=1496632378037\");\n      background-repeat: no-repeat;\n      background-size: 50.85rem 50.65rem;\n      display: inline-block;\n      position: absolute;\n      top: 10px;\n      right: 2px; }\n    .m-grid-page .select-group .items {\n      position: absolute;\n      border: 1px solid #e3e4e9;\n      border-bottom: none;\n      width: 100%;\n      z-index: 5;\n      max-height: 160px;\n      overflow: auto;\n      position: absolute;\n      top: -120px;\n      left: 0; }\n      .m-grid-page .select-group .items li {\n        cursor: pointer;\n        text-align: center; }\n        .m-grid-page .select-group .items li:hover {\n          background: #e2effa; }\n  .m-grid-page .first,\n  .m-grid-page .prev,\n  .m-grid-page .next,\n  .m-grid-page .last,\n  .m-grid-page .goTo {\n    border: 1px solid #e3e4e9;\n    border-radius: 3px;\n    padding: 0 10px; }\n    .m-grid-page .first:hover,\n    .m-grid-page .prev:hover,\n    .m-grid-page .next:hover,\n    .m-grid-page .last:hover,\n    .m-grid-page .goTo:hover {\n      border: 1px solid #2ba0ff;\n      color: #2ba0ff; }\n    .m-grid-page .first.gray,\n    .m-grid-page .prev.gray,\n    .m-grid-page .next.gray,\n    .m-grid-page .last.gray,\n    .m-grid-page .goTo.gray {\n      cursor: not-allowed; }\n      .m-grid-page .first.gray:hover,\n      .m-grid-page .prev.gray:hover,\n      .m-grid-page .next.gray:hover,\n      .m-grid-page .last.gray:hover,\n      .m-grid-page .goTo.gray:hover {\n        color: #666666;\n        border: 1px solid #e3e4e9; }\n  .m-grid-page .page input {\n    border: 1px solid #e3e4e9;\n    text-align: center;\n    margin: 0 4px;\n    line-height: 20px; }\n    .m-grid-page .page input:focus {\n      border: 1px solid #2e96ea; }\n  .m-grid-page .first i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first.gray:hover i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first:hover i {\n    background-position: -44.1rem -28.05rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev.gray:hover i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev:hover i {\n    background-position: -27.95rem -14.05rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next.gray:hover i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next:hover i {\n    background-position: -44.15rem -35.1rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last.gray:hover i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last:hover i {\n    background-position: -44.1rem -23.35rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo.gray:hover i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block;\n    padding-right: 5px; }\n  .m-grid-page .goTo:hover i {\n    background-position: -26.45rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n\n.m-calendar-year {\n  width: 289px;\n  border: 1px solid #e1e1e1;\n  color: #666666; }\n  .m-calendar-year .change {\n    width: 100%;\n    display: table;\n    background: #f3f6f8;\n    line-height: 30px;\n    height: 30px;\n    font-weight: 600; }\n    .m-calendar-year .change span {\n      display: table-cell;\n      text-align: center; }\n      .m-calendar-year .change span i {\n        border: 6px  solid transparent;\n        display: inline-block; }\n      .m-calendar-year .change span .arrow-left {\n        border-right: 6px solid #666666; }\n      .m-calendar-year .change span .arrow-right {\n        border-left: 6px solid #666666; }\n  .m-calendar-year .list ul {\n    width: 100%;\n    display: table;\n    text-align: center;\n    font-size: 14px;\n    font-weight: 600; }\n    .m-calendar-year .list ul li {\n      display: table-cell;\n      height: 73px; }\n      .m-calendar-year .list ul li span {\n        box-sizing: border-box;\n        border-radius: 6px;\n        position: relative;\n        display: inline-block;\n        line-height: 72px;\n        height: 72px;\n        width: 72px; }\n        .m-calendar-year .list ul li span.active {\n          color: #2f95ea;\n          border: 1px solid #2f95ea; }\n          .m-calendar-year .list ul li span.active:after {\n            content: \"\";\n            width: 8px;\n            height: 8px;\n            background: #2f95ea;\n            position: absolute;\n            border-radius: 50%;\n            top: 50px;\n            right: 32px; }\n        .m-calendar-year .list ul li span.gray {\n          color: #999999; }\n        .m-calendar-year .list ul li span:hover {\n          background: #e2effa;\n          cursor: pointer; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
+
+// exports
+
+
+/***/ },
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(58);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(12)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(true) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept(58, function() {
+			var newContent = __webpack_require__(58);
+			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */,
+/* 77 */,
+/* 78 */,
+/* 79 */,
+/* 80 */,
+/* 81 */
+/***/ function(module, exports) {
+
+module.exports = function (obj) {
+obj || (obj = {});
+var __t, __p = '';
+with (obj) {
+__p += '<div>\r\n	<input type="text" id="m-cYear" value="2017">\r\n</div>';
+
+}
+return __p
+}
+
+/***/ },
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * @author benny.zheng
+ * @data 2016-07-15
+ * @description 自动更新登录页面背景区域
+ */
+
+module.exports = function (node, opts) {
+    //----------------require--------------
+    var base = __webpack_require__(2); // 基础对象
+    var parseModule = __webpack_require__(5); // 页面模块自动解析
+    var render = __webpack_require__(95);
+    var className = __webpack_require__(21);
+    var popup = __webpack_require__(34);
+    var each = __webpack_require__(0);
+    var merge = __webpack_require__(4);
+    var addEvent = __webpack_require__(6);
+    var closest = __webpack_require__(101);
+    var scrollPos = __webpack_require__(15);
+    var scrollBarSize = __webpack_require__(28);
+    var winSize = __webpack_require__(17);
+
+    //-----------声明模块全局变量-------------
+    var nodeList = null; // 存储所有关键节点
+    var that = base();
+    var m_cal = null;
+    var data = null;
+    var calendarYearNode = null;
+    opts = merge({
+        beginYear: 2009
+    }, opts || {});
+    //-------------事件响应声明---------------
+    var evtFuncs = {
+        showCalendar: function (evt) {
+            debugger;
+            if (className.has(node, "open")) {
+                evtFuncs.hideCalendar(evt);
+                return;
+            }
+            nodeList.interval.innerHTML = opts.beginYear + 1 + "&nbsp;-&nbsp;" + (opts.beginYear + 10);
+            var list = custFuncs.getYearData();
+            var html = "";
+            each(list, function (item, index) {
+                if (index % 4 == 0) {
+                    html = html + "<ul>";
+                }
+                if (index == 0 || index == 11) {
+                    html = html + "<li><span  class='gray'>" + item + "</span></li>";
+                } else if (index == 7) {
+                    html = html + "<li><span  class = 'active'>" + item + "</span></li>";
+                } else {
+                    html = html + "<li><span>" + item + "</span></li>";
+                }
+
+                if (index % 4 == 3) {
+                    html = html + "</ul>";
+                }
+            });
+
+            nodeList.list.innerHTML = html;
+            custFuncs.setPosition();
+            m_cal.show();
+            evt.stopPropagation();
+            className.add(node, "open");
+            addEvent(document.body, "click", evtFuncs.hideCalendar);
+        },
+        hideCalendar: function (ev) {
+            var target = ev.target;
+            if (closest(target, ".change")) return;
+            className.remove(node, "open");
+            m_cal.hide();
+            return;
+        },
+        change: function (evt) {
+            if (className.has(this, "left")) {
+                opts.beginYear = opts.beginYear - 10;
+            }
+            if (className.has(this, "right")) {
+                opts.beginYear = opts.beginYear + 10;
+            }
+            evtFuncs.showCalendar(evt);
+        }
+    };
+
+    //-------------子模块实例化---------------
+    var initMod = function () {
+        m_cal = popup(render());
+        calendarYearNode = m_cal.getOuter();
+        nodeList = parseModule(calendarYearNode);
+    };
+
+    //-------------绑定事件------------------
+    var bindEvents = function () {
+        addEvent(nodeList.prev, "click", evtFuncs.change);
+        addEvent(nodeList.next, "click", evtFuncs.change);
+    };
+
+    //-------------自定义函数----------------
+    var custFuncs = {
+        getYearData: function () {
+            var arr = [];
+            var start = opts.beginYear;
+            for (var i = 0; i < 12; i++) {
+                arr.push(start);
+                start += 1;
+            }
+            return arr;
+        },
+        setPosition: function () {
+            var nodeWidth = node.offsetWidth;
+            var nodeHeight = node.offsetHeight;
+
+            var scroll = scrollPos();
+            var boundingClientRect = node.getBoundingClientRect();
+            var calTop = boundingClientRect.top + scroll.top; //日历在页面中的top
+            var calLeft = boundingClientRect.left + scroll.left;
+            //向下展开时，日历的下边框距离屏幕顶部的距离
+            var calendarMaxBottom = calTop + nodeList.calBody.offsetHeight + nodeHeight;
+            var windowSize = winSize();
+            var barSize = scrollBarSize();
+
+            var popupY = 0;
+            // 默认向下展开；向下展开位置不够时，向上展开；
+            if (calendarMaxBottom >= scroll.top + windowSize.height - barSize.h) {
+                popupY = calTop - nodeList.calBody.offsetHeight;
+            } else {
+                popupY = calTop + nodeHeight;
+            }
+
+            calendarYearNode.style.top = popupY + "px";
+            calendarYearNode.style.left = calLeft + "px";
+        },
+        intiView: function (evt) {
+            each([].concat(node), function (item) {
+                if (!item) return;
+                addEvent(item, "click", evtFuncs.showCalendar);
+            });
+        }
+
+    };
+
+    //-------------一切从这开始--------------
+    var init = function (_data) {
+        data = _data;
+        // 找到所有带有node-name的节点
+        // 子模块实例化
+        initMod();
+        // 绑定事件
+        bindEvents();
+        custFuncs.intiView();
+    };
+
+    //---------------暴露API----------------
+    that.init = init;
+
+    return that;
+};
+
+/***/ },
+/* 86 */,
+/* 87 */,
+/* 88 */,
+/* 89 */,
+/* 90 */,
+/* 91 */,
+/* 92 */,
+/* 93 */,
+/* 94 */,
+/* 95 */
+/***/ function(module, exports) {
+
+module.exports = function (obj) {
+obj || (obj = {});
+var __t, __p = '';
+with (obj) {
+__p += '<div class="m-calendar-year" node-name= "calBody">\r\n	<div node-name= "calBody">\r\n		<div class="change">\r\n			<span class="left" node-name = "prev"><i class="arrow-left"></i></span>\r\n			<span class="center" node-name=	"interval">2000-2019</span>\r\n			<span class="right" node-name = "next"><i class="arrow-right"></i></span>\r\n		</div>\r\n		<section class="list" node-name="list">\r\n		\r\n		</section>\r\n	</div>\r\n</div>';
+
+}
+return __p
+}
+
+/***/ },
+/* 96 */,
+/* 97 */,
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */
+/***/ function(module, exports, __webpack_require__) {
+
+var matches = __webpack_require__(103);
+
+module.exports = function (node, selector, box) {
+    var result = null;
+    box = box || document.body;
+
+    if (node.closest) {
+        return node.closest(selector);
+    }
+
+    while (node && node != box && node.nodeType == 1) {
+        if (matches(node, selector)) {
+            return node;
+        }
+
+        node = node.parentNode;
+    }
+
+    return null;
+};
+
+/***/ },
+/* 102 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 获取节点在父节点中的位置（仅限于element）
+ */
+var isElement = __webpack_require__(16);
+
+module.exports = function (element, nodeList) {
+    var at = 0;
+    var childNodes = nodeList || element.parentNode.childNodes;
+
+    for (var i = 0; i < childNodes.length; i++) {
+        if (element == childNodes[i]) {
+            return at;
+        }
+
+        if (isElement(childNodes[i])) {
+            at++;
+        }
+    }
+
+    return -1;
+};
+
+/***/ },
+/* 103 */
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 判断当前节点是否匹配查询规则
+ */
+var sizzle = __webpack_require__(7);
+var index = __webpack_require__(102);
+
+module.exports = function (node, selector) {
+    if (node.nodeType != 1) {
+        return false;
+    }
+
+    var p = HTMLElement.prototype;
+    var f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || function (s) {
+        return index(this, sizzle(s)) != -1;
+    };
+
+    return f.call(node, selector);
+};
+
+/***/ },
+/* 104 */,
+/* 105 */,
+/* 106 */,
+/* 107 */,
+/* 108 */,
+/* 109 */,
+/* 110 */,
+/* 111 */,
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -4529,12 +4624,12 @@ var _exports = module.exports = function (html, opts) {
  */
 //----------------require--------------
 // var viewport = require("lib/dom/viewport"); // viewport
-var base = __webpack_require__(3); // 基础对象
-var parsePage = __webpack_require__(6); // 页面模块自动解析
-var scss = __webpack_require__(30); // 引入当前页面的scss文件
+var base = __webpack_require__(2); // 基础对象
+var parsePage = __webpack_require__(8); // 页面模块自动解析
+var scss = __webpack_require__(72); // 引入当前页面的scss文件
 // 模板
-var render = __webpack_require__(33); // 页面总模板
-var cYear = __webpack_require__(36);
+var render = __webpack_require__(81); // 页面总模板
+var cYear = __webpack_require__(85);
 // 子模块
 // var header = require("./header");
 

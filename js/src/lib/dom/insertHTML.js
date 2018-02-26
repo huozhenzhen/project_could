@@ -55,9 +55,26 @@ module.exports = function(target, html, where) {
                 return target.nextSibling;
         }
     } else {
+
+
         var range = target.ownerDocument.createRange();
         var frag;
-
+        /*
+            createContextualFragment 解决在IE下的bug
+         */
+        /*
+        if ((typeof Range !== "undefined") && !Range.prototype.createContextualFragment)
+        {
+            Range.prototype.createContextualFragment = function(html)
+            {
+                var frag = document.createDocumentFragment(), 
+                div = document.createElement("div");
+                frag.appendChild(div);
+                div.outerHTML = html;
+                return frag;
+            };
+        }
+         */
         switch (where) {
             case "beforebegin":
                 range.setStartBefore(target);

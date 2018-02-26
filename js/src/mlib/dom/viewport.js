@@ -1,6 +1,10 @@
 /**
  * 允许强制将设置倍数为 1
+ *
+ * 其实就是动态设置meta以及HMTL的font-size
  */
+
+
 var that = module.exports;
 var inited = false;
 var win = window;
@@ -48,6 +52,7 @@ that.init = function(absDpr) {
 		if(vMin.offsetWidth > 1){
 			document.body.removeChild(vMin);
 			rootEl.style.fontSize = "3.125vmin";
+            //getComputedStyle获取当前元素的各种css值
 			rootEl.style.fontSize = window.getComputedStyle(rootEl, null).fontSize;
 			if(rootEl.style.fontSize.indexOf("px") != -1) return;
 		}

@@ -7,9 +7,9 @@
  */
 //----------------require--------------
 
-var viewport = require("mlib/dom/viewport"); // viewport
-var base = require("mlib/comp/base"); // 基础对象
-var parseModule = require("mlib/dom/parseModule"); // 页面模块自动解析
+// var viewport = require("mlib/dom/viewport"); // viewport
+var base = require("lib/comp/base"); // 基础对象
+var parseModule = require("lib/dom/parseModule"); // 页面模块自动解析
 
 module.exports = function(node, opts) {
     //-----------声明模块全局变量-------------
@@ -18,6 +18,13 @@ module.exports = function(node, opts) {
     var data = null;
     //-------------事件响应声明---------------
     var evtFuncs = {}
+    var step1 = function() {
+        return new Promise(function(resolve, reject) {
+            setTimeout(function(){
+                resolve("test");
+            },1000);
+        }); 
+    }
 
     //-------------子模块实例化---------------
     var initMod = function() {}
@@ -26,11 +33,25 @@ module.exports = function(node, opts) {
     var bindEvents = function() {}
 
     //-------------自定义函数----------------
-    var custFuncs = {}
+    var custFuncs = {
+        //
+        step2: function () {
+            step1().then(function(res){
+                console.log("inner++++++++"+res)
+            })
+            console.log("outer++++++");
+        }
+
+        // step2 : function async() {
+        //     var val = await step1();
+            
+        // }
+    }
 
     //-------------一切从这开始--------------
     var init = function(_data) {
         data = _data;
+        custFuncs.step2()
         // 根据数据初始化模块
         // opts["render"]({ "title": data["title"] });
 

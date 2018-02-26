@@ -33,6 +33,7 @@ module.exports = function(node, opts) {
     //-------------事件响应声明---------------
     var evtFuncs = {
         showCalendar: function(evt){
+            debugger
             if(className.has(node, "open")){
                  evtFuncs.hideCalendar(evt);
                  return;

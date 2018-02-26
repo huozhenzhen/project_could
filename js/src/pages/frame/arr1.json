@@ -1,0 +1,45 @@
+{
+    "code": "0",
+    "msg": "查询菜单资源成功！",
+    "data": [
+        {
+            "appid": "757781106735972353",
+            "id": "761088829250600275",
+            "text": "dialog例子",
+            "pid": "0",
+            "uri": "/test1/dialog"
+        },
+        {
+            "appid": "757781106735972353",
+            "id": "761088829250600040",
+            "text": "账号管理",
+            "pid": "0",
+            "uri": "/test1/ttAccount/queryPagination",
+            "style": "zhanghaoguanli"
+        },
+        {
+            "appid": "757781106735972353",
+            "id": "761088829250600143",
+            "text": "角色管理",
+            "pid": "0",
+            "uri": "/test1/role/queryAppPagination",
+            "style": "jueseguanli"
+        },
+        {
+            "appid": "757781106735972353",
+            "id": "761088829250600080",
+            "text": "日志管理",
+            "pid": "0",
+            "uri": "/test1/log/queryPagination",
+            "style": "rizhiguanli1"
+        },
+        {
+            "appid": "757781106735972353",
+            "id": "761088829250600100",
+            "text": "单点登录设置",
+            "pid": "0",
+            "uri": "/test1/otherRole/menu",
+            "style": "dandiandenglushezhi"
+        }
+    ]
+}

@@ -35,7 +35,7 @@ var _exports = module.exports = function(html, opts) {
     var nodeList = parseModule(node);
     var autoHide = opts.autoHide;
     var autoHideBind = false;
-    var direction = { h: "right", v: "bottom"};
+    var direction = { h: "right", v: "bottom" };
     direction.h = opts.direction.toLowerCase().indexOf("left") == -1 ? "right" : "left";
     direction.v = opts.direction.toLowerCase().indexOf("top") == -1 ? "bottom" : "top";
     var superMethod = { show: that.show, hide: that.hide };
@@ -133,7 +133,7 @@ var _exports = module.exports = function(html, opts) {
                 addEvent(window, "blur", evtFuncs.autoHideClick);
                 addEvent(node, "click", evtFuncs.stopNodeAutoHide);
                 autoHideBind = true;
-            } else if(!autoHide && autoHideBind) {
+            } else if (!autoHide && autoHideBind) {
                 removeEvent(document, "click", evtFuncs.autoHideClick);
                 removeEvent(window, "blur", evtFuncs.autoHideClick);
                 removeEvent(node, "click", evtFuncs.stopNodeAutoHide);

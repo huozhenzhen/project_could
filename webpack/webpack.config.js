@@ -45,8 +45,11 @@ module.exports = {
         }, {
             test: /\.ejs$/,
             use: ['ejs-loader']
-        }, {
-            test: /\.(jpe?g|png|gif|svg)$/i,
+        },{
+            test: /\.json$/,
+            use: ['json-loader']
+        },{
+            test: /\.(jpe?g|png|gif|svg|woff|eot|ttf)$/i,
             use: ['url-loader?limit=2000&name=img/[name]-[hash:5].[ext]']
         }]
     },

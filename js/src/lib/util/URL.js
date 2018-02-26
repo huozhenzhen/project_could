@@ -34,7 +34,6 @@ module.exports = {
             "query": isEmpty(link.search) ? "" : link.search.substr(1),
             "hash": isEmpty(link.hash) ? "" : link.hash.substr(1)
         }
-        debugger
         result["queryJson"] = queryToJson(result["query"]);
         result["hashJson"] = queryToJson(result["hash"]);
         return result;

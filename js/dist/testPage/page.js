@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "77770dcfc26cea6dcb21"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "d00f43a7e479a98dec89"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -239,7 +239,7 @@
 /******/ 				};
 /******/ 			});
 /******/ 			hotUpdate = {};
-/******/ 			var chunkId = 1;
+/******/ 			var chunkId = 4;
 /******/ 			{ // eslint-disable-line no-lone-blocks
 /******/ 				/*globals chunkId */
 /******/ 				hotEnsureUpdateChunk(chunkId);
@@ -698,11 +698,12 @@
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return hotCreateRequire(54)(__webpack_require__.s = 54);
+/******/ 	return hotCreateRequire(114)(__webpack_require__.s = 114);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 0:
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -744,7 +745,8 @@ module.exports = function (obj, fn) {
 };
 
 /***/ },
-/* 1 */
+
+/***/ 1:
 /***/ function(module, exports) {
 
 /**
@@ -761,30 +763,931 @@ module.exports = function (obj) {
 };
 
 /***/ },
-/* 2 */
+
+/***/ 10:
 /***/ function(module, exports) {
 
 /**
- * 对window.console做了封装，防止由于没有删除console语句而报错
- * 如果需要使用到console对象，请引入本文件，而不要直接使用window.console
- *
+ * 获取节点的样式属性 来自STK.js
+ * 该API封装了一些需要兼容的属性，比如获取半透明只需要设置opacity值
+ * 例子：
+ * var getStyle = require("../dom/getStyle");
+ * var paddingLeft = getStyle(node, "paddingLeft"); // 获取到padding-left的值
+ * var paddingLeft = getStyle(node, "padding-left"); // 获取到padding-left的值
  */
 
-var methods = ["log", "debug", "info", "warn", "exception", "assert", "dir", "dirxml", "trace", "group", "groupCollapsed", "groupEnd", "profile", "profileEnd", "count", "clear", "time", "timeEnd", "timeStamp", "table", "error", "markTimeline", "timeline", "timelineEnd", "cd", "countReset", "select"];
+//是否ie盒模型
+var isQuirk = document.documentMode ? document.documentMode === 5 : document.compatMode !== "CSS1Compat";
 
-var console = window.console || {};
-var emptyFunc = function () {};
+//测试用的 style
+var testStyle = document.createElement("DIV").style;
+testStyle.cssText = "float:left;opacity:.5";
 
-for (var key in methods) {
-    if (!(methods[key] in console)) {
-        console[methods[key]] = emptyFunc;
+var color = {
+    aqua: '#0ff',
+    black: '#000',
+    blue: '#00f',
+    gray: '#808080',
+    purple: '#800080',
+    fuchsia: '#f0f',
+    green: '#008000',
+    lime: '#0f0',
+    maroon: '#800000',
+    navy: '#000080',
+    olive: '#808000',
+    orange: '#ffa500',
+    red: '#f00',
+    silver: '#c0c0c0',
+    teal: '#008080',
+    transparent: 'rgba(0,0,0,0)',
+    white: '#fff',
+    yellow: '#ff0'
+};
+
+var borderWidth = {
+    thin: ["1px", "2px"],
+    medium: ["3px", "4px"],
+    thick: ["5px", "6px"]
+};
+
+var cssHooks = {
+    opacity: function (node) {
+        if (!_cssSupport().opacity) {
+            var val = 100;
+            try {
+                val = node.filters['DXImageTransform.Microsoft.Alpha'].opacity;
+            } catch (e) {
+                try {
+                    val = node.filters('alpha').opacity;
+                } catch (e) {}
+            }
+            return val / 100;
+        }
+    }
+};
+
+// 对应正确的css属性
+// 在执行中会使用 _vendorPropName 动态添加，例如 transform: 'WebkitTransform'
+var cssProps = {
+    "float": _cssSupport().cssFloat ? "cssFloat" : "styleFloat"
+};
+
+/*
+ *  检测对css的一些属性的支持程度
+ *  @method _cssSupport
+ *  @private
+ */
+function _cssSupport() {
+    return _cssSupport.rs || (_cssSupport.rs = {
+        opacity: /^0\.5/.test(testStyle.opacity),
+        cssFloat: !!testStyle.cssFloat
+    });
+}
+
+/*
+ *  转换驼峰
+ *  @method _camelCase
+ *  @private
+ *  @param {String} 需要转换的字符串
+ */
+function _camelCase(string) {
+    return string.replace(/^-ms-/, "ms-").replace(/-([\da-z])/gi, function (all, letter) {
+        return letter.toUpperCase();
+    });
+}
+
+/*
+ *  检测对是否是某种浏览器自有属性
+ *  例如: WebkitTransform 一类的
+ *  @method _vendorPropName
+ *  @private
+ */
+// moz-border-radius-top-left
+function _vendorPropName(name) {
+    // 检测如果已经可以用短名的用短名
+    if (name in testStyle) {
+        return name;
+    }
+
+    // 循环检测是否某种浏览器特殊名
+    var capName = name.charAt(0).toUpperCase() + name.slice(1);
+    var origName = name;
+    var cssPrefixes = ["Webkit", "O", "Moz", "ms"];
+    var i = cssPrefixes.length;
+    while (i--) {
+        name = cssPrefixes[i] + capName;
+        if (name in testStyle) {
+            return name;
+        }
+    }
+
+    // 啥都不是
+    return origName;
+}
+
+/*
+ *  长度单位转换
+ *  @method _convertPixelValue
+ *  @private
+ *  @param {Node} 对应的dom元素
+ */
+function _convertPixelValue(el, property, value) {
+    var style = el.style;
+    var left = style.left;
+    var rsLeft = el.runtimeStyle.left;
+
+    el.runtimeStyle.left = el.currentStyle.left;
+    style.left = property === "fontSize" ? "1em" : value || 0;
+    var px = style.pixelLeft;
+    style.left = left; //还原数据
+    el.runtimeStyle.left = rsLeft; //还原数据
+    return px + "px";
+}
+
+/*
+ *  颜色单位转换
+ *  @method _rgb2hex
+ *  @private
+ *  @param {String}
+ */
+function _rgb2hex(rgb) {
+    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    return "#" + _tohex(rgb[1]) + tohex(rgb[2]) + tohex(rgb[3]);
+}
+
+/*
+ *  转换16进制
+ *  @method _tohex
+ *  @private
+ *  @param {String}
+ */
+function _tohex(x) {
+    var hexDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+    return isNaN(x) ? '00' : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+}
+
+/*
+ *  获取样式集
+ *  @method _getStyles
+ *  @private
+ *  @param {Node} 对应的dom元素
+ */
+function _getStyles(node) {
+    if ('getComputedStyle' in window) {
+        return window.getComputedStyle(node, "");
+    } else if ('currentStyle' in document.documentElement) {
+        return node.currentStyle;
+    } else {
+        return {};
     }
 }
 
-module.exports = console;
+/*
+ *  对ie做特殊处理
+ *  @method _getStyleIE
+ *  @private
+ *  @param {Node}   对应的dom元素
+ *  @param {String} 属性名
+ */
+function _getStyleIE(node, property) {
+    //特殊处理IE的opacity
+    var val;
+    if (property in cssHooks) {
+        val = cssHooks[property](node);
+    }
+    if (val !== undefined) {
+        return val;
+    }
+    val = node.currentStyle[property];
+    //特殊处理IE的height与width
+    if (/^(height|width)$/.test(property)) {
+        var values = property == 'width' ? ['left', 'right'] : ['top', 'bottom'],
+            size = 0;
+        if (isQuirk) {
+            return node[_camelCase("offset-" + property)] + "px";
+        } else {
+            var client = parseFloat(node[_camelCase("client-" + property)]);
+            var paddingA = parseFloat(getStyle(node, "padding-" + values[0]));
+            var paddingB = parseFloat(getStyle(node, "padding-" + values[1]));
+            val = client - paddingA - paddingB;
+            val = val > 0 ? val : node[_camelCase("offset-" + property)];
+        }
+    }
+    return val;
+}
+
+/*
+ *  对返回值做一些处理 http://www.cnblogs.com/rubylouvre/archive/2009/09/08/1562212.html
+ *  @method _formatValue
+ *  @private
+ *  @param {Node}   对应的dom元素
+ *  @param {String} 属性名
+ */
+function _formatValue(el, property, value) {
+    if (!/^\d+px$/.test(value)) {
+        //转换可度量的值
+        if (/(em|pt|mm|cm|pc|in|ex|rem|vw|vh|vm|ch|gr|%)$/.test(value)) {
+            return _convertPixelValue(el, property, value);
+        }
+        //转换border的thin medium thick
+        if (/^(border).+(width)$/i.test(property)) {
+            var s = property.replace("Width", "Style");
+            if (value == "medium" && getStyle(el, s) == "none") {
+                return "0px";
+            }
+            return !!window.XDomainRequest ? borderWidth[value][0] : borderWidth[value][1];
+        }
+        //转换颜色
+        if (property.search(/background|color/i) != -1) {
+            if (!!color[value]) {
+                value = color[value];
+            }
+            if (value == "inherit") {
+                return getStyle(el.parentNode, property);
+            }
+            if (/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i.test(value)) {
+                return _rgb2hex(value);
+            } else if (/^#/.test(value)) {
+                value = value.replace('#', '');
+                return "#" + (value.length == 3 ? value.replace(/^(\w)(\w)(\w)$/, '$1$1$2$2$3$3') : value);
+            }
+            return value;
+        }
+    }
+}
+
+var getStyle = function (node, property) {
+    node = typeof node == "string" ? document.getElementById(node) : node;
+    var computed = _getStyles(node);
+    var val;
+    property = _camelCase(property);
+    property = cssProps[property] || (cssProps[property] = _vendorPropName(property));
+
+    //区分ie做特殊处理
+    if ('getComputedStyle' in window) {
+        val = window.getComputedStyle(node, null)[property];
+    } else {
+        val = _getStyleIE(node, property);
+    }
+    //处理单位转换。
+    try {
+        val = _formatValue(node, property, val) || val;
+    } catch (e) {}
+
+    return val;
+};
+
+module.exports = getStyle;
 
 /***/ },
-/* 3 */
+
+/***/ 11:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 删除事件
+ * @2014-10-11 增加了批量处理功能，可以传入一个节点数组解绑事件
+ * 例子请阅读add函数
+ */
+
+var getType = __webpack_require__(1);
+var each = __webpack_require__(0);
+
+var removeEvent = function (el, type, fn, releaseCapture) {
+    if (getType(el) == "array") {
+        var fun = removeEvent;
+
+        each(el, function (item, key) {
+            fun(item, type, fn, releaseCapture);
+        });
+    }
+
+    el = typeof el == "string" ? document.getElementById(el) : el;
+
+    if (el == null || typeof fn != "function") {
+        return false;
+    }
+
+    if (el.removeEventListener) {
+        el.removeEventListener(type, fn, releaseCapture === true ? true : false);
+    } else if (el.detachEvent) {
+        el.detachEvent("on" + type, fn);
+        if (releaseCapture && el.releaseCapture) {
+            el.releaseCapture();
+        }
+    } else {
+        el['on' + type] = null;
+        if (releaseCapture && el.releaseCapture) {
+            el.releaseCapture();
+        }
+    }
+
+    return true;
+};
+
+module.exports = removeEvent;
+
+/***/ },
+
+/***/ 114:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * @author benny.zheng
+ * @data 2016-06-06
+ * @description 本文件用于方便复制粘贴入口文件之用，请更新这里的说明
+ *              另外，考虑到一般是放在js/src/pages/page-name/main.js，因此使用../../
+ *              如果不是这个目录，请更改成正确的相对路径
+ */
+//----------------require--------------
+// var viewport = require("lib/dom/viewport"); // viewport
+var base = __webpack_require__(2); // 基础对象
+var parsePage = __webpack_require__(8); // 页面模块自动解析
+var scss = __webpack_require__(74); // 引入当前页面的scss文件
+// 模板
+var render = __webpack_require__(83); // 页面总模板
+var page = __webpack_require__(86);
+// 子模块
+// var header = require("./header");
+var loading = __webpack_require__(30);
+
+//-----------声明模块全局变量-------------
+var nodeList = null; // 存储所有id符合m-xxx的节点
+var opts = pageConfig; // 请不要直接使用pageConfig
+var m_page = null;
+// var m_header = null;
+
+//-------------事件响应声明---------------
+var evtFuncs = {};
+
+//-------------子模块实例化---------------
+var initMod = function () {
+    // m_header = header(nodeList.header, opts);
+    // m_header.init();
+
+    // 所有模块的模板render应该是由外部传进去，而不是内部直接require，主要是考虑到复用性
+    // 这里的模板并不是模块的模板，而是内部需要动态生成东西时用的模板，模块的模板在main.ejs已经写进去了
+    // 以下是示例
+    // m_header = header(nodeList.header, {
+    //     render: headerRender
+    // });
+
+    // m_header = header(nodeList.header, {
+    //     renders: {
+    //         "main": headerRender
+    //     }
+    // });
+    m_page = page(nodeList.page);
+    m_page.init();
+};
+
+//-------------绑定事件------------------
+var bindEvents = function () {};
+
+//-------------自定义函数----------------
+var custFuncs = {};
+
+//-------------一切从这开始--------------
+loading.show();
+!function () {
+    // 先将HTML插入body
+    setTimeout(function () {
+        loading.hide();
+        document.body.insertAdjacentHTML('AfterBegin', render(opts.modules));
+
+        // 找到所有带有id的节点，并将m-xxx-xxx转化成xxxXxx格式存储到nodeList中
+        nodeList = parsePage();
+        // 子模块实例化
+        initMod();
+        // 绑定事件
+        bindEvents();
+    }, 1000);
+}();
+
+/***/ },
+
+/***/ 12:
+/***/ function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+var stylesInDom = {},
+	memoize = function(fn) {
+		var memo;
+		return function () {
+			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+			return memo;
+		};
+	},
+	isOldIE = memoize(function() {
+		return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
+	}),
+	getHeadElement = memoize(function () {
+		return document.head || document.getElementsByTagName("head")[0];
+	}),
+	singletonElement = null,
+	singletonCounter = 0,
+	styleElementsInsertedAtTop = [];
+
+module.exports = function(list, options) {
+	if(typeof DEBUG !== "undefined" && DEBUG) {
+		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the bottom of <head>.
+	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
+	var styles = listToStyles(list);
+	addStylesToDom(styles, options);
+
+	return function update(newList) {
+		var mayRemove = [];
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+		if(newList) {
+			var newStyles = listToStyles(newList);
+			addStylesToDom(newStyles, options);
+		}
+		for(var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+			if(domStyle.refs === 0) {
+				for(var j = 0; j < domStyle.parts.length; j++)
+					domStyle.parts[j]();
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+}
+
+function addStylesToDom(styles, options) {
+	for(var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+		if(domStyle) {
+			domStyle.refs++;
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles(list) {
+	var styles = [];
+	var newStyles = {};
+	for(var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+		if(!newStyles[id])
+			styles.push(newStyles[id] = {id: id, parts: [part]});
+		else
+			newStyles[id].parts.push(part);
+	}
+	return styles;
+}
+
+function insertStyleElement(options, styleElement) {
+	var head = getHeadElement();
+	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+	if (options.insertAt === "top") {
+		if(!lastStyleElementInsertedAtTop) {
+			head.insertBefore(styleElement, head.firstChild);
+		} else if(lastStyleElementInsertedAtTop.nextSibling) {
+			head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			head.appendChild(styleElement);
+		}
+		styleElementsInsertedAtTop.push(styleElement);
+	} else if (options.insertAt === "bottom") {
+		head.appendChild(styleElement);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement(styleElement) {
+	styleElement.parentNode.removeChild(styleElement);
+	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+	if(idx >= 0) {
+		styleElementsInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement(options) {
+	var styleElement = document.createElement("style");
+	styleElement.type = "text/css";
+	insertStyleElement(options, styleElement);
+	return styleElement;
+}
+
+function createLinkElement(options) {
+	var linkElement = document.createElement("link");
+	linkElement.rel = "stylesheet";
+	insertStyleElement(options, linkElement);
+	return linkElement;
+}
+
+function addStyle(obj, options) {
+	var styleElement, update, remove;
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+		styleElement = singletonElement || (singletonElement = createStyleElement(options));
+		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+	} else if(obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function") {
+		styleElement = createLinkElement(options);
+		update = updateLink.bind(null, styleElement);
+		remove = function() {
+			removeStyleElement(styleElement);
+			if(styleElement.href)
+				URL.revokeObjectURL(styleElement.href);
+		};
+	} else {
+		styleElement = createStyleElement(options);
+		update = applyToTag.bind(null, styleElement);
+		remove = function() {
+			removeStyleElement(styleElement);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle(newObj) {
+		if(newObj) {
+			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+				return;
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag(styleElement, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = styleElement.childNodes;
+		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+		if (childNodes.length) {
+			styleElement.insertBefore(cssNode, childNodes[index]);
+		} else {
+			styleElement.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag(styleElement, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		styleElement.setAttribute("media", media)
+	}
+
+	if(styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = css;
+	} else {
+		while(styleElement.firstChild) {
+			styleElement.removeChild(styleElement.firstChild);
+		}
+		styleElement.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink(linkElement, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	if(sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = linkElement.href;
+
+	linkElement.href = URL.createObjectURL(blob);
+
+	if(oldSrc)
+		URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ },
+
+/***/ 13:
+/***/ function(module, exports) {
+
+(function () {
+    Array.prototype.forEach = function (callback, thisArg) {
+        var T, k;
+        if (this == null) {
+            throw new TypeError(" this is null or not defined");
+        }
+        var O = Object(this);
+        var len = O.length >>> 0; // Hack to convert O.length to a UInt32
+        if ({}.toString.call(callback) != "[object Function]") {
+            throw new TypeError(callback + " is not a function");
+        }
+        if (thisArg) {
+            T = thisArg;
+        }
+        k = 0;
+        while (k < len) {
+            var kValue;
+            if (k in O) {
+                kValue = O[k];
+                if (callback.call(T, kValue, k, O) === false) {
+                    break;
+                }
+            }
+            k++;
+        }
+    };
+
+    if (!/msie [678]\./i.test(navigator.userAgent)) {
+        return;
+    }
+
+    var array = "abbr article aside audio canvas datalist details dialog eventsource figure footer header hgroup mark menu meter nav output progress section time video main header template".split(' ');
+    for (var i = 0; i < array.length; i++) {
+        document.createElement(array[i]);
+    }
+
+    Function.prototype.bind = Function.prototype.bind || function (oThis) {
+        var aArgs = Array.prototype.slice.call(arguments, 1),
+            fToBind = this,
+            fNOP = function () {},
+            fBound = function () {
+            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis || window, aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+        // fNOP.prototype = this.prototype;
+        // fBound.prototype = new fNOP();
+
+        return fBound;
+    };
+
+    Array.prototype.filter = Array.prototype.filter || function (fun) {
+        var len = this.length;
+        if (typeof fun != "function") {
+            throw new TypeError();
+        }
+        var res = new Array();
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this) {
+                var val = this[i]; // in case fun mutates this
+                if (fun.call(thisp, val, i, this)) {
+                    res.push(val);
+                }
+            }
+        }
+        return res;
+    };
+
+    Array.prototype.map = Array.prototype.map || function (callback, thisArg) {
+
+        var T, A, k;
+
+        if (this == null) {
+            throw new TypeError(" this is null or not defined");
+        }
+
+        // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
+        var O = Object(this);
+
+        // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
+        // 3. Let len be ToUint32(lenValue).
+        var len = O.length >>> 0;
+
+        // 4. If IsCallable(callback) is false, throw a TypeError exception.
+        // See: http://es5.github.com/#x9.11
+        if (typeof callback !== "function") {
+            throw new TypeError(callback + " is not a function");
+        }
+
+        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+        if (thisArg) {
+            T = thisArg;
+        }
+
+        // 6. Let A be a new array created as if by the expression new Array(len) where Array is
+        // the standard built-in constructor with that name and len is the value of len.
+        A = new Array(len);
+
+        // 7. Let k be 0
+        k = 0;
+
+        // 8. Repeat, while k < len
+        while (k < len) {
+
+            var kValue, mappedValue;
+
+            // a. Let Pk be ToString(k).
+            //   This is implicit for LHS operands of the in operator
+            // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
+            //   This step can be combined with c
+            // c. If kPresent is true, then
+            if (k in O) {
+
+                // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
+                kValue = O[k];
+
+                // ii. Let mappedValue be the result of calling the Call internal method of callback
+                // with T as the this value and argument list containing kValue, k, and O.
+                mappedValue = callback.call(T, kValue, k, O);
+
+                // iii. Call the DefineOwnProperty internal method of A with arguments
+                // Pk, Property Descriptor {Value: mappedValue, : true, Enumerable: true, Configurable: true},
+                // and false.
+
+                // In browsers that support Object.defineProperty, use the following:
+                // Object.defineProperty(A, Pk, { value: mappedValue, writable: true, enumerable: true, configurable: true });
+
+                // For best browser support, use the following:
+                A[k] = mappedValue;
+            }
+            // d. Increase k by 1.
+            k++;
+        }
+
+        // 9. return A
+        return A;
+    };
+})();
+
+/***/ },
+
+/***/ 14:
+/***/ function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function () {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		var result = [];
+		for (var i = 0; i < this.length; i++) {
+			var item = this[i];
+			if (item[2]) {
+				result.push("@media " + item[2] + "{" + item[1] + "}");
+			} else {
+				result.push(item[1]);
+			}
+		}
+		return result.join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function (modules, mediaQuery) {
+		if (typeof modules === "string") modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for (var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if (typeof id === "number") alreadyImportedModules[id] = true;
+		}
+		for (i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if (mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if (mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+/***/ },
+
+/***/ 16:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 检查是否为一个元素，它是对isNode的一个封装，并且判断node节点的nodeType是否为1，为1则是元素
+ * 例子：
+ *
+ * HTML: <div id="node"></div>
+ *
+ * var isElement = require("../dom/isElement");
+ * var node = document.getElementById("node");
+ * console.log(isElement(node)); // true
+ *
+ */
+
+var isNode = __webpack_require__(27);
+
+module.exports = function (element) {
+  return isNode(element) && element.nodeType == 1;
+};
+
+/***/ },
+
+/***/ 18:
+/***/ function(module, exports) {
+
+/**
+ * 获取事件对象，一般情况下不需要使用本函数
+ * 一般来说绑定事件时，event对象会当成参数传给响应函数，
+ * 但在某些特殊情况下，可能event对象在函数调用链中没有传递（代码设计缺陷造成的）
+ * 那可以使用本函数去获取。
+ *
+ * 例子：
+ *
+ * var getEvent = require("../evt/get");
+ * var addEvent = require("../evt/add");
+ *
+ * var fun1 = function(evt) { // 注意没有事件对象传递
+ *   var evt = evt || getEvent(); // 如果没有evt参数，则getEvent()获取
+ *   console.log(evt.type);
+ * }
+ *
+ * var handler = function(evt) {
+ *   fun1(); // 调用了，可是没有将evt传递给fun1，这就是所谓的代码设计问题
+ * }
+ *
+ * addEvent(node, "click", handler);
+ *
+ */
+
+var getEvent = function () {
+    if (document.addEventListener) {
+        var o = getEvent,
+            e;
+        do {
+            e = o.arguments[0];
+            if (e && /Event/.test(Object.prototype.toString.call(e))) {
+                return e;
+            }
+        } while (o = o.caller);
+        return e;
+    } else {
+        return window.event;
+    }
+};
+
+module.exports = getEvent;
+
+/***/ },
+
+/***/ 2:
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -821,8 +1724,8 @@ module.exports = console;
  *
  * 这样子在响应函数中读取到的evt.data的值就是这个{ name: "benny", gender: "M" }，它并不是必须的
  */
-__webpack_require__(11); // 如果使用IE8的话
-var console = __webpack_require__(2);
+__webpack_require__(13); // 如果使用IE8的话
+var console = __webpack_require__(3);
 var each = __webpack_require__(0);
 
 var getUniqueId = function () {
@@ -916,7 +1819,825 @@ base.getZIndex = getZIndex;
 module.exports = base;
 
 /***/ },
-/* 4 */
+
+/***/ 21:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 封装了对节点class属性的操作，一般用于DOM节点的className状态切换
+ * @2014-10-11 追加批量操作，允许传入节点数组以及className数组
+ * 返回一个对象，拥有三个方法：
+ * var className = require("../dom/className");
+ *
+ * if (className.has("node", "myClassName")) {
+ *     className.remove(node, "myClassName");
+ * } else {
+ *     className.add(node, "myClassName");
+ * }
+ */
+
+var isElement = __webpack_require__(16);
+var each = __webpack_require__(0);
+var getType = __webpack_require__(1);
+var trim = __webpack_require__(9);
+var whiteSpace = ' ';
+var that = {};
+
+that.has = function (node, className) {
+    if (trim(className) == "") {
+        return false;
+    }
+
+    var arr = node.className.replace(/\s+/g, whiteSpace).split(/\s+/g);
+
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] == className) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
+that.add = function (node, className) {
+    if (getType(node) == "array") {
+        each(node, function (el) {
+            that.add(el, className);
+        });
+
+        return;
+    }
+
+    if (getType(className) == "array") {
+        each(className, function (cls) {
+            that.add(node, cls);
+        });
+
+        return;
+    }
+
+    if (!that.has(node, className)) {
+        var arr = (node.className.replace(/\s+/g, whiteSpace).split(/\s+/g).join(whiteSpace) + whiteSpace + className).split(/\s+/g);
+        var hash = {};
+        var result = [];
+
+        each(arr, function (val) {
+            if (val in hash) {
+                return;
+            }
+
+            hash[val] = true;
+            result.push(val);
+        });
+
+        node.className = trim(result.join(whiteSpace));
+    }
+};
+
+that.remove = function (node, className) {
+    if (getType(node) == "array") {
+        each(node, function (el) {
+            that.remove(el, className);
+        });
+
+        return;
+    }
+
+    if (getType(className) == "array") {
+        each(className, function (cls) {
+            that.remove(node, cls);
+        });
+
+        return;
+    }
+
+    if (that.has(node, className)) {
+        var arr = node.className.replace(/\s+/g, whiteSpace).split(/\s+/g);
+        var hash = {};
+        var result = [];
+
+        each(arr, function (val) {
+            if (val in hash || val == className) {
+                return;
+            }
+
+            hash[val] = true;
+            result.push(val);
+        });
+
+        node.className = trim(result.join(whiteSpace));
+    }
+};
+
+that.toggle = function (node, className1, className2) {
+    className1 = className1 == null ? "" : trim(className1);
+    className2 = className2 == null ? "" : trim(className2);
+
+    if (className1 == "" && className2 == "") {
+        return;
+    }
+
+    if (className1 == "") {
+        that.toggle(node, className2);
+        return;
+    }
+
+    if (getType(node) == "array") {
+        each(node, function (el) {
+            that.toggle(el, className1, className2);
+        });
+
+        return;
+    }
+
+    var hasCN = that.has(node, className1);
+
+    if (hasCN) {
+        that.remove(node, className1);
+
+        if (className2 != "") {
+            that.add(node, className2);
+        }
+    } else {
+        that.add(node, className1);
+
+        if (className2 != "") {
+            that.remove(node, className2);
+        }
+    }
+};
+
+module.exports = that;
+
+/***/ },
+
+/***/ 25:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 封装了一些方便元素关系操作的函数（注意获取到的都是元素节点，而不可能是textNode、注释之类的非元素节点）
+ *
+ * HTML:
+ * <div id="node2"></div>
+ * textNode1
+ * <div id="node1">
+ *   <div id="childNode1"></div>
+ *   <div id="childNode2"></div>
+ * </div>
+ * <div id="node3"></div>
+ *
+ * var opra = require("../dom/node");
+ * var queryNode = require("../dom/queryNode");
+ * var node = queryNode("#node1");
+ * var childNodes = opra.childNodes(node); // 获取到一个数组，包含childNode1以及childNode2
+ * var firstChild = opra.first(node); // 获取到childNode1，也就是node的第一个子元素
+ * var lastChild = opra.last(node);  // 获取到childNode2，也就是node的最后一个子元素
+ * var nextNode = opra.next(node); // 获取到node3，也就是node的下一个元素
+ * var prevNode = orpa.prev(node); // 获取到node2，也就是node的上一个元素，注意中间跳过了textNode1
+ *
+ */
+var isElement = __webpack_require__(16);
+var each = __webpack_require__(0);
+var that = {};
+
+that.childNodes = function (node) {
+    var result = [];
+
+    each(node.childNodes, function (child) {
+        if (isElement(child)) {
+            result.push(child);
+        }
+    });
+
+    return result;
+};
+
+that.first = function (node) {
+    var childs = node.childNodes;
+    var len = childs.length;
+
+    for (var i = 0; i < len; i++) {
+
+        if (isElement(childs[i])) {
+            return childs[i];
+        }
+    }
+
+    return null;
+};
+
+that.last = function (node) {
+    var childs = node.childNodes;
+    var len = childs.length;
+
+    for (var i = len - 1; i > -1; i--) {
+        if (isElement(childs[i])) {
+            return childs[i];
+        }
+    }
+
+    return null;
+};
+
+that.next = function (node) {
+    var nextNode = node;
+
+    while ((nextNode = nextNode.nextSibling) != null) {
+        if (isElement(nextNode)) {
+            return nextNode;
+        }
+    }
+
+    return null;
+};
+
+that.prev = function (node) {
+    var prevNode = node;
+
+    while ((prevNode = prevNode.previousSibling) != null) {
+        if (isElement(prevNode)) {
+            return prevNode;
+        }
+    }
+
+    return null;
+};
+
+module.exports = that;
+
+/***/ },
+
+/***/ 27:
+/***/ function(module, exports) {
+
+/**
+ * 判断对象是否为一个节点，注意：元素、注释、文本内容都是一个node，具体请查阅DOM实现接口文档
+ * 例子：
+ *
+ * HTML: <div id="node"></div>
+ *
+ * var isNode = require("../dom/isNode");
+ * var node = document.getElementById("node");
+ * console.log(isNode(node)); // true
+ *
+ */
+module.exports = function (node) {
+  return node != undefined && Boolean(node.nodeName) && Boolean(node.nodeType);
+};
+
+/***/ },
+
+/***/ 3:
+/***/ function(module, exports) {
+
+/**
+ * 对window.console做了封装，防止由于没有删除console语句而报错
+ * 如果需要使用到console对象，请引入本文件，而不要直接使用window.console
+ *
+ */
+
+var methods = ["log", "debug", "info", "warn", "exception", "assert", "dir", "dirxml", "trace", "group", "groupCollapsed", "groupEnd", "profile", "profileEnd", "count", "clear", "time", "timeEnd", "timeStamp", "table", "error", "markTimeline", "timeline", "timelineEnd", "cd", "countReset", "select"];
+
+var console = window.console || {};
+var emptyFunc = function () {};
+
+for (var key in methods) {
+    if (!(methods[key] in console)) {
+        console[methods[key]] = emptyFunc;
+    }
+}
+
+module.exports = console;
+
+/***/ },
+
+/***/ 30:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * @author benny.zheng
+ * @data 2016-07-15
+ * @description 自动更新登录页面背景区域
+ */
+
+module.exports = function (node, opts) {
+    //----------------require--------------
+    var base = __webpack_require__(2); // 基础对象
+
+    //-----------声明模块全局变量-------------
+    var nodeList = null; // 存储所有关键节点
+    var that = base();
+    var node = null;
+
+    var html = '<div class="loading"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>';
+
+    //-------------事件响应声明---------------
+    var evtFuncs = {};
+
+    //-------------子模块实例化---------------
+    var initMod = function () {};
+
+    //-------------绑定事件------------------
+    var bindEvents = function () {};
+
+    //-------------自定义函数----------------
+    var custFuncs = {
+        initView: function () {
+            node = document.createElement("DIV");
+            node.className = "m-loading";
+            node.innerHTML = html;
+        },
+        show: function () {
+            document.body.appendChild(node);
+        },
+        hide: function () {
+            if (node) {
+                document.body.removeChild(node);
+            }
+        }
+    };
+
+    //-------------一切从这开始--------------
+    // var init = function(_data) {
+    //     data = _data;
+    //     // 找到所有带有node-name的节点
+    //     nodeList = parseModule(node);
+    //     // 子模块实例化
+    //     initMod();
+    //     // 绑定事件
+    //     bindEvents();
+    // }
+
+    //---------------暴露API----------------
+    // that.init = init;
+    // 
+    custFuncs.initView();
+
+    that.show = custFuncs.show;
+    that.hide = custFuncs.hide;
+
+    return that;
+}();
+
+/***/ },
+
+/***/ 33:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 来自STK.js
+ * 将查询字符串转化成json对象，是jsonToQuery的反操作
+ * 例子：
+ *
+ * var queryToJson = require("../json/jsonToQuery");
+ * var str = "id=1&name=benny";
+ * var json = queryToJson(str);
+ * json的值将为：
+ * json = { id: 1, name: "benny" };
+ *
+ */
+var trim = __webpack_require__(9);
+module.exports = function (qs) {
+    var qList = trim(qs).split("&"),
+        json = {},
+        i = 0,
+        len = qList.length;
+
+    for (; i < len; i++) {
+        if (qList[i]) {
+            var hash = qList[i].split("="),
+                key = hash[0],
+                value = hash[1];
+            // 如果只有key没有value, 那么将全部丢入一个$nullName数组中
+            if (hash.length < 2) {
+                value = key;
+                key = '$nullName';
+            }
+            if (!(key in json)) {
+                // 如果缓存堆栈中没有这个数据，则直接存储
+                json[key] = decodeURIComponent(value);
+            } else {
+                // 如果堆栈中已经存在这个数据，则转换成数组存储
+                json[key] = [].concat(json[key], decodeURIComponent(value));
+            }
+        }
+    }
+    return json;
+};
+
+/***/ },
+
+/***/ 4:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 合并多个对象，将后面的对象和前面的对象一层一层的合并
+ * 支持第一个参数传boolean类型，当传true时，支持深层合并
+ * 例子：
+ *
+ * var merge = require("../json/merge");
+ * var opts = { url: "http://www.baidu.com" };
+ * var defaultOpts = { url: "", method: "get" };
+ * opts = merge(defaultOpts, opts);
+ * opts的值为：
+ * opts = {
+ *     url: "http://www.baidu.com",
+ *     method: "get"
+ * }
+ *
+ */
+
+var getType = __webpack_require__(1);
+var console = __webpack_require__(3);
+var each = __webpack_require__(0);
+
+module.exports = function () {
+
+    var result = [];
+    var args = [].slice.call(arguments);
+    result.push.apply(result, args);
+
+    var deep = false;
+
+    function mergeObj(r, obj) {
+        each(obj, function (v, k) {
+            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
+                mergeObj(r[k], v);
+            } else {
+                r[k] = v;
+            }
+        });
+    }
+
+    var newObj = {};
+
+    each(result, function (item, index) {
+        if (index == 0 && item === true) {
+            deep = true;
+        } else if (getType(item) == "object") {
+            mergeObj(newObj, item);
+        }
+    });
+
+    return newObj;
+};
+
+/***/ },
+
+/***/ 5:
+/***/ function(module, exports, __webpack_require__) {
+
+var sizzle = __webpack_require__(7);
+
+module.exports = function (node, onlyChild) {
+    var list = Array.prototype.slice.call(sizzle((onlyChild === true ? "> " : "") + "[node-name]", node), 0);
+    var nodeList = {};
+
+    list.forEach(function (el) {
+        var name = el.getAttribute("node-name");
+
+        if (name in nodeList) {
+            nodeList[name] = [].concat(nodeList[name], el);
+        } else {
+            nodeList[name] = el;
+        }
+    });
+
+    return nodeList;
+};
+
+/***/ },
+
+/***/ 51:
+/***/ function(module, exports) {
+
+/**
+ * 封装了node.dataset功能, dataset是标准浏览器新增的功能，这里主要是为了兼容旧浏览器
+ * <div id="node" data-node-value="123"></div>
+ * var dataset = require("../dom/dataset");
+ * dataset.get(node, "nodeValue")将会读取data-node-value，得到123
+ * dataset.set(node, "nodeValue", "123")将会设置data-node-value为123
+ * 注意传入的KEY是驼峰命名
+ */
+
+var that = {};
+
+var keyCase = function (key) {
+    return "data-" + key.replace(/([A-Z]|(?:^\d+))/g, function (all, match) {
+        return "-" + match.toLowerCase();
+    });
+};
+
+that.get = function (node, key) {
+    // if ("dataset" in node) {
+    //     return node.dataset[key];
+    // } else {
+    var dataKey = keyCase(key);
+    var attrs = node.attributes;
+    var len = attrs.length;
+
+    for (var i = 0; i < len; i++) {
+        if (attrs[i].name == dataKey) {
+            return attrs[i].value;
+        }
+    }
+    // }
+};
+
+that.set = function (node, key, val) {
+    if ("dataset" in node) {
+        node.dataset[key] = val;
+    } else {
+        var dataKey = keyCase(key);
+        node.setAttribute(dataKey, val);
+    }
+};
+
+that.remove = function (node, key) {
+    if ("dataset" in node) {
+        delete node.dataset[key];
+    } else {
+        var dataKey = keyCase(key);
+        node.removeAttribute(dataKey);
+    }
+};
+
+module.exports = that;
+
+/***/ },
+
+/***/ 6:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 为一个节点或者节点数组添加事件
+ * @2014-10-11 增加了批量处理功能，可以传入一个节点数组绑定事件
+ *
+ * var addEvent = require("../evt/add");
+ * var removeEvent = require("../evt/remove");
+ * var stopEvent = require("../evt/stop");
+ * var sizzle = require("../dom/sizzle");
+ * var handler = function(evt) {
+ *     stopEvent(evt); // 阻止事件冒泡以及默认事件行为
+ *     removeEvent(nodes, "click", handler); // 将addEvent时的参数原样不动传给removeEvent，可以解除事件
+ * }
+ *
+ * var nodes = sizzle(".nodes", parentNode); // 获取到parentNode中所有class为nodes的节点，返回一个数组
+ * addEvent(nodes, "click", handler); // 为数组nodes中所有的节点绑定click事件
+ * // 仅绑定一个可以只传入一个节点，而不是数组：addEvent(nodes[0], "click", hanlder);
+ *
+ *
+ */
+
+var getType = __webpack_require__(1);
+var each = __webpack_require__(0);
+
+var addEvent = function (el, type, fn, setCapture) {
+    if (getType(el) == "array") {
+        var fun = addEvent;
+
+        each(el, function (item, key) {
+            fun(item, type, fn, setCapture);
+        });
+    }
+
+    el = getType(el) == "string" ? document.getElementById(el) : el;
+
+    if (el == null || typeof fn != "function") {
+        return false;
+    }
+
+    if (el.addEventListener) {
+        el.addEventListener(type, fn, setCapture === true ? true : false);
+    } else if (el.attachEvent) {
+        el.attachEvent('on' + type, fn);
+        //锁定el    setCapture
+        if (setCapture && el.setCapture) {
+            el.setCapture();
+        }
+    } else {
+        el['on' + type] = fn;
+        if (setCapture && el.setCapture) {
+            el.setCapture();
+        }
+    }
+
+    return true;
+};
+
+module.exports = addEvent;
+
+/***/ },
+
+/***/ 60:
+/***/ function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(14)();
+// imports
+
+
+// module
+exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n.show {\n  display: block !important; }\n\n.hide {\n  display: none !important; }\n\n.clearfix:after, .m-dialog-common > .box:after, .m-grid-page:after {\n  content: \".\";\n  display: block;\n  height: 0;\n  clear: both;\n  visibility: hidden;\n  overflow: hidden; }\n\n.clearfix, .m-dialog-common > .box, .m-grid-page {\n  display: inline-block; }\n\n.clearfix, .m-dialog-common > .box, .m-grid-page {\n  display: block; }\n\n/* .clearfix:before, \n.clearfix:after {\n    display: table;\n    line-height:  0;\n    content: \"\";\n}   \n.clearfix:after {\n    clear: both;\n} */\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n@font-face {\n  font-family: \"iconfont\";\n  src: url(\"/font/iconfont.eot?t=1505787898067\");\n  /* IE9*/\n  src: url(\"/font/iconfont.eot?t=1505787898067#iefix\") format(\"embedded-opentype\"), url(\"/font/iconfont.ttf?t=1505787898067\") format(\"truetype\"), url(\"/font/iconfont.svg?t=1505787898067#iconfont\") format(\"svg\");\n  /* iOS 4.1- */ }\n\n.iconfont {\n  font-family: \"iconfont\" !important;\n  font-size: 16px;\n  font-style: normal;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale; }\n\n.icon-all:before {\n  content: \"\\E696\"; }\n\n.icon-back:before {\n  content: \"\\E697\"; }\n\n.icon-category:before {\n  content: \"\\E699\"; }\n\n.icon-close:before {\n  content: \"\\E69A\"; }\n\n.icon-comments:before {\n  content: \"\\E69B\"; }\n\n.icon-cry:before {\n  content: \"\\E69C\"; }\n\n.icon-delete:before {\n  content: \"\\E69D\"; }\n\n.icon-edit:before {\n  content: \"\\E69E\"; }\n\n.icon-email:before {\n  content: \"\\E69F\"; }\n\n.icon-favorite:before {\n  content: \"\\E6A0\"; }\n\n.icon-form:before {\n  content: \"\\E6A2\"; }\n\n.icon-help:before {\n  content: \"\\E6A3\"; }\n\n.icon-information:before {\n  content: \"\\E6A4\"; }\n\n.icon-less:before {\n  content: \"\\E6A5\"; }\n\n.icon-moreunfold:before {\n  content: \"\\E6A6\"; }\n\n.icon-more:before {\n  content: \"\\E6A7\"; }\n\n.icon-pic:before {\n  content: \"\\E6A8\"; }\n\n.icon-qrcode:before {\n  content: \"\\E6A9\"; }\n\n.icon-rfq:before {\n  content: \"\\E6AB\"; }\n\n.icon-search:before {\n  content: \"\\E6AC\"; }\n\n.icon-selected:before {\n  content: \"\\E6AD\"; }\n\n.icon-set:before {\n  content: \"\\E6AE\"; }\n\n.icon-smile:before {\n  content: \"\\E6AF\"; }\n\n.icon-success:before {\n  content: \"\\E6B1\"; }\n\n.icon-survey:before {\n  content: \"\\E6B2\"; }\n\n.icon-viewgallery:before {\n  content: \"\\E6B4\"; }\n\n.icon-viewlist:before {\n  content: \"\\E6B5\"; }\n\n.icon-warning:before {\n  content: \"\\E6B6\"; }\n\n.icon-wrong:before {\n  content: \"\\E6B7\"; }\n\n.icon-add:before {\n  content: \"\\E6B9\"; }\n\n.icon-remind:before {\n  content: \"\\E6BC\"; }\n\n.icon-box:before {\n  content: \"\\E6CB\"; }\n\n.icon-process:before {\n  content: \"\\E6CE\"; }\n\n.icon-electrical:before {\n  content: \"\\E6D4\"; }\n\n.icon-electronics:before {\n  content: \"\\E6DA\"; }\n\n.icon-gifts:before {\n  content: \"\\E6DB\"; }\n\n.icon-lights:before {\n  content: \"\\E6DE\"; }\n\n.icon-atmaway:before {\n  content: \"\\E6E9\"; }\n\n.icon-pin:before {\n  content: \"\\E6F2\"; }\n\n.icon-text:before {\n  content: \"\\E6FC\"; }\n\n.icon-move:before {\n  content: \"\\E6FD\"; }\n\n.icon-gerenzhongxin:before {\n  content: \"\\E70B\"; }\n\n.icon-operation:before {\n  content: \"\\E70E\"; }\n\n.icon-remind1:before {\n  content: \"\\E713\"; }\n\n.icon-map:before {\n  content: \"\\E715\"; }\n\n.icon-accountfilling:before {\n  content: \"\\E732\"; }\n\n.icon-libra:before {\n  content: \"\\E74C\"; }\n\n.icon-color:before {\n  content: \"\\E760\"; }\n\n.icon-favorites:before {\n  content: \"\\E7CE\"; }\n\n.icon-Calculator:before {\n  content: \"\\E812\"; }\n\n.icon-earth:before {\n  content: \"\\E828\"; }\n\n.m-blue-bg-button, .m-white-bg-button {\n  box-sizing: border-box;\n  display: inline-block;\n  border: 1px solid #e3e4e9;\n  border-radius: 3px;\n  height: 38px;\n  line-height: 36px;\n  font-size: 14px;\n  text-align: center;\n  padding: 0 25px;\n  cursor: pointer;\n  -moz-user-select: none;\n  -webkit-user-select: none;\n  -ms-user-select: none; }\n\n/* 默认按钮，蓝色白字 */\n.m-blue-bg-button {\n  color: #ffffff;\n  background: #2ba0ff;\n  border-color: #2ba0ff; }\n  .m-blue-bg-button:hover {\n    background: #4eaaff; }\n  .m-blue-bg-button:active {\n    background: #2ba0ff; }\n  .m-blue-bg-button.gray {\n    cursor: default; }\n    .m-blue-bg-button.gray:hover {\n      color: #666666;\n      border-color: #e3e4e9; }\n    .m-blue-bg-button.gray:active {\n      background: #ffffff;\n      border-color: #e3e4e9;\n      color: #666666; }\n\n/* 白底 */\n.m-white-bg-button {\n  color: #666666;\n  background: #ffffff; }\n  .m-white-bg-button:hover {\n    color: #2ba0ff;\n    border-color: #2ba0ff; }\n  .m-white-bg-button:active {\n    background: #ffffff;\n    border-color: #e3e4e9;\n    color: #666666; }\n\n.m-dialog-common {\n  position: absolute;\n  border: solid 1px #e3e4e9;\n  border-radius: 3px;\n  background-color: #ffffff; }\n  .m-dialog-common > .header {\n    color: #333333;\n    font-size: 16px;\n    position: relative;\n    background-color: #f4f5f9;\n    padding: 14px 20px 11px 20px; }\n    .m-dialog-common > .header > .close {\n      width: 24px;\n      height: 24px;\n      position: absolute;\n      top: 10px;\n      right: 16px; }\n    .m-dialog-common > .header > .iconfont {\n      font-size: 20px; }\n  .m-dialog-common > .box {\n    border: 1px solid transparent; }\n  .m-dialog-common .footer {\n    text-align: center;\n    padding: 10px 0;\n    background-color: #f4f5f9; }\n    .m-dialog-common .footer a {\n      margin: 0 10px; }\n\n.m-dialog-alert {\n  margin: 60px 40px 90px 40px;\n  font-size: 14px;\n  color: #333333;\n  text-align: center;\n  min-width: 450px; }\n  .m-dialog-alert .iconfont {\n    font-size: 34px; }\n\n.mg-win-toast {\n  padding: 0 20px;\n  height: 50px;\n  background: black;\n  opacity: 0;\n  text-align: center;\n  font-size: 20px;\n  line-height: 50px;\n  color: #ffffff;\n  border-radius: 8px; }\n\n.m-loading {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  background: #ffffff; }\n  .m-loading .loading {\n    width: 100px;\n    height: 100px;\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    margin-top: -80px;\n    margin-left: -50px; }\n    .m-loading .loading span {\n      display: inline-block;\n      width: 16px;\n      height: 16px;\n      background: #2ba0ff;\n      position: absolute;\n      opacity: 0.2;\n      border-radius: 50%;\n      -webkit-animation: pageLoading 1s ease infinite;\n              animation: pageLoading 1s ease infinite; }\n    .m-loading .loading span:nth-child(1) {\n      left: 0;\n      top: 50%;\n      margin-top: -8px; }\n    .m-loading .loading span:nth-child(2) {\n      left: 14px;\n      top: 14px;\n      -webkit-animation-delay: 0.125s;\n              animation-delay: 0.125s; }\n    .m-loading .loading span:nth-child(3) {\n      left: 50%;\n      top: 0;\n      margin-left: -8px;\n      -webkit-animation-delay: 0.25s;\n              animation-delay: 0.25s; }\n    .m-loading .loading span:nth-child(4) {\n      right: 14px;\n      top: 14px;\n      -webkit-animation-delay: 0.375s;\n              animation-delay: 0.375s; }\n    .m-loading .loading span:nth-child(5) {\n      right: 0;\n      top: 50%;\n      margin-top: -8px;\n      -webkit-animation-delay: 0.5s;\n              animation-delay: 0.5s; }\n    .m-loading .loading span:nth-child(6) {\n      right: 14px;\n      bottom: 14px;\n      -webkit-animation-delay: 0.625s;\n              animation-delay: 0.625s; }\n    .m-loading .loading span:nth-child(7) {\n      left: 50%;\n      bottom: 0;\n      margin-left: -8px;\n      -webkit-animation-delay: 0.875s;\n              animation-delay: 0.875s; }\n    .m-loading .loading span:nth-child(8) {\n      left: 14px;\n      bottom: 14px;\n      -webkit-animation-delay: s;\n              animation-delay: s; }\n\n@-webkit-keyframes pageLoading {\n  0% {\n    opacity: 0.2;\n    -webkit-transform: scale(0.3);\n            transform: scale(0.3); }\n  100% {\n    opacity: 1;\n    -webkit-transform: scale(1.2);\n            transform: scale(1.2); } }\n\n@keyframes pageLoading {\n  0% {\n    opacity: 0.2;\n    -webkit-transform: scale(0.3);\n            transform: scale(0.3); }\n  100% {\n    opacity: 1;\n    -webkit-transform: scale(1.2);\n            transform: scale(1.2); } }\n\n.m-bottom-scroll {\n  width: 100%;\n  height: 17px;\n  position: absolute;\n  bottom: 54px;\n  left: 0;\n  background-color: #ffffff; }\n  .m-bottom-scroll .scroll-bg {\n    height: 7px;\n    background-color: #efefef;\n    margin: 5px 17px;\n    position: relative; }\n  .m-bottom-scroll .scroll-tool {\n    position: absolute;\n    height: 7px;\n    width: 200px;\n    left: 0;\n    top: 0;\n    background-color: rgba(199, 199, 199, 0.6);\n    cursor: pointer;\n    border-radius: 3px; }\n    .m-bottom-scroll .scroll-tool:hover {\n      background-color: #c7c7c7; }\n    .m-bottom-scroll .scroll-tool:active {\n      background-color: #b5b5b5; }\n\n.m-right-scroll {\n  width: 17px;\n  height: 80px;\n  position: absolute;\n  top: 40px;\n  right: 0;\n  background-color: #ffffff; }\n  .m-right-scroll .scroll-bg {\n    height: 50px;\n    width: 7px;\n    background-color: #efefef;\n    margin: 17px 5px;\n    position: relative; }\n  .m-right-scroll .scroll-tool {\n    position: absolute;\n    height: 30px;\n    width: 7px;\n    top: 0;\n    right: 0;\n    background-color: rgba(199, 199, 199, 0.6);\n    cursor: pointer;\n    border-radius: 3px; }\n    .m-right-scroll .scroll-tool:hover {\n      background-color: #c7c7c7; }\n    .m-right-scroll .scroll-tool:active {\n      background-color: #b5b5b5; }\n\n.m-grid-page {\n  line-height: 22px;\n  font-size: 14px;\n  min-width: 950px; }\n  .m-grid-page span,\n  .m-grid-page div,\n  .m-grid-page a {\n    float: left;\n    margin: 0 4px;\n    font-size: 14px;\n    color: #666666; }\n  .m-grid-page .select {\n    border: 1px solid #e3e4e9;\n    max-width: 30px;\n    border-radius: 3px; }\n  .m-grid-page .select-group {\n    position: relative; }\n    .m-grid-page .select-group .select {\n      text-indent: 4px;\n      line-height: 20px; }\n    .m-grid-page .select-group .icon {\n      background-position: -44.1rem -33.45rem;\n      width: 0.5rem;\n      height: 0.25rem;\n      background-image: url(\"/images/sprite.png?v=1496632378037\");\n      background-repeat: no-repeat;\n      background-size: 50.85rem 50.65rem;\n      display: inline-block;\n      position: absolute;\n      top: 10px;\n      right: 2px; }\n    .m-grid-page .select-group .items {\n      position: absolute;\n      border: 1px solid #e3e4e9;\n      border-bottom: none;\n      width: 100%;\n      z-index: 5;\n      max-height: 160px;\n      overflow: auto;\n      position: absolute;\n      top: -120px;\n      left: 0; }\n      .m-grid-page .select-group .items li {\n        cursor: pointer;\n        text-align: center; }\n        .m-grid-page .select-group .items li:hover {\n          background: #e2effa; }\n  .m-grid-page .first,\n  .m-grid-page .prev,\n  .m-grid-page .next,\n  .m-grid-page .last,\n  .m-grid-page .goTo {\n    border: 1px solid #e3e4e9;\n    border-radius: 3px;\n    padding: 0 10px; }\n    .m-grid-page .first:hover,\n    .m-grid-page .prev:hover,\n    .m-grid-page .next:hover,\n    .m-grid-page .last:hover,\n    .m-grid-page .goTo:hover {\n      border: 1px solid #2ba0ff;\n      color: #2ba0ff; }\n    .m-grid-page .first.gray,\n    .m-grid-page .prev.gray,\n    .m-grid-page .next.gray,\n    .m-grid-page .last.gray,\n    .m-grid-page .goTo.gray {\n      cursor: not-allowed; }\n      .m-grid-page .first.gray:hover,\n      .m-grid-page .prev.gray:hover,\n      .m-grid-page .next.gray:hover,\n      .m-grid-page .last.gray:hover,\n      .m-grid-page .goTo.gray:hover {\n        color: #666666;\n        border: 1px solid #e3e4e9; }\n  .m-grid-page .page input {\n    border: 1px solid #e3e4e9;\n    text-align: center;\n    margin: 0 4px;\n    line-height: 20px; }\n    .m-grid-page .page input:focus {\n      border: 1px solid #2e96ea; }\n  .m-grid-page .first i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first.gray:hover i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first:hover i {\n    background-position: -44.1rem -28.05rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev.gray:hover i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev:hover i {\n    background-position: -27.95rem -14.05rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next.gray:hover i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next:hover i {\n    background-position: -44.15rem -35.1rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last.gray:hover i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last:hover i {\n    background-position: -44.1rem -23.35rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo.gray:hover i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block;\n    padding-right: 5px; }\n  .m-grid-page .goTo:hover i {\n    background-position: -26.45rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n\n.m-calendar-year {\n  width: 289px;\n  border: 1px solid #e1e1e1;\n  color: #666666; }\n  .m-calendar-year .change {\n    width: 100%;\n    display: table;\n    background: #f3f6f8;\n    line-height: 30px;\n    height: 30px;\n    font-weight: 600; }\n    .m-calendar-year .change span {\n      display: table-cell;\n      text-align: center; }\n      .m-calendar-year .change span i {\n        border: 6px  solid transparent;\n        display: inline-block; }\n      .m-calendar-year .change span .arrow-left {\n        border-right: 6px solid #666666; }\n      .m-calendar-year .change span .arrow-right {\n        border-left: 6px solid #666666; }\n  .m-calendar-year .list ul {\n    width: 100%;\n    display: table;\n    text-align: center;\n    font-size: 14px;\n    font-weight: 600; }\n    .m-calendar-year .list ul li {\n      display: table-cell;\n      height: 73px; }\n      .m-calendar-year .list ul li span {\n        box-sizing: border-box;\n        border-radius: 6px;\n        position: relative;\n        display: inline-block;\n        line-height: 72px;\n        height: 72px;\n        width: 72px; }\n        .m-calendar-year .list ul li span.active {\n          color: #2f95ea;\n          border: 1px solid #2f95ea; }\n          .m-calendar-year .list ul li span.active:after {\n            content: \"\";\n            width: 8px;\n            height: 8px;\n            background: #2f95ea;\n            position: absolute;\n            border-radius: 50%;\n            top: 50px;\n            right: 32px; }\n        .m-calendar-year .list ul li span.gray {\n          color: #999999; }\n        .m-calendar-year .list ul li span:hover {\n          background: #e2effa;\n          cursor: pointer; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
+
+// exports
+
+
+/***/ },
+
+/***/ 61:
+/***/ function(module, exports, __webpack_require__) {
+
+/**
+ * 利用事件冒泡实现事件代理（尽量不要用mouseover之类非常耗性能的代理，建议自己实现）
+ *
+ * HTML:
+ * <div id="node">
+ *  <a href="javascript:void(0);" onclick="return false;" data-action="send" data-query="id=1&name=a">点击我</a>
+ *  <a href="javascript:void(0);" onclick="return false;" data-action="send" data-query="id=2&name=b">点击我</a>
+ * </div>
+ *
+ * var eventProxy = require("../evt/proxy");
+ * var node = document.getElementById("node");
+ * var proxy = eventProxy(node); // 为node节点建立一个事件代理器
+ * var handler = function(evt) {
+ *     return 0; // 可以返回： 0 正常执行（默认值），-1 不再执行未执行的事件响应函数，并且不响应上层元素的其它事件代理 其它真值：不再执行未执行的事件响应函数
+ *
+ *     evt的值是：
+ *     evt = {
+ *	       target: 触发事件的A连接对象,
+ *         proxy: "send",
+ *         data: { id: "1", name: "a"}, // 由data-query的值解析而来的json对象,data-query是一个查询字符串
+ *         box: node, // 即建立事件代理的容器
+ *         event: event对象 // DOM真正的event对象
+ *     }
+ * }
+ *
+ * proxy.add("send", "click", handler);
+ *
+ */
+
+module.exports = function (outerNode) {
+    var addEvent = __webpack_require__(6);
+    var removeEvent = __webpack_require__(11);
+    var getEvent = __webpack_require__(18);
+    var dataset = __webpack_require__(51);
+    var each = __webpack_require__(0);
+    var trim = __webpack_require__(9);
+    var queryToJson = __webpack_require__(33);
+    var console = __webpack_require__(3);
+    var proxyNameKey = "action";
+    var proxyDataKey = "query";
+    var that = {};
+    var bindEvents = {};
+
+    var eventHanlder = function (evt) {
+        var node = evt.target || evt.srcElement;
+        var evtResult = 0;
+        var actionDatas = [];
+
+        // 首先收集所有需要触发事件的节点（防止中途节点remove掉）
+        while (node != outerNode) {
+            if (node == null) {
+                return;
+            }
+
+            if (node === outerNode) {
+                break;
+            }
+
+            var name = dataset.get(node, proxyNameKey);
+
+            if (name == null || (name = trim(name)) == "") {
+                node = node.parentNode;
+                continue;
+            }
+
+            if (bindEvents[evt.type] == null || bindEvents[evt.type][name] == null) {
+                node = node.parentNode;
+                continue;
+            }
+
+            if (node == null) {
+                return;
+            }
+
+            actionDatas.push({
+                target: node,
+                proxy: name,
+                data: queryToJson(dataset.get(node, proxyDataKey), true) || {}
+            });
+
+            node = node.parentNode;
+        }
+
+        var fns = bindEvents[evt.type];
+        var actionData = null;
+        evtResult = 0;
+
+        for (var i = 0; i < actionDatas.length; i++) {
+            actionData = actionDatas[i];
+
+            for (var j = 0; j < fns[actionData.proxy].length; j++) {
+                evtResult = fns[actionData.proxy][j]({
+                    target: actionData.target,
+                    proxy: actionData.proxy,
+                    box: outerNode,
+                    event: evt,
+                    data: actionData.data
+                });
+
+                if (evtResult == undefined) {
+                    evtResult = 0;
+                }
+
+                if (evtResult != 0) {
+                    break;
+                }
+            }
+
+            if (evtResult == -1) {
+                break;
+            }
+        }
+    };
+
+    that.add = function (name, eventName, fn) {
+        if (typeof fn != "function") {
+            console.error("参数fn必须是函数");
+            return;
+        }
+
+        if (bindEvents[eventName] == null) {
+            bindEvents[eventName] = {};
+            addEvent(outerNode, eventName, eventHanlder);
+        }
+
+        if (bindEvents[eventName][name] == null) {
+            bindEvents[eventName][name] = [];
+        }
+
+        bindEvents[eventName][name].push(fn);
+    };
+
+    that.remove = function (name, eventName, fn) {
+        if (typeof fn != "function") {
+            console.error("参数fn必须是函数");
+            return;
+        }
+
+        if (bindEvents[eventName] == null) {
+            return;
+        }
+
+        if (bindEvents[eventName][name] == null) {
+            return;
+        }
+
+        var fns = bindEvents[eventName][name];
+        var newFns = [];
+        var len = fns.length;
+
+        for (var i = 0; i < len; i++) {
+            if (fns[i] !== fn) {
+                newFns.push(fns[i]);
+            }
+        }
+
+        var isEmpty = true;
+
+        bindEvents[eventName][name] = newFns.length == 0 ? null : newFns;
+
+        // 清除没用的事件
+        for (var key in bindEvents[eventName]) {
+            if (bindEvents[eventName][key] == null) {
+                try {
+                    //尽可能地删除它
+                    delete bindEvents[eventName][key];
+                } catch (ex) {}
+            } else {
+                isEmpty = false;
+                break;
+            }
+        }
+
+        if (isEmpty) {
+            bindEvents[eventName] = null;
+
+            try {
+                // 尽可能删除它
+                delete bindEvents[eventName];
+            } catch (ex) {}
+
+            removeEvent(outerNode, eventName, eventHanlder);
+        }
+    };
+
+    return that;
+};
+
+/***/ },
+
+/***/ 7:
 /***/ function(module, exports, __webpack_require__) {
 
 /**
@@ -933,7 +2654,7 @@ module.exports = base;
  *
  */
 
-var getStyle = __webpack_require__(12);
+var getStyle = __webpack_require__(10);
 var chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^\[\]]*\]|['"][^'"]*['"]|[^\[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?((?:.|\r|\n)*)/g,
     done = 0,
     toString = Object.prototype.toString,
@@ -2010,54 +3731,41 @@ Expr.filters.visible = function (elem) {
 module.exports = Sizzle;
 
 /***/ },
-/* 5 */
-/***/ function(module, exports) {
 
-/**
- * 清除字符串前后空白字符
- * 例子：
- *
- * var trim = require("../str/trim");
- * var str = trim(" text "); // "text"
- *
- */
-module.exports = function (str) {
-	if (str == null) {
-		return "";
-	}
-
-	str = str.toString();
-	var len = str.length;
-	var s = 0;
-	var reg = /(\u3000|\s|\t|\u00A0)/;
-
-	while (s < len) {
-		if (!reg.test(str.charAt(s))) {
-			break;
-		}
-
-		s += 1;
-	}
-
-	while (len > s) {
-		if (!reg.test(str.charAt(len - 1))) {
-			break;
-		}
-
-		len -= 1;
-	}
-
-	return str.slice(s, len);
-};
-
-/***/ },
-/* 6 */
+/***/ 74:
 /***/ function(module, exports, __webpack_require__) {
 
-var console = __webpack_require__(2);
-var sizzle = __webpack_require__(4);
+// style-loader: Adds some css to the DOM by adding a <style> tag
 
+// load the styles
+var content = __webpack_require__(60);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(12)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(true) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept(60, function() {
+			var newContent = __webpack_require__(60);
+			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+
+/***/ 8:
+/***/ function(module, exports, __webpack_require__) {
+
+var console = __webpack_require__(3);
+var sizzle = __webpack_require__(7);
 module.exports = function () {
+    //类数组的转化
     var list = Array.prototype.slice.call(sizzle("[id]"), 0);
     var reg = /^m(\-[a-z][a-z0-9]+)+$/i;
     var nodeList = {};
@@ -2079,1402 +3787,8 @@ module.exports = function () {
 };
 
 /***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
 
-/**
- * 合并多个对象，将后面的对象和前面的对象一层一层的合并
- * 支持第一个参数传boolean类型，当传true时，支持深层合并
- * 例子：
- *
- * var merge = require("../json/merge");
- * var opts = { url: "http://www.baidu.com" };
- * var defaultOpts = { url: "", method: "get" };
- * opts = merge(defaultOpts, opts);
- * opts的值为：
- * opts = {
- *     url: "http://www.baidu.com",
- *     method: "get"
- * }
- *
- */
-
-var getType = __webpack_require__(1);
-var console = __webpack_require__(2);
-var each = __webpack_require__(0);
-
-module.exports = function () {
-
-    var result = [];
-    var args = [].slice.call(arguments);
-    result.push.apply(result, args);
-
-    var deep = false;
-
-    function mergeObj(r, obj) {
-        each(obj, function (v, k) {
-            if (deep && (getType(r[k]) == "object" && getType(v) == "object" || getType(r[k]) == "array" && getType(v) == "array")) {
-                mergeObj(r[k], v);
-            } else {
-                r[k] = v;
-            }
-        });
-    }
-
-    var newObj = {};
-
-    each(result, function (item, index) {
-        if (index == 0 && item === true) {
-            deep = true;
-        } else if (getType(item) == "object") {
-            mergeObj(newObj, item);
-        }
-    });
-
-    return newObj;
-};
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 检查是否为一个元素，它是对isNode的一个封装，并且判断node节点的nodeType是否为1，为1则是元素
- * 例子：
- *
- * HTML: <div id="node"></div>
- *
- * var isElement = require("../dom/isElement");
- * var node = document.getElementById("node");
- * console.log(isElement(node)); // true
- *
- */
-
-var isNode = __webpack_require__(21);
-
-module.exports = function (element) {
-  return isNode(element) && element.nodeType == 1;
-};
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 为一个节点或者节点数组添加事件
- * @2014-10-11 增加了批量处理功能，可以传入一个节点数组绑定事件
- *
- * var addEvent = require("../evt/add");
- * var removeEvent = require("../evt/remove");
- * var stopEvent = require("../evt/stop");
- * var sizzle = require("../dom/sizzle");
- * var handler = function(evt) {
- *     stopEvent(evt); // 阻止事件冒泡以及默认事件行为
- *     removeEvent(nodes, "click", handler); // 将addEvent时的参数原样不动传给removeEvent，可以解除事件
- * }
- *
- * var nodes = sizzle(".nodes", parentNode); // 获取到parentNode中所有class为nodes的节点，返回一个数组
- * addEvent(nodes, "click", handler); // 为数组nodes中所有的节点绑定click事件
- * // 仅绑定一个可以只传入一个节点，而不是数组：addEvent(nodes[0], "click", hanlder);
- *
- *
- */
-
-var getType = __webpack_require__(1);
-var each = __webpack_require__(0);
-
-var addEvent = function (el, type, fn, setCapture) {
-    if (getType(el) == "array") {
-        var fun = addEvent;
-
-        each(el, function (item, key) {
-            fun(item, type, fn, setCapture);
-        });
-    }
-
-    el = getType(el) == "string" ? document.getElementById(el) : el;
-
-    if (el == null || typeof fn != "function") {
-        return false;
-    }
-
-    if (el.addEventListener) {
-        el.addEventListener(type, fn, setCapture === true ? true : false);
-    } else if (el.attachEvent) {
-        el.attachEvent('on' + type, fn);
-        if (setCapture && el.setCapture) {
-            el.setCapture();
-        }
-    } else {
-        el['on' + type] = fn;
-        if (setCapture && el.setCapture) {
-            el.setCapture();
-        }
-    }
-
-    return true;
-};
-
-module.exports = addEvent;
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-var stylesInDom = {},
-	memoize = function(fn) {
-		var memo;
-		return function () {
-			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-			return memo;
-		};
-	},
-	isOldIE = memoize(function() {
-		return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
-	}),
-	getHeadElement = memoize(function () {
-		return document.head || document.getElementsByTagName("head")[0];
-	}),
-	singletonElement = null,
-	singletonCounter = 0,
-	styleElementsInsertedAtTop = [];
-
-module.exports = function(list, options) {
-	if(typeof DEBUG !== "undefined" && DEBUG) {
-		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-	}
-
-	options = options || {};
-	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-	// tags it will allow on a page
-	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-	// By default, add <style> tags to the bottom of <head>.
-	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
-
-	var styles = listToStyles(list);
-	addStylesToDom(styles, options);
-
-	return function update(newList) {
-		var mayRemove = [];
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			domStyle.refs--;
-			mayRemove.push(domStyle);
-		}
-		if(newList) {
-			var newStyles = listToStyles(newList);
-			addStylesToDom(newStyles, options);
-		}
-		for(var i = 0; i < mayRemove.length; i++) {
-			var domStyle = mayRemove[i];
-			if(domStyle.refs === 0) {
-				for(var j = 0; j < domStyle.parts.length; j++)
-					domStyle.parts[j]();
-				delete stylesInDom[domStyle.id];
-			}
-		}
-	};
-}
-
-function addStylesToDom(styles, options) {
-	for(var i = 0; i < styles.length; i++) {
-		var item = styles[i];
-		var domStyle = stylesInDom[item.id];
-		if(domStyle) {
-			domStyle.refs++;
-			for(var j = 0; j < domStyle.parts.length; j++) {
-				domStyle.parts[j](item.parts[j]);
-			}
-			for(; j < item.parts.length; j++) {
-				domStyle.parts.push(addStyle(item.parts[j], options));
-			}
-		} else {
-			var parts = [];
-			for(var j = 0; j < item.parts.length; j++) {
-				parts.push(addStyle(item.parts[j], options));
-			}
-			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-		}
-	}
-}
-
-function listToStyles(list) {
-	var styles = [];
-	var newStyles = {};
-	for(var i = 0; i < list.length; i++) {
-		var item = list[i];
-		var id = item[0];
-		var css = item[1];
-		var media = item[2];
-		var sourceMap = item[3];
-		var part = {css: css, media: media, sourceMap: sourceMap};
-		if(!newStyles[id])
-			styles.push(newStyles[id] = {id: id, parts: [part]});
-		else
-			newStyles[id].parts.push(part);
-	}
-	return styles;
-}
-
-function insertStyleElement(options, styleElement) {
-	var head = getHeadElement();
-	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-	if (options.insertAt === "top") {
-		if(!lastStyleElementInsertedAtTop) {
-			head.insertBefore(styleElement, head.firstChild);
-		} else if(lastStyleElementInsertedAtTop.nextSibling) {
-			head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-		} else {
-			head.appendChild(styleElement);
-		}
-		styleElementsInsertedAtTop.push(styleElement);
-	} else if (options.insertAt === "bottom") {
-		head.appendChild(styleElement);
-	} else {
-		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-	}
-}
-
-function removeStyleElement(styleElement) {
-	styleElement.parentNode.removeChild(styleElement);
-	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
-	if(idx >= 0) {
-		styleElementsInsertedAtTop.splice(idx, 1);
-	}
-}
-
-function createStyleElement(options) {
-	var styleElement = document.createElement("style");
-	styleElement.type = "text/css";
-	insertStyleElement(options, styleElement);
-	return styleElement;
-}
-
-function createLinkElement(options) {
-	var linkElement = document.createElement("link");
-	linkElement.rel = "stylesheet";
-	insertStyleElement(options, linkElement);
-	return linkElement;
-}
-
-function addStyle(obj, options) {
-	var styleElement, update, remove;
-
-	if (options.singleton) {
-		var styleIndex = singletonCounter++;
-		styleElement = singletonElement || (singletonElement = createStyleElement(options));
-		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-	} else if(obj.sourceMap &&
-		typeof URL === "function" &&
-		typeof URL.createObjectURL === "function" &&
-		typeof URL.revokeObjectURL === "function" &&
-		typeof Blob === "function" &&
-		typeof btoa === "function") {
-		styleElement = createLinkElement(options);
-		update = updateLink.bind(null, styleElement);
-		remove = function() {
-			removeStyleElement(styleElement);
-			if(styleElement.href)
-				URL.revokeObjectURL(styleElement.href);
-		};
-	} else {
-		styleElement = createStyleElement(options);
-		update = applyToTag.bind(null, styleElement);
-		remove = function() {
-			removeStyleElement(styleElement);
-		};
-	}
-
-	update(obj);
-
-	return function updateStyle(newObj) {
-		if(newObj) {
-			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-				return;
-			update(obj = newObj);
-		} else {
-			remove();
-		}
-	};
-}
-
-var replaceText = (function () {
-	var textStore = [];
-
-	return function (index, replacement) {
-		textStore[index] = replacement;
-		return textStore.filter(Boolean).join('\n');
-	};
-})();
-
-function applyToSingletonTag(styleElement, index, remove, obj) {
-	var css = remove ? "" : obj.css;
-
-	if (styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = replaceText(index, css);
-	} else {
-		var cssNode = document.createTextNode(css);
-		var childNodes = styleElement.childNodes;
-		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-		if (childNodes.length) {
-			styleElement.insertBefore(cssNode, childNodes[index]);
-		} else {
-			styleElement.appendChild(cssNode);
-		}
-	}
-}
-
-function applyToTag(styleElement, obj) {
-	var css = obj.css;
-	var media = obj.media;
-
-	if(media) {
-		styleElement.setAttribute("media", media)
-	}
-
-	if(styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = css;
-	} else {
-		while(styleElement.firstChild) {
-			styleElement.removeChild(styleElement.firstChild);
-		}
-		styleElement.appendChild(document.createTextNode(css));
-	}
-}
-
-function updateLink(linkElement, obj) {
-	var css = obj.css;
-	var sourceMap = obj.sourceMap;
-
-	if(sourceMap) {
-		// http://stackoverflow.com/a/26603875
-		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-	}
-
-	var blob = new Blob([css], { type: "text/css" });
-
-	var oldSrc = linkElement.href;
-
-	linkElement.href = URL.createObjectURL(blob);
-
-	if(oldSrc)
-		URL.revokeObjectURL(oldSrc);
-}
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-(function () {
-    Array.prototype.forEach = function (callback, thisArg) {
-        var T, k;
-        if (this == null) {
-            throw new TypeError(" this is null or not defined");
-        }
-        var O = Object(this);
-        var len = O.length >>> 0; // Hack to convert O.length to a UInt32
-        if ({}.toString.call(callback) != "[object Function]") {
-            throw new TypeError(callback + " is not a function");
-        }
-        if (thisArg) {
-            T = thisArg;
-        }
-        k = 0;
-        while (k < len) {
-            var kValue;
-            if (k in O) {
-                kValue = O[k];
-                if (callback.call(T, kValue, k, O) === false) {
-                    break;
-                }
-            }
-            k++;
-        }
-    };
-
-    if (!/msie [678]\./i.test(navigator.userAgent)) {
-        return;
-    }
-
-    var array = "abbr article aside audio canvas datalist details dialog eventsource figure footer header hgroup mark menu meter nav output progress section time video main header template".split(' ');
-    for (var i = 0; i < array.length; i++) {
-        document.createElement(array[i]);
-    }
-
-    Function.prototype.bind = Function.prototype.bind || function (oThis) {
-        var aArgs = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP = function () {},
-            fBound = function () {
-            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis || window, aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-        // fNOP.prototype = this.prototype;
-        // fBound.prototype = new fNOP();
-
-        return fBound;
-    };
-
-    Array.prototype.filter = Array.prototype.filter || function (fun) {
-        var len = this.length;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
-        var res = new Array();
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                var val = this[i]; // in case fun mutates this
-                if (fun.call(thisp, val, i, this)) {
-                    res.push(val);
-                }
-            }
-        }
-        return res;
-    };
-
-    Array.prototype.map = Array.prototype.map || function (callback, thisArg) {
-
-        var T, A, k;
-
-        if (this == null) {
-            throw new TypeError(" this is null or not defined");
-        }
-
-        // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
-        var O = Object(this);
-
-        // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
-        // 3. Let len be ToUint32(lenValue).
-        var len = O.length >>> 0;
-
-        // 4. If IsCallable(callback) is false, throw a TypeError exception.
-        // See: http://es5.github.com/#x9.11
-        if (typeof callback !== "function") {
-            throw new TypeError(callback + " is not a function");
-        }
-
-        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-        if (thisArg) {
-            T = thisArg;
-        }
-
-        // 6. Let A be a new array created as if by the expression new Array(len) where Array is
-        // the standard built-in constructor with that name and len is the value of len.
-        A = new Array(len);
-
-        // 7. Let k be 0
-        k = 0;
-
-        // 8. Repeat, while k < len
-        while (k < len) {
-
-            var kValue, mappedValue;
-
-            // a. Let Pk be ToString(k).
-            //   This is implicit for LHS operands of the in operator
-            // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
-            //   This step can be combined with c
-            // c. If kPresent is true, then
-            if (k in O) {
-
-                // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
-                kValue = O[k];
-
-                // ii. Let mappedValue be the result of calling the Call internal method of callback
-                // with T as the this value and argument list containing kValue, k, and O.
-                mappedValue = callback.call(T, kValue, k, O);
-
-                // iii. Call the DefineOwnProperty internal method of A with arguments
-                // Pk, Property Descriptor {Value: mappedValue, : true, Enumerable: true, Configurable: true},
-                // and false.
-
-                // In browsers that support Object.defineProperty, use the following:
-                // Object.defineProperty(A, Pk, { value: mappedValue, writable: true, enumerable: true, configurable: true });
-
-                // For best browser support, use the following:
-                A[k] = mappedValue;
-            }
-            // d. Increase k by 1.
-            k++;
-        }
-
-        // 9. return A
-        return A;
-    };
-})();
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-/**
- * 获取节点的样式属性 来自STK.js
- * 该API封装了一些需要兼容的属性，比如获取半透明只需要设置opacity值
- * 例子：
- * var getStyle = require("../dom/getStyle");
- * var paddingLeft = getStyle(node, "paddingLeft"); // 获取到padding-left的值
- * var paddingLeft = getStyle(node, "padding-left"); // 获取到padding-left的值
- */
-
-//是否ie盒模型
-var isQuirk = document.documentMode ? document.documentMode === 5 : document.compatMode !== "CSS1Compat";
-
-//测试用的 style
-var testStyle = document.createElement("DIV").style;
-testStyle.cssText = "float:left;opacity:.5";
-
-var color = {
-    aqua: '#0ff',
-    black: '#000',
-    blue: '#00f',
-    gray: '#808080',
-    purple: '#800080',
-    fuchsia: '#f0f',
-    green: '#008000',
-    lime: '#0f0',
-    maroon: '#800000',
-    navy: '#000080',
-    olive: '#808000',
-    orange: '#ffa500',
-    red: '#f00',
-    silver: '#c0c0c0',
-    teal: '#008080',
-    transparent: 'rgba(0,0,0,0)',
-    white: '#fff',
-    yellow: '#ff0'
-};
-
-var borderWidth = {
-    thin: ["1px", "2px"],
-    medium: ["3px", "4px"],
-    thick: ["5px", "6px"]
-};
-
-var cssHooks = {
-    opacity: function (node) {
-        if (!_cssSupport().opacity) {
-            var val = 100;
-            try {
-                val = node.filters['DXImageTransform.Microsoft.Alpha'].opacity;
-            } catch (e) {
-                try {
-                    val = node.filters('alpha').opacity;
-                } catch (e) {}
-            }
-            return val / 100;
-        }
-    }
-};
-
-// 对应正确的css属性
-// 在执行中会使用 _vendorPropName 动态添加，例如 transform: 'WebkitTransform'
-var cssProps = {
-    "float": _cssSupport().cssFloat ? "cssFloat" : "styleFloat"
-};
-
-/*
- *  检测对css的一些属性的支持程度
- *  @method _cssSupport
- *  @private
- */
-function _cssSupport() {
-    return _cssSupport.rs || (_cssSupport.rs = {
-        opacity: /^0\.5/.test(testStyle.opacity),
-        cssFloat: !!testStyle.cssFloat
-    });
-}
-
-/*
- *  转换驼峰
- *  @method _camelCase
- *  @private
- *  @param {String} 需要转换的字符串
- */
-function _camelCase(string) {
-    return string.replace(/^-ms-/, "ms-").replace(/-([\da-z])/gi, function (all, letter) {
-        return letter.toUpperCase();
-    });
-}
-
-/*
- *  检测对是否是某种浏览器自有属性
- *  例如: WebkitTransform 一类的
- *  @method _vendorPropName
- *  @private
- */
-// moz-border-radius-top-left
-function _vendorPropName(name) {
-    // 检测如果已经可以用短名的用短名
-    if (name in testStyle) {
-        return name;
-    }
-
-    // 循环检测是否某种浏览器特殊名
-    var capName = name.charAt(0).toUpperCase() + name.slice(1);
-    var origName = name;
-    var cssPrefixes = ["Webkit", "O", "Moz", "ms"];
-    var i = cssPrefixes.length;
-    while (i--) {
-        name = cssPrefixes[i] + capName;
-        if (name in testStyle) {
-            return name;
-        }
-    }
-
-    // 啥都不是
-    return origName;
-}
-
-/*
- *  长度单位转换
- *  @method _convertPixelValue
- *  @private
- *  @param {Node} 对应的dom元素
- */
-function _convertPixelValue(el, property, value) {
-    var style = el.style;
-    var left = style.left;
-    var rsLeft = el.runtimeStyle.left;
-
-    el.runtimeStyle.left = el.currentStyle.left;
-    style.left = property === "fontSize" ? "1em" : value || 0;
-    var px = style.pixelLeft;
-    style.left = left; //还原数据
-    el.runtimeStyle.left = rsLeft; //还原数据
-    return px + "px";
-}
-
-/*
- *  颜色单位转换
- *  @method _rgb2hex
- *  @private
- *  @param {String}
- */
-function _rgb2hex(rgb) {
-    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    return "#" + _tohex(rgb[1]) + tohex(rgb[2]) + tohex(rgb[3]);
-}
-
-/*
- *  转换16进制
- *  @method _tohex
- *  @private
- *  @param {String}
- */
-function _tohex(x) {
-    var hexDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
-    return isNaN(x) ? '00' : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
-}
-
-/*
- *  获取样式集
- *  @method _getStyles
- *  @private
- *  @param {Node} 对应的dom元素
- */
-function _getStyles(node) {
-    if ('getComputedStyle' in window) {
-        return window.getComputedStyle(node, "");
-    } else if ('currentStyle' in document.documentElement) {
-        return node.currentStyle;
-    } else {
-        return {};
-    }
-}
-
-/*
- *  对ie做特殊处理
- *  @method _getStyleIE
- *  @private
- *  @param {Node}   对应的dom元素
- *  @param {String} 属性名
- */
-function _getStyleIE(node, property) {
-    //特殊处理IE的opacity
-    var val;
-    if (property in cssHooks) {
-        val = cssHooks[property](node);
-    }
-    if (val !== undefined) {
-        return val;
-    }
-    val = node.currentStyle[property];
-    //特殊处理IE的height与width
-    if (/^(height|width)$/.test(property)) {
-        var values = property == 'width' ? ['left', 'right'] : ['top', 'bottom'],
-            size = 0;
-        if (isQuirk) {
-            return node[_camelCase("offset-" + property)] + "px";
-        } else {
-            var client = parseFloat(node[_camelCase("client-" + property)]);
-            var paddingA = parseFloat(getStyle(node, "padding-" + values[0]));
-            var paddingB = parseFloat(getStyle(node, "padding-" + values[1]));
-            val = client - paddingA - paddingB;
-            val = val > 0 ? val : node[_camelCase("offset-" + property)];
-        }
-    }
-    return val;
-}
-
-/*
- *  对返回值做一些处理 http://www.cnblogs.com/rubylouvre/archive/2009/09/08/1562212.html
- *  @method _formatValue
- *  @private
- *  @param {Node}   对应的dom元素
- *  @param {String} 属性名
- */
-function _formatValue(el, property, value) {
-    if (!/^\d+px$/.test(value)) {
-        //转换可度量的值
-        if (/(em|pt|mm|cm|pc|in|ex|rem|vw|vh|vm|ch|gr|%)$/.test(value)) {
-            return _convertPixelValue(el, property, value);
-        }
-        //转换border的thin medium thick
-        if (/^(border).+(width)$/i.test(property)) {
-            var s = property.replace("Width", "Style");
-            if (value == "medium" && getStyle(el, s) == "none") {
-                return "0px";
-            }
-            return !!window.XDomainRequest ? borderWidth[value][0] : borderWidth[value][1];
-        }
-        //转换颜色
-        if (property.search(/background|color/i) != -1) {
-            if (!!color[value]) {
-                value = color[value];
-            }
-            if (value == "inherit") {
-                return getStyle(el.parentNode, property);
-            }
-            if (/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i.test(value)) {
-                return _rgb2hex(value);
-            } else if (/^#/.test(value)) {
-                value = value.replace('#', '');
-                return "#" + (value.length == 3 ? value.replace(/^(\w)(\w)(\w)$/, '$1$1$2$2$3$3') : value);
-            }
-            return value;
-        }
-    }
-}
-
-var getStyle = function (node, property) {
-    node = typeof node == "string" ? document.getElementById(node) : node;
-    var computed = _getStyles(node);
-    var val;
-    property = _camelCase(property);
-    property = cssProps[property] || (cssProps[property] = _vendorPropName(property));
-
-    //区分ie做特殊处理
-    if ('getComputedStyle' in window) {
-        val = window.getComputedStyle(node, null)[property];
-    } else {
-        val = _getStyleIE(node, property);
-    }
-    //处理单位转换。
-    try {
-        val = _formatValue(node, property, val) || val;
-    } catch (e) {}
-
-    return val;
-};
-
-module.exports = getStyle;
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-var sizzle = __webpack_require__(4);
-
-module.exports = function (node, onlyChild) {
-    var list = Array.prototype.slice.call(sizzle((onlyChild === true ? "> " : "") + "[node-name]", node), 0);
-    var nodeList = {};
-
-    list.forEach(function (el) {
-        var name = el.getAttribute("node-name");
-
-        if (name in nodeList) {
-            nodeList[name] = [].concat(nodeList[name], el);
-        } else {
-            nodeList[name] = el;
-        }
-    });
-
-    return nodeList;
-};
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-// css base code, injected by the css-loader
-module.exports = function () {
-	var list = [];
-
-	// return the list of modules as css string
-	list.toString = function toString() {
-		var result = [];
-		for (var i = 0; i < this.length; i++) {
-			var item = this[i];
-			if (item[2]) {
-				result.push("@media " + item[2] + "{" + item[1] + "}");
-			} else {
-				result.push(item[1]);
-			}
-		}
-		return result.join("");
-	};
-
-	// import a list of modules into the list
-	list.i = function (modules, mediaQuery) {
-		if (typeof modules === "string") modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for (var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if (typeof id === "number") alreadyImportedModules[id] = true;
-		}
-		for (i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if (typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if (mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if (mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-/**
- * 获取事件对象，一般情况下不需要使用本函数
- * 一般来说绑定事件时，event对象会当成参数传给响应函数，
- * 但在某些特殊情况下，可能event对象在函数调用链中没有传递（代码设计缺陷造成的）
- * 那可以使用本函数去获取。
- *
- * 例子：
- *
- * var getEvent = require("../evt/get");
- * var addEvent = require("../evt/add");
- *
- * var fun1 = function(evt) { // 注意没有事件对象传递
- *   var evt = evt || getEvent(); // 如果没有evt参数，则getEvent()获取
- *   console.log(evt.type);
- * }
- *
- * var handler = function(evt) {
- *   fun1(); // 调用了，可是没有将evt传递给fun1，这就是所谓的代码设计问题
- * }
- *
- * addEvent(node, "click", handler);
- *
- */
-
-var getEvent = function () {
-    if (document.addEventListener) {
-        var o = getEvent,
-            e;
-        do {
-            e = o.arguments[0];
-            if (e && /Event/.test(Object.prototype.toString.call(e))) {
-                return e;
-            }
-        } while (o = o.caller);
-        return e;
-    } else {
-        return window.event;
-    }
-};
-
-module.exports = getEvent;
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 删除事件
- * @2014-10-11 增加了批量处理功能，可以传入一个节点数组解绑事件
- * 例子请阅读add函数
- */
-
-var getType = __webpack_require__(1);
-var each = __webpack_require__(0);
-
-var removeEvent = function (el, type, fn, releaseCapture) {
-    if (getType(el) == "array") {
-        var fun = removeEvent;
-
-        each(el, function (item, key) {
-            fun(item, type, fn, releaseCapture);
-        });
-    }
-
-    el = typeof el == "string" ? document.getElementById(el) : el;
-
-    if (el == null || typeof fn != "function") {
-        return false;
-    }
-
-    if (el.removeEventListener) {
-        el.removeEventListener(type, fn, releaseCapture === true ? true : false);
-    } else if (el.detachEvent) {
-        el.detachEvent("on" + type, fn);
-        if (releaseCapture && el.releaseCapture) {
-            el.releaseCapture();
-        }
-    } else {
-        el['on' + type] = null;
-        if (releaseCapture && el.releaseCapture) {
-            el.releaseCapture();
-        }
-    }
-
-    return true;
-};
-
-module.exports = removeEvent;
-
-/***/ },
-/* 17 */,
-/* 18 */,
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(14)();
-// imports
-
-
-// module
-exports.push([module.i, "@charset \"UTF-8\";\n/* 图片版本号 在image-path函数中调用 */\n/* 非标注中的序号的颜色，以00开始编号，保证数字编号与设计图标注的标号一致。*/\n/* 背景颜色 */\n/*frame顶部的透明色*/\n/* 字体颜色 */\n/* 字体大小 */\n/* 字体序号数字为rem值的小数，即1.8rem则为$font_size_8 */\n/* 边框颜色 */\n/* 图片地址统一使用本函数生成，同时支持版本号 */\n/**\n * 注意：\n *       关于单位，pcweb使用px，移动端使用rem，使用时注意修改body中的font-size（或者其它位置的相应单位）\n */\n/**\n * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)\n * http://cssreset.com\n */\nhtml,\nbody,\ndiv,\nspan,\napplet,\nobject,\niframe,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\np,\nblockquote,\npre,\na,\nabbr,\nacronym,\naddress,\nbig,\ncite,\ncode,\ndel,\ndfn,\nem,\nimg,\nins,\nkbd,\nq,\ns,\nsamp,\nsmall,\nstrike,\nstrong,\nsub,\nsup,\ntt,\nvar,\nb,\nu,\ni,\ncenter,\ndl,\ndt,\ndd,\nol,\nul,\nli,\nfieldset,\nform,\nlabel,\nlegend,\ntable,\ncaption,\ntbody,\ntfoot,\nthead,\ntr,\nth,\ntd,\narticle,\naside,\ncanvas,\ndetails,\nembed,\nfigure,\nfigcaption,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nruby,\nsection,\nsummary,\ntime,\nmark,\naudio,\nvideo {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font: inherit;\n  font-size: 100%;\n  vertical-align: middle; }\n\n/*去除安卓高亮边框*/\n* {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:focus,\na:focus,\ninput:focus {\n  -webkit-tap-highlight-color: transparent; }\n\ndiv:active,\na:active,\ninput:active {\n  -webkit-tap-highlight-color: transparent; }\n\n/* HTML5 display-role reset for older browsers */\narticle,\naside,\ndetails,\nfigcaption,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\nsection {\n  display: block; }\n\nhtml {\n  color: #333;\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n   -ms-user-select: none;\n       user-select: none; }\n\n/*防止在webkit下出现font boosting*/\n* {\n  max-height: 999999px; }\n\n/*@media only screen and (-webkit-min-device-pixel-ratio: 3) {\n    html { font-size: 15px; }\n}*/\nbody {\n  font-size: 12px;\n  line-height: 1.5;\n  font-family: \"-apple-system\", \"Heiti SC\", \"Helvetica\", \"Helvetica Neue\", \"Droid Sans Fallback\", \"Droid Sans\";\n  height: auto;\n  min-height: 100%; }\n\nol,\nul {\n  list-style: none; }\n\nblockquote,\nq {\n  quotes: none; }\n\nblockquote:before,\nblockquote:after,\nq:before,\nq:after {\n  content: ''; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\na {\n  text-decoration: none; }\n\na:focus {\n  outline: none; }\n\ninput,\ntextarea,\nbutton,\na {\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\nbody {\n  -webkit-text-size-adjust: none;\n  /*-webkit-user-select:none;*/ }\n\na,\nimg {\n  /*-webkit-touch-callout: none;*/\n  -webkit-tap-highlight-color: rgba(255, 255, 255, 0); }\n\ninput:focus {\n  outline: none; }\n\n/* ------------- reset end --------------- */\n/* 单行加省略号 */\n.single-line-clamp {\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-break: break-all; }\n\n.show {\n  display: block !important; }\n\n.hide {\n  display: none !important; }\n\n.clearfix:after, .m-grid-page:after {\n  content: \".\";\n  display: block;\n  height: 0;\n  clear: both;\n  visibility: hidden;\n  overflow: hidden; }\n\n.clearfix, .m-grid-page {\n  display: inline-block; }\n\n.clearfix, .m-grid-page {\n  display: block; }\n\n/* .clearfix:before, \n.clearfix:after {\n    display: table;\n    line-height:  0;\n    content: \"\";\n}   \n.clearfix:after {\n    clear: both;\n} */\n.m-grid-page {\n  line-height: 22px;\n  font-size: 14px;\n  min-width: 950px; }\n  .m-grid-page span,\n  .m-grid-page div,\n  .m-grid-page a {\n    float: left;\n    margin: 0 4px;\n    font-size: 14px;\n    color: #666666; }\n  .m-grid-page .select {\n    border: 1px solid #e3e4e9;\n    max-width: 30px;\n    border-radius: 3px; }\n  .m-grid-page .select-group {\n    position: relative; }\n    .m-grid-page .select-group .select {\n      text-indent: 4px;\n      line-height: 20px; }\n    .m-grid-page .select-group .icon {\n      background-position: -44.1rem -33.45rem;\n      width: 0.5rem;\n      height: 0.25rem;\n      background-image: url(\"/images/sprite.png?v=1496632378037\");\n      background-repeat: no-repeat;\n      background-size: 50.85rem 50.65rem;\n      display: inline-block;\n      position: absolute;\n      top: 10px;\n      right: 2px; }\n    .m-grid-page .select-group .items {\n      position: absolute;\n      border: 1px solid #e3e4e9;\n      border-bottom: none;\n      width: 100%;\n      z-index: 5;\n      max-height: 160px;\n      overflow: auto;\n      position: absolute;\n      top: -120px;\n      left: 0; }\n      .m-grid-page .select-group .items li {\n        cursor: pointer;\n        text-align: center; }\n        .m-grid-page .select-group .items li:hover {\n          background: #e2effa; }\n  .m-grid-page .first,\n  .m-grid-page .prev,\n  .m-grid-page .next,\n  .m-grid-page .last,\n  .m-grid-page .goTo {\n    border: 1px solid #e3e4e9;\n    border-radius: 3px;\n    padding: 0 10px; }\n    .m-grid-page .first:hover,\n    .m-grid-page .prev:hover,\n    .m-grid-page .next:hover,\n    .m-grid-page .last:hover,\n    .m-grid-page .goTo:hover {\n      border: 1px solid #2ba0ff;\n      color: #2ba0ff; }\n    .m-grid-page .first.gray,\n    .m-grid-page .prev.gray,\n    .m-grid-page .next.gray,\n    .m-grid-page .last.gray,\n    .m-grid-page .goTo.gray {\n      cursor: not-allowed; }\n      .m-grid-page .first.gray:hover,\n      .m-grid-page .prev.gray:hover,\n      .m-grid-page .next.gray:hover,\n      .m-grid-page .last.gray:hover,\n      .m-grid-page .goTo.gray:hover {\n        color: #666666;\n        border: 1px solid #e3e4e9; }\n  .m-grid-page .page input {\n    border: 1px solid #e3e4e9;\n    text-align: center;\n    margin: 0 4px;\n    line-height: 20px; }\n    .m-grid-page .page input:focus {\n      border: 1px solid #2e96ea; }\n  .m-grid-page .first i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first.gray:hover i {\n    background-position: -44.1rem -25.7rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .first:hover i {\n    background-position: -44.1rem -28.05rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev.gray:hover i {\n    background-position: -27.95rem -16.15rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .prev:hover i {\n    background-position: -27.95rem -14.05rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next.gray:hover i {\n    background-position: -27.95rem -18.2rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .next:hover i {\n    background-position: -44.15rem -35.1rem;\n    width: 0.25rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last.gray:hover i {\n    background-position: -44.1rem -24.25rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .last:hover i {\n    background-position: -44.1rem -23.35rem;\n    width: 0.4rem;\n    height: 0.5rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo.gray:hover i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n  .m-grid-page .goTo i {\n    background-position: -25.15rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block;\n    padding-right: 5px; }\n  .m-grid-page .goTo:hover i {\n    background-position: -26.45rem -43.8rem;\n    width: 0.9rem;\n    height: 0.7rem;\n    background-image: url(\"/images/sprite.png?v=1496632378037\");\n    background-repeat: no-repeat;\n    background-size: 50.85rem 50.65rem;\n    display: inline-block; }\n\n.m-calendar-year {\n  width: 289px;\n  border: 1px solid #e1e1e1;\n  color: #666666; }\n  .m-calendar-year .change {\n    width: 100%;\n    display: table;\n    background: #f3f6f8;\n    line-height: 30px;\n    height: 30px;\n    font-weight: 600; }\n    .m-calendar-year .change span {\n      display: table-cell;\n      text-align: center; }\n      .m-calendar-year .change span i {\n        border: 6px  solid transparent;\n        display: inline-block; }\n      .m-calendar-year .change span .arrow-left {\n        border-right: 6px solid #666666; }\n      .m-calendar-year .change span .arrow-right {\n        border-left: 6px solid #666666; }\n  .m-calendar-year .list ul {\n    width: 100%;\n    display: table;\n    text-align: center;\n    font-size: 14px;\n    font-weight: 600; }\n    .m-calendar-year .list ul li {\n      display: table-cell;\n      height: 73px; }\n      .m-calendar-year .list ul li span {\n        box-sizing: border-box;\n        border-radius: 6px;\n        position: relative;\n        display: inline-block;\n        line-height: 72px;\n        height: 72px;\n        width: 72px; }\n        .m-calendar-year .list ul li span.active {\n          color: #2f95ea;\n          border: 1px solid #2f95ea; }\n          .m-calendar-year .list ul li span.active:after {\n            content: \"\";\n            width: 8px;\n            height: 8px;\n            background: #2f95ea;\n            position: absolute;\n            border-radius: 50%;\n            top: 50px;\n            right: 32px; }\n        .m-calendar-year .list ul li span.gray {\n          color: #999999; }\n        .m-calendar-year .list ul li span:hover {\n          background: #e2effa;\n          cursor: pointer; }\n\nbody header {\n  height: 80px;\n  border: solid 1px black; }\n\n.m-layer {\n  position: absolute;\n  width: 12rem;\n  height: 12rem;\n  background-color: white; }\n", ""]);
-
-// exports
-
-
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 封装了对节点class属性的操作，一般用于DOM节点的className状态切换
- * @2014-10-11 追加批量操作，允许传入节点数组以及className数组
- * 返回一个对象，拥有三个方法：
- * var className = require("../dom/className");
- *
- * if (className.has("node", "myClassName")) {
- *     className.remove(node, "myClassName");
- * } else {
- *     className.add(node, "myClassName");
- * }
- */
-
-var isElement = __webpack_require__(8);
-var each = __webpack_require__(0);
-var getType = __webpack_require__(1);
-var trim = __webpack_require__(5);
-var whiteSpace = ' ';
-var that = {};
-
-that.has = function (node, className) {
-    if (trim(className) == "") {
-        return false;
-    }
-
-    var arr = node.className.replace(/\s+/g, whiteSpace).split(/\s+/g);
-
-    for (var i = 0; i < arr.length; i++) {
-        if (arr[i] == className) {
-            return true;
-        }
-    }
-
-    return false;
-};
-
-that.add = function (node, className) {
-    if (getType(node) == "array") {
-        each(node, function (el) {
-            that.add(el, className);
-        });
-
-        return;
-    }
-
-    if (getType(className) == "array") {
-        each(className, function (cls) {
-            that.add(node, cls);
-        });
-
-        return;
-    }
-
-    if (!that.has(node, className)) {
-        var arr = (node.className.replace(/\s+/g, whiteSpace).split(/\s+/g).join(whiteSpace) + whiteSpace + className).split(/\s+/g);
-        var hash = {};
-        var result = [];
-
-        each(arr, function (val) {
-            if (val in hash) {
-                return;
-            }
-
-            hash[val] = true;
-            result.push(val);
-        });
-
-        node.className = trim(result.join(whiteSpace));
-    }
-};
-
-that.remove = function (node, className) {
-    if (getType(node) == "array") {
-        each(node, function (el) {
-            that.remove(el, className);
-        });
-
-        return;
-    }
-
-    if (getType(className) == "array") {
-        each(className, function (cls) {
-            that.remove(node, cls);
-        });
-
-        return;
-    }
-
-    if (that.has(node, className)) {
-        var arr = node.className.replace(/\s+/g, whiteSpace).split(/\s+/g);
-        var hash = {};
-        var result = [];
-
-        each(arr, function (val) {
-            if (val in hash || val == className) {
-                return;
-            }
-
-            hash[val] = true;
-            result.push(val);
-        });
-
-        node.className = trim(result.join(whiteSpace));
-    }
-};
-
-that.toggle = function (node, className1, className2) {
-    className1 = className1 == null ? "" : trim(className1);
-    className2 = className2 == null ? "" : trim(className2);
-
-    if (className1 == "" && className2 == "") {
-        return;
-    }
-
-    if (className1 == "") {
-        that.toggle(node, className2);
-        return;
-    }
-
-    if (getType(node) == "array") {
-        each(node, function (el) {
-            that.toggle(el, className1, className2);
-        });
-
-        return;
-    }
-
-    var hasCN = that.has(node, className1);
-
-    if (hasCN) {
-        that.remove(node, className1);
-
-        if (className2 != "") {
-            that.add(node, className2);
-        }
-    } else {
-        that.add(node, className1);
-
-        if (className2 != "") {
-            that.remove(node, className2);
-        }
-    }
-};
-
-module.exports = that;
-
-/***/ },
-/* 21 */
-/***/ function(module, exports) {
-
-/**
- * 判断对象是否为一个节点，注意：元素、注释、文本内容都是一个node，具体请查阅DOM实现接口文档
- * 例子：
- *
- * HTML: <div id="node"></div>
- *
- * var isNode = require("../dom/isNode");
- * var node = document.getElementById("node");
- * console.log(isNode(node)); // true
- *
- */
-module.exports = function (node) {
-  return node != undefined && Boolean(node.nodeName) && Boolean(node.nodeType);
-};
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 封装了一些方便元素关系操作的函数（注意获取到的都是元素节点，而不可能是textNode、注释之类的非元素节点）
- *
- * HTML:
- * <div id="node2"></div>
- * textNode1
- * <div id="node1">
- *   <div id="childNode1"></div>
- *   <div id="childNode2"></div>
- * </div>
- * <div id="node3"></div>
- *
- * var opra = require("../dom/node");
- * var queryNode = require("../dom/queryNode");
- * var node = queryNode("#node1");
- * var childNodes = opra.childNodes(node); // 获取到一个数组，包含childNode1以及childNode2
- * var firstChild = opra.first(node); // 获取到childNode1，也就是node的第一个子元素
- * var lastChild = opra.last(node);  // 获取到childNode2，也就是node的最后一个子元素
- * var nextNode = opra.next(node); // 获取到node3，也就是node的下一个元素
- * var prevNode = orpa.prev(node); // 获取到node2，也就是node的上一个元素，注意中间跳过了textNode1
- *
- */
-var isElement = __webpack_require__(8);
-var each = __webpack_require__(0);
-var that = {};
-
-that.childNodes = function (node) {
-    var result = [];
-
-    each(node.childNodes, function (child) {
-        if (isElement(child)) {
-            result.push(child);
-        }
-    });
-
-    return result;
-};
-
-that.first = function (node) {
-    var childs = node.childNodes;
-    var len = childs.length;
-
-    for (var i = 0; i < len; i++) {
-
-        if (isElement(childs[i])) {
-            return childs[i];
-        }
-    }
-
-    return null;
-};
-
-that.last = function (node) {
-    var childs = node.childNodes;
-    var len = childs.length;
-
-    for (var i = len - 1; i > -1; i--) {
-        if (isElement(childs[i])) {
-            return childs[i];
-        }
-    }
-
-    return null;
-};
-
-that.next = function (node) {
-    var nextNode = node;
-
-    while ((nextNode = nextNode.nextSibling) != null) {
-        if (isElement(nextNode)) {
-            return nextNode;
-        }
-    }
-
-    return null;
-};
-
-that.prev = function (node) {
-    var prevNode = node;
-
-    while ((prevNode = prevNode.previousSibling) != null) {
-        if (isElement(prevNode)) {
-            return prevNode;
-        }
-    }
-
-    return null;
-};
-
-module.exports = that;
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 来自STK.js
- * 将查询字符串转化成json对象，是jsonToQuery的反操作
- * 例子：
- *
- * var queryToJson = require("../json/jsonToQuery");
- * var str = "id=1&name=benny";
- * var json = queryToJson(str);
- * json的值将为：
- * json = { id: 1, name: "benny" };
- *
- */
-var trim = __webpack_require__(5);
-module.exports = function (qs) {
-    var qList = trim(qs).split("&"),
-        json = {},
-        i = 0,
-        len = qList.length;
-
-    for (; i < len; i++) {
-        if (qList[i]) {
-            var hash = qList[i].split("="),
-                key = hash[0],
-                value = hash[1];
-            // 如果只有key没有value, 那么将全部丢入一个$nullName数组中
-            if (hash.length < 2) {
-                value = key;
-                key = '$nullName';
-            }
-            if (!(key in json)) {
-                // 如果缓存堆栈中没有这个数据，则直接存储
-                json[key] = decodeURIComponent(value);
-            } else {
-                // 如果堆栈中已经存在这个数据，则转换成数组存储
-                json[key] = [].concat(json[key], decodeURIComponent(value));
-            }
-        }
-    }
-    return json;
-};
-
-/***/ },
-/* 24 */,
-/* 25 */,
-/* 26 */
-/***/ function(module, exports) {
-
-/**
- * 封装了node.dataset功能, dataset是标准浏览器新增的功能，这里主要是为了兼容旧浏览器
- * <div id="node" data-node-value="123"></div>
- * var dataset = require("../dom/dataset");
- * dataset.get(node, "nodeValue")将会读取data-node-value，得到123
- * dataset.set(node, "nodeValue", "123")将会设置data-node-value为123
- * 注意传入的KEY是驼峰命名
- */
-
-var that = {};
-
-var keyCase = function (key) {
-    return "data-" + key.replace(/([A-Z]|(?:^\d+))/g, function (all, match) {
-        return "-" + match.toLowerCase();
-    });
-};
-
-that.get = function (node, key) {
-    if ("dataset" in node) {
-        return node.dataset[key];
-    } else {
-        var dataKey = keyCase(key);
-        var attrs = node.attributes;
-        var len = attrs.length;
-
-        for (var i = 0; i < len; i++) {
-            if (attrs[i].name == dataKey) {
-                return attrs[i].value;
-            }
-        }
-    }
-};
-
-that.set = function (node, key, val) {
-    if ("dataset" in node) {
-        node.dataset[key] = val;
-    } else {
-        var dataKey = keyCase(key);
-        node.setAttribute(dataKey, val);
-    }
-};
-
-that.remove = function (node, key) {
-    if ("dataset" in node) {
-        delete node.dataset[key];
-    } else {
-        var dataKey = keyCase(key);
-        node.removeAttribute(dataKey);
-    }
-};
-
-module.exports = that;
-
-/***/ },
-/* 27 */,
-/* 28 */,
-/* 29 */,
-/* 30 */,
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(19);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(10)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(true) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept(19, function() {
-			var newContent = __webpack_require__(19);
-			if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-/* 32 */,
-/* 33 */,
-/* 34 */
+/***/ 83:
 /***/ function(module, exports) {
 
 module.exports = function (obj) {
@@ -3488,22 +3802,21 @@ return __p
 }
 
 /***/ },
-/* 35 */,
-/* 36 */,
-/* 37 */
+
+/***/ 86:
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = function (node, opts) {
     //----------------require--------------
-    var base = __webpack_require__(3); // 基础对象
-    var parseModule = __webpack_require__(13); // 页面模块自动解析
-    var merge = __webpack_require__(7);
-    var render = __webpack_require__(39);
-    var addEvent = __webpack_require__(9);
-    var className = __webpack_require__(20);
-    var opra = __webpack_require__(22);
-    var eventProxy = __webpack_require__(47);
-    var dataset = __webpack_require__(26);
+    var base = __webpack_require__(2); // 基础对象
+    var parseModule = __webpack_require__(5); // 页面模块自动解析
+    var merge = __webpack_require__(4);
+    var render = __webpack_require__(96);
+    var addEvent = __webpack_require__(6);
+    var className = __webpack_require__(21);
+    var opra = __webpack_require__(25);
+    var eventProxy = __webpack_require__(61);
+    var dataset = __webpack_require__(51);
 
     //-----------声明模块全局变量-------------
     var nodeList = node; // 存储所有关键节点
@@ -3664,8 +3977,50 @@ module.exports = function (node, opts) {
 };
 
 /***/ },
-/* 38 */,
-/* 39 */
+
+/***/ 9:
+/***/ function(module, exports) {
+
+/**
+ * 清除字符串前后空白字符
+ * 例子：
+ *
+ * var trim = require("../str/trim");
+ * var str = trim(" text "); // "text"
+ *
+ */
+module.exports = function (str) {
+	if (str == null) {
+		return "";
+	}
+
+	str = str.toString();
+	var len = str.length;
+	var s = 0;
+	var reg = /(\u3000|\s|\t|\u00A0)/;
+
+	while (s < len) {
+		if (!reg.test(str.charAt(s))) {
+			break;
+		}
+
+		s += 1;
+	}
+
+	while (len > s) {
+		if (!reg.test(str.charAt(len - 1))) {
+			break;
+		}
+
+		len -= 1;
+	}
+
+	return str.slice(s, len);
+};
+
+/***/ },
+
+/***/ 96:
 /***/ function(module, exports) {
 
 module.exports = function (obj) {
@@ -3689,281 +4044,6 @@ __p += '\r\n        </ul>\r\n    </div>\r\n\r\n\r\n    <a href="javascript:void(
 return __p
 }
 
-/***/ },
-/* 40 */,
-/* 41 */,
-/* 42 */,
-/* 43 */,
-/* 44 */,
-/* 45 */,
-/* 46 */,
-/* 47 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * 利用事件冒泡实现事件代理（尽量不要用mouseover之类非常耗性能的代理，建议自己实现）
- *
- * HTML:
- * <div id="node">
- *  <a href="javascript:void(0);" onclick="return false;" data-action="send" data-query="id=1&name=a">点击我</a>
- *  <a href="javascript:void(0);" onclick="return false;" data-action="send" data-query="id=2&name=b">点击我</a>
- * </div>
- *
- * var eventProxy = require("../evt/proxy");
- * var node = document.getElementById("node");
- * var proxy = eventProxy(node); // 为node节点建立一个事件代理器
- * var handler = function(evt) {
- *     return 0; // 可以返回： 0 正常执行（默认值），-1 不再执行未执行的事件响应函数，并且不响应上层元素的其它事件代理 其它真值：不再执行未执行的事件响应函数
- *
- *     evt的值是：
- *     evt = {
- *	       target: 触发事件的A连接对象,
- *         proxy: "send",
- *         data: { id: "1", name: "a"}, // 由data-query的值解析而来的json对象,data-query是一个查询字符串
- *         box: node, // 即建立事件代理的容器
- *         event: event对象 // DOM真正的event对象
- *     }
- * }
- *
- * proxy.add("send", "click", handler);
- *
- */
-
-module.exports = function (outerNode) {
-    var addEvent = __webpack_require__(9);
-    var removeEvent = __webpack_require__(16);
-    var getEvent = __webpack_require__(15);
-    var dataset = __webpack_require__(26);
-    var each = __webpack_require__(0);
-    var trim = __webpack_require__(5);
-    var queryToJson = __webpack_require__(23);
-    var console = __webpack_require__(2);
-    var proxyNameKey = "action";
-    var proxyDataKey = "query";
-    var that = {};
-    var bindEvents = {};
-
-    var eventHanlder = function (evt) {
-        var node = evt.target || evt.srcElement;
-        var evtResult = 0;
-        var actionDatas = [];
-
-        // 首先收集所有需要触发事件的节点（防止中途节点remove掉）
-        while (node != outerNode) {
-            if (node == null) {
-                return;
-            }
-
-            if (node === outerNode) {
-                break;
-            }
-
-            var name = dataset.get(node, proxyNameKey);
-
-            if (name == null || (name = trim(name)) == "") {
-                node = node.parentNode;
-                continue;
-            }
-
-            if (bindEvents[evt.type] == null || bindEvents[evt.type][name] == null) {
-                node = node.parentNode;
-                continue;
-            }
-
-            if (node == null) {
-                return;
-            }
-
-            actionDatas.push({
-                target: node,
-                proxy: name,
-                data: queryToJson(dataset.get(node, proxyDataKey), true) || {}
-            });
-
-            node = node.parentNode;
-        }
-
-        var fns = bindEvents[evt.type];
-        var actionData = null;
-        evtResult = 0;
-
-        for (var i = 0; i < actionDatas.length; i++) {
-            actionData = actionDatas[i];
-
-            for (var j = 0; j < fns[actionData.proxy].length; j++) {
-                evtResult = fns[actionData.proxy][j]({
-                    target: actionData.target,
-                    proxy: actionData.proxy,
-                    box: outerNode,
-                    event: evt,
-                    data: actionData.data
-                });
-
-                if (evtResult == undefined) {
-                    evtResult = 0;
-                }
-
-                if (evtResult != 0) {
-                    break;
-                }
-            }
-
-            if (evtResult == -1) {
-                break;
-            }
-        }
-    };
-
-    that.add = function (name, eventName, fn) {
-        if (typeof fn != "function") {
-            console.error("参数fn必须是函数");
-            return;
-        }
-
-        if (bindEvents[eventName] == null) {
-            bindEvents[eventName] = {};
-            addEvent(outerNode, eventName, eventHanlder);
-        }
-
-        if (bindEvents[eventName][name] == null) {
-            bindEvents[eventName][name] = [];
-        }
-
-        bindEvents[eventName][name].push(fn);
-    };
-
-    that.remove = function (name, eventName, fn) {
-        if (typeof fn != "function") {
-            console.error("参数fn必须是函数");
-            return;
-        }
-
-        if (bindEvents[eventName] == null) {
-            return;
-        }
-
-        if (bindEvents[eventName][name] == null) {
-            return;
-        }
-
-        var fns = bindEvents[eventName][name];
-        var newFns = [];
-        var len = fns.length;
-
-        for (var i = 0; i < len; i++) {
-            if (fns[i] !== fn) {
-                newFns.push(fns[i]);
-            }
-        }
-
-        var isEmpty = true;
-
-        bindEvents[eventName][name] = newFns.length == 0 ? null : newFns;
-
-        // 清除没用的事件
-        for (var key in bindEvents[eventName]) {
-            if (bindEvents[eventName][key] == null) {
-                try {
-                    //尽可能地删除它
-                    delete bindEvents[eventName][key];
-                } catch (ex) {}
-            } else {
-                isEmpty = false;
-                break;
-            }
-        }
-
-        if (isEmpty) {
-            bindEvents[eventName] = null;
-
-            try {
-                // 尽可能删除它
-                delete bindEvents[eventName];
-            } catch (ex) {}
-
-            removeEvent(outerNode, eventName, eventHanlder);
-        }
-    };
-
-    return that;
-};
-
-/***/ },
-/* 48 */,
-/* 49 */,
-/* 50 */,
-/* 51 */,
-/* 52 */,
-/* 53 */,
-/* 54 */
-/***/ function(module, exports, __webpack_require__) {
-
-/**
- * @author benny.zheng
- * @data 2016-06-06
- * @description 本文件用于方便复制粘贴入口文件之用，请更新这里的说明
- *              另外，考虑到一般是放在js/src/pages/page-name/main.js，因此使用../../
- *              如果不是这个目录，请更改成正确的相对路径
- */
-//----------------require--------------
-// var viewport = require("lib/dom/viewport"); // viewport
-var base = __webpack_require__(3); // 基础对象
-var parsePage = __webpack_require__(6); // 页面模块自动解析
-var scss = __webpack_require__(31); // 引入当前页面的scss文件
-// 模板
-var render = __webpack_require__(34); // 页面总模板
-var page = __webpack_require__(37);
-// 子模块
-// var header = require("./header");
-
-//-----------声明模块全局变量-------------
-var nodeList = null; // 存储所有id符合m-xxx的节点
-var opts = pageConfig; // 请不要直接使用pageConfig
-var m_page = null;
-// var m_header = null;
-
-//-------------事件响应声明---------------
-var evtFuncs = {};
-
-//-------------子模块实例化---------------
-var initMod = function () {
-    // m_header = header(nodeList.header, opts);
-    // m_header.init();
-
-    // 所有模块的模板render应该是由外部传进去，而不是内部直接require，主要是考虑到复用性
-    // 这里的模板并不是模块的模板，而是内部需要动态生成东西时用的模板，模块的模板在main.ejs已经写进去了
-    // 以下是示例
-    // m_header = header(nodeList.header, {
-    //     render: headerRender
-    // });
-
-    // m_header = header(nodeList.header, {
-    //     renders: {
-    //         "main": headerRender
-    //     }
-    // });
-    m_page = page(nodeList.page);
-    m_page.init();
-};
-
-//-------------绑定事件------------------
-var bindEvents = function () {};
-
-//-------------自定义函数----------------
-var custFuncs = {};
-
-//-------------一切从这开始--------------
-!function () {
-    // 先将HTML插入body
-    document.body.insertAdjacentHTML('AfterBegin', render(opts.modules));
-
-    // 找到所有带有id的节点，并将m-xxx-xxx转化成xxxXxx格式存储到nodeList中
-    nodeList = parsePage();
-    // 子模块实例化
-    initMod();
-    // 绑定事件
-    bindEvents();
-}();
-
 /***/ }
-/******/ ]);
+
+/******/ });

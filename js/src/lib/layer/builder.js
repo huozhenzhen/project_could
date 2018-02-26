@@ -28,7 +28,9 @@ var disableEvent = function(ev) {
     preventDefault(ev);
 }
 
-var zIndex = 10000;
+if(!window.pop_zIndex){
+    window.pop_zIndex = 10000;
+}
 
 var _exports = module.exports = {
     "createFromHTML": function(html, opts) {
@@ -294,6 +296,6 @@ var _exports = module.exports = {
         return that;
     },
     "newZIndex": function() {
-        return zIndex++;
+        return window.pop_zIndex++;
     }
 };

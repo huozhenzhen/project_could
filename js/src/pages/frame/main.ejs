@@ -1,0 +1,17 @@
+<header class="mg-header" id='m-header'>
+	<a href="#/test1/defaultPage/index" class="logo"><i class="iconfont  icon-libra"></i></a>
+	<nav class="opera" node-name='opera'>
+		<% moduleList.forEach(function(item) { %>
+		    <a node-name="item" data-id="<%=item.id%>" title='<%=item.description%>' data-action='send' data-query="id=<%=item.id%>&text=<%=item.text%>&code=<%=item.code%>&home=<%=item.home%>" href="#/<%=item.code%><%=item.home%>"><i class="iconfont icon-<%=item.flag%>"></i><%=item.text%></a>
+		    <% }) %>
+	</nav>
+</header>
+<main class='mg-main'>
+	<div class='layout-nav'>
+		<menu class="mg-left-nav" id="m-left-nav"></menu>
+	</div>
+    <div class="layout-content">
+        <section class="mg-tab"></section>
+        <section class="mg-frames" id='m-frames'></section>
+    </div>
+</main>

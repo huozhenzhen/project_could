@@ -14,7 +14,7 @@ var scss = require("./main.scss"); // 引入当前页面的scss文件
 // 模板
 var render = require("./main.ejs"); // 页面总模板
 // 子模块
-// var header = require("./header");
+var header = require("./header");
 
 //-----------声明模块全局变量-------------
 var nodeList = null; // 存储所有id符合m-xxx的节点
@@ -27,8 +27,8 @@ var evtFuncs = {}
 //-------------子模块实例化---------------
 var initMod = function() {
 
-    // m_header = header(nodeList.header, opts);
-    // m_header.init();
+    m_header = header(nodeList.header, opts);
+    m_header.init();
 
     // 所有模块的模板render应该是由外部传进去，而不是内部直接require，主要是考虑到复用性
     // 这里的模板并不是模块的模板，而是内部需要动态生成东西时用的模板，模块的模板在main.ejs已经写进去了
@@ -42,6 +42,8 @@ var initMod = function() {
     //         "main": headerRender
     //     }
     // });
+    // 
+    
 }
 
 //-------------绑定事件------------------

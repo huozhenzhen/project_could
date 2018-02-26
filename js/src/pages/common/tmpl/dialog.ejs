@@ -1,0 +1,13 @@
+<div class="m-dialog-common">
+	<div class="header" node-name='header'>
+		<h3 node-name='title'><%=title%></h3>
+		<a href="javascript:void(0)" class='close iconfont icon-close' node-name='close' title="关闭"></a>
+	</div>
+	<div class="box" node-name='box'><%=html%></div>
+	<div node-name="footer" class="footer">
+	    <% buttons.forEach(function(button) { %>
+	        <a href="javascript:void(0)" class="<%= button.type == 'blue' ? 'm-blue-bg-button' : 'm-white-bg-button' %>" <%if(button.node){%>node-name="<%=button.node%>"<%}%> data-button="<%=button.id%>"><%=button.text%></a>
+	    <% }) %>
+
+	</div>
+</div>
